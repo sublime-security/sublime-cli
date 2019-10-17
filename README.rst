@@ -20,6 +20,7 @@ Quick Start
 Usage
 =====
 ::
+
     Usage: sublime [OPTIONS] COMMAND [ARGS]...
 
       Sublime CLI.
@@ -35,3 +36,4 @@ Usage
       repl      Start an interactive shell.
       setup     Configure API key.
       version   Get version and OS information for your Sublime commandline...
+

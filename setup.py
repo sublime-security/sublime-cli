@@ -18,6 +18,8 @@ INSTALL_REQUIRES = [
     "click-default-group",
     "click-repl",
     "dicttoxml",
+    "gron",
+    "halo",
     "jinja2",
     "more-itertools",
     "requests",
@@ -27,7 +29,7 @@ INSTALL_REQUIRES = [
 
 setup(
     name="sublime",
-    version="0.3.0",
+    version="0.0.1",
     description="Abstraction to interact with Sublime API.",
     url="https://sublimesecurity.com/",
     author="Sublime Security",
@@ -37,7 +39,7 @@ setup(
     packages=find_packages(where="src"),
     package_data={"sublime.cli": ["templates/*.j2"]},
     install_requires=INSTALL_REQUIRES,
-    long_description=read("README.rst") + "\n\n" + read("CHANGELOG.rst"),
+    long_description=read("README.rst") + "\n\n",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
