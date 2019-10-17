@@ -1,0 +1,6 @@
+sender.email.email = `david@amplitude.com` && recipients[? email.email == `david@amplitude.com` ]
+
+sender.email.domain != `sublimesecurity.com`
+  && contains(sender.display_name, `Ian Thiel` || `Josh Kamdjou` || `Joshua Kamdjou`)
+
+contains(recipients[].email.email, sender.email.email)

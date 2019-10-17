@@ -1,0 +1,20 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+{% for detection in results %}
+{%- if detection.query %}
+Detection #{{ detection.detection_id }}: <bold>{{ detection.query }}</bold>
+{%- endif %}
+{%- if detection.status == 'success' %}
+{%- if detection.result %}
+<detected>Detection #{{ detection.detection_id }} flagged this email.</detected>
+{%- else %}
+<not-detected>Detection #{{ detection.detection_id }} did not flag this email.</not-detected>
+{%- endif %}
+{%- else %}
+<fail>Detection #{{ detection.detection_id }} failed.</fail> Error: {{ detection.message }}
+{%- endif %}
+{%- if detection.query %}
+{{ "" }}
+{%- endif %}
+{%- endfor %}
