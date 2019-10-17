@@ -1,5 +1,6 @@
 """Sublime API client."""
 
+import os
 from collections import OrderedDict
 
 import more_itertools
@@ -24,8 +25,8 @@ class Sublime(object):
     """
 
     NAME = "Sublime"
-    # BASE_URL = "https://api.sublimesecurity.com"
-    BASE_URL = "http://127.0.0.1:8000/api"
+    BASE_URL = os.environ.get('BASE_URL')
+    BASE_URL = BASE_URL if BASE_URL else "https://api.sublimesecurity.com"
     API_VERSION = "v1"
     EP_MESSAGE_ANALYZE = "message/analyze"
     EP_MODEL_CREATE = "model/create"

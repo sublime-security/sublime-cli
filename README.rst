@@ -43,3 +43,9 @@ Usage
       repl      Start an interactive shell.
       setup     Configure API key.
       version   Get version and OS information for your Sublime commandline...
+
+Development
+===========
+**Override defaults**
+
+``export BASE_URL=http://127.0.0.1:8000``
