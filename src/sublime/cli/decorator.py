@@ -173,7 +173,8 @@ def analyze_command(function):
     )
     @click.option(
         "-d", "--detections", "detections_file", type=click.File(), 
-        help="Detections file", required=True
+        help="Detections file", required=True, default="detections.pql", 
+        show_default=True
     )
     @click.option(
         "-o", "--output", "output_file", type=click.File(mode="w"), 

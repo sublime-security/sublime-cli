@@ -9,6 +9,13 @@ This is a Python 3 CLI module for interacting with the Sublime Phishing Defense 
 
 Quick Start
 ===========
+**Create a virtual environment (optional)**
+::
+
+  pip3 install virtualenv
+  virtualenv venv -p python3.7
+  source venv/bin/activate
+
 **Install the library**:
 
 ``python setup.py install``
@@ -36,4 +43,3 @@ Usage
       repl      Start an interactive shell.
       setup     Configure API key.
       version   Get version and OS information for your Sublime commandline...
-

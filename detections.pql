@@ -1,0 +1,27 @@
+sender.email.domain != `sublimesecurity.com`
+  && contains(sender.display_name, `Ian Thiel` || `Josh Kamdjou` || `Joshua Kamdjou`)
+
+sender.email.domain != `sublimesecurity.com`
+  && contains(body.text, `usd` || `w2` || `w2s` || `payroll` || `deposit` || `1099` || `invoice` || `w-2`)
+  && contains(body.text, `urgent` || `immediate` || `immediately` || `24hrs` || `48hrs` || `right now` || `24 hours` || `24 hrs`) 
+
+sender.email.domain != `sublimesecurity.com`
+  && (sender.email.domain.low_reputation 
+    || contains(sender.email.email, `gmail` || `yahoo` || `hotmail` || `aol` || `outlook`))
+  && (body.urls[? href_domain.domain == `onedrive.live.com` || href_domain.domain == `drive.google.com`])
+
+sender.email.domain != `sublimesecurity.com`
+  && (sender.email.domain.age < `30`
+   || contains(sender.email.email, `gmail` || `yahoo` || `hotmail` || `aol` || `outlook`)
+   || sender.email.domain.low_reputation) 
+  && length(attachments) > `0`
+
+sender.email.domain != `sublimesecurity.com`
+  && (sender.email.domain.age < `30`
+   || contains(sender.email.email, `gmail` || `yahoo` || `hotmail` || `aol` || `outlook`)
+   || sender.email.domain.low_reputation)
+  && contains(body.text, `bitcoin` || `btc` || `ltc` || `litecoin` || `ethereum`)
+
+sender.email.domain != `sublimesecurity.com`
+  && sender.email.domain.low_reputation
+  && levenshtein_distance(`sublimesecurity.com`, sender.email.domain.root_domain, 3)
