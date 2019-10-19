@@ -61,7 +61,6 @@ def analyze_formatter(results, verbose):
     return template.render(results=results["results"], verbose=verbose)
 
 
-@colored_output
 def mdm_formatter(results, verbose):
     """Convert Message Data Model into human-readable text."""
     gron_output = gron.gron(json.dumps(results))
