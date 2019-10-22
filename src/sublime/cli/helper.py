@@ -37,27 +37,41 @@ def load_detections(context, detections_file):
     detection_str = ""
     line = detections_file.readline()
     while line:
-        line = line.strip('\n')
-        if line.startswith('#'):
+        line = line.strip('\n') # remove trailing newline
+        line = line.strip() # remove leading/trailing whitespace
+        if line.startswith('#'): # remove comments
+            line = detections_file.readline()
             continue
 
-        next_line = detections_file.readline()
-
-        # we've reached an empty newline or EOF
-        if not line or not next_line:
-            # this should only trigger on the last detection
-            detection_str = line if not detection_str else detection_str
-            detection = { 
-                    "detection_id": detection_id,
-                    "query": detection_str
-            }
-            detections.append(detection)
-            detection_id += 1
-            detection_str = ""
+        if not line:
+            # reached the end of a detection
+            if detection_str:
+                detection = { 
+                        "detection_id": detection_id,
+                        "query": detection_str
+                }
+                detections.append(detection)
+                detection_id += 1
+                detection_str = ""
+            # reached a line with just whitespace
+            else:
+                line = detections_file.readline()
+                continue
         else:
+            # append multi-line detections
             detection_str += " " + line + " "
 
-        line = next_line
+        line = detections_file.readline()
+
+    # true if there's no newline at the end of the last detection
+    if detection_str:
+        detection = { 
+                "detection_id": detection_id,
+                "query": detection_str
+        }
+        detections.append(detection)
+        detection_id += 1
+        detection_str = ""
 
     if not detections:
         click.echo("No detections found in detections file")
