@@ -9,7 +9,7 @@ from six.moves.configparser import ConfigParser
 CONFIG_FILE = os.path.expanduser(os.path.join("~", ".config", "sublime", "setup.cfg"))
 LOGGER = structlog.get_logger()
 
-DEFAULT_CONFIG = {"sublime": {"api_key": "" }}
+DEFAULT_CONFIG = {"api_key": ""}
 
 
 def load_config():
