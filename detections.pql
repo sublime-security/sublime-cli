@@ -1,7 +1,7 @@
 sender.email.domain.domain != `sublimesecurity.com`
   && contains(sender.display_name, [`Josh Kamdjou`, `Joshua Kamdjou`, `Ian Thiel`])
 
-  sender.email.domain.domain != `sublimesecurity.com`
+sender.email.domain.domain != `sublimesecurity.com`
     && contains(body.text, [`usd`, `w2`, `w2s`, `payroll`, `deposit`, `1099`, `invoice`, `w-2`])
     && contains([subject.subject, body.text], [`urgent`, `immediate`, `immediately`, `24hrs`, `48hrs`, `right now`, `24 hours`, `24 hrs`])
 
