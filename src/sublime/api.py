@@ -33,6 +33,7 @@ class Sublime(object):
     EP_MODEL_ENRICH = "model/enrich"
     EP_MODEL_ANALYZE = "model/analyze"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
+    EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None, use_cache=True):
         if api_key is None:
@@ -102,9 +103,16 @@ class Sublime(object):
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_mdm(self, message_data_model, detection):
-        """Analyze an enriched Message Data Model against a list of detections"""
-        pass
+    def analyze_mdm(self, message_data_model, detection, verbose):
+        """Analyze an enriched Message Data Model against a detection"""
+        body = {}
+        body["message_data_model"] = message_data_model
+        body["detection"] = detection
+        if verbose:
+            body["response_type"] = "full"
+        endpoint = self.EP_MODEL_ANALYZE
+        response = self._request(endpoint, request_type='POST', json=body)
+        return response
 
     def create_mdm(self, eml):
         """Generate an enriched Message Data Model from an MDM"""

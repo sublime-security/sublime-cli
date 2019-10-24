@@ -36,26 +36,31 @@ def echo_result(function):
         output_format = params["output_format"]
         formatter = FORMATTERS[output_format]
         if isinstance(formatter, dict):
-            # For the text formatter, there's a separate formatter for each subcommand
+            # For the text formatter, there's a separate formatter for each 
+            # subcommand
             formatter = formatter[context.command.name]
-
-        output = formatter(result, params.get("verbose", False)).strip("\n")
-        click.echo(
-            output, file=params.get("output_file", click.open_file("-", mode="w"))
-        )
 
         # default behavior is to always save the MDM even if no output file is specified
         if context.command.name == "enrich" and not params.get("output_file"):
             input_file_relative_name = params.get('input_file').name
             input_file_relative_no_ext, _ = os.path.splitext(input_file_relative_name)
             input_file_name_no_ext = os.path.basename(input_file_relative_no_ext)
-            output_file_name = f'{input_file_name_no_ext}.mdm'
+            output_file_name = f'{input_file_name_no_ext}'
+            if output_format == "json":
+                output_file_name += ".mdm"
+            elif output_format == "txt":
+                output_file_name += ".txt"
 
-            formatter = FORMATTERS["json"]
-            output = formatter(result, params.get("verbose", False)).strip("\n")
-            click.echo(
-                output, file=click.open_file(output_file_name, mode="w")
-            )
+            params["output_file"] = click.open_file(output_file_name, mode="w")
+
+        output = formatter(result, params.get("verbose", False)).strip("\n")
+        click.echo(
+            output, file=params.get("output_file", click.open_file("-", mode="w"))
+        )
+
+        file_name = params.get("output_file")
+        if file_name:
+            click.echo(f"Output saved to {file_name.name}")
 
     return wrapper
 
@@ -139,8 +144,8 @@ def enrich_command(function):
     @click.option(
         "-o", "--output", "output_file", type=click.File(mode="w"), 
         help=(
-            "Output file. Defaults to the input_file name in the current directory "
-            "with a .mdm extension if none is specified"
+            "Output file. Defaults to the input_file name in the current "
+            "directory with a .mdm extension if none is specified"
         )
     )
     @click.option(
@@ -148,7 +153,8 @@ def enrich_command(function):
         "--format",
         "output_format",
         type=click.Choice(["json", "txt"]),
-        default="txt",
+        default="json",
+        show_default=True,
         help="Output format",
     )
     @pass_api_client
@@ -173,8 +179,15 @@ def analyze_command(function):
     )
     @click.option(
         "-d", "--detections", "detections_file", type=click.File(), 
-        help="Detections file", required=True, default="detections.pql", 
-        show_default=True
+        help="Detections file [default: detections.pql]"
+    )
+    @click.option(
+        "-q", "--detection-query", "detection_query", type=str,
+        help=(
+            "Raw detection query. Instead of using a detections file, "
+            "specify a single detection to be run directly surrounded "
+            "by single quotes"
+        )
     )
     @click.option(
         "-o", "--output", "output_file", type=click.File(mode="w"), 
@@ -197,9 +210,26 @@ def analyze_command(function):
     @handle_exceptions
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
+        if not kwargs.get('detections_file') and not kwargs.get('detection_query'):
+            try:
+                detections_file = click.open_file("detections.pql", mode="r")
+            except FileNotFoundError as e:
+                raise MissingDetectionInput
+
         return function(*args, **kwargs)
 
     return wrapper
+
+
+class MissingDetectionInput(click.ClickException):
+    """Exception used for analyze commands missing a detection file or raw query
+    """
+
+    def __init__(self):
+        message = (
+                "You must specify either a detections file (-d) or a raw "
+                "detection query (-q)")
+        super(MissingDetectionInput, self).__init__(message)
 
 
 class SubcommandNotImplemented(click.ClickException):

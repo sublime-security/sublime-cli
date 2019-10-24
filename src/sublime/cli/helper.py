@@ -46,10 +46,7 @@ def load_detections(context, detections_file):
         if not line:
             # reached the end of a detection
             if detection_str:
-                detection = { 
-                        "detection_id": detection_id,
-                        "query": detection_str
-                }
+                detection = create_detection(detection_str, detection_id)
                 detections.append(detection)
                 detection_id += 1
                 detection_str = ""
@@ -65,10 +62,7 @@ def load_detections(context, detections_file):
 
     # true if there's no newline at the end of the last detection
     if detection_str:
-        detection = { 
-                "detection_id": detection_id,
-                "query": detection_str
-        }
+        detection = create_detection(detection_str, detection_id)
         detections.append(detection)
         detection_id += 1
         detection_str = ""
@@ -78,3 +72,11 @@ def load_detections(context, detections_file):
         context.exit(-1)
 
     return detections
+
+def create_detection(query, detection_id=1):
+    detection = { 
+            "query": query,
+            "detection_id": detection_id
+    }
+
+    return detection

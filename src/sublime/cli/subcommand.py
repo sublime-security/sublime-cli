@@ -14,9 +14,11 @@ from sublime.cli.helper import *
 from sublime.util import CONFIG_FILE, DEFAULT_CONFIG, save_config
 
 
+'''
 @not_implemented_command
 def feedback():
     """Send feedback directly to the Sublime team."""
+'''
 
 
 @click.command(name="help")
@@ -53,22 +55,28 @@ def analyze(
     api_key,
     input_file,
     detections_file,
+    detection_query,
     output_file,
     output_format,
     verbose,
 ):
     """Analyze an enriched MDM or raw EML."""
-    if input_file.name.endswith(".mdm"):
+    # assume it's an EML if it does not end with EML
+    if not input_file.name.endswith(".mdm"):
+        eml = load_eml_as_base64(context, input_file)
+        result = api_client.enrich_eml(eml=eml)
+        message_data_model = result['message_data_model']
+    else:
         message_data_model = load_message_data_model(context, input_file)
+
+    if detections_file:
         detections = load_detections(context, detections_file)
         results = api_client.analyze_mdm_multi(message_data_model, detections, verbose)
-        return results
+    else:
+        detection = create_detection(detection_query)
+        results = api_client.analyze_mdm(message_data_model, detection, verbose)
+    return results
         
-    raise
-    # emls = load emls from input directory
-    # results = [api_client.enrich(eml=input_file) for ip_address in ip_addresses]
-    eml = load_eml_as_base64(context, input_file)
-    results = api_client.enrich_eml(eml=eml)
     return results
 
 

@@ -58,7 +58,9 @@ def json_formatter(result, _verbose):
 def analyze_formatter(results, verbose):
     """Convert Analyze output into human-readable text."""
     template = JINJA2_ENV.get_template("analyze_result.txt.j2")
-    return template.render(results=results["results"], verbose=verbose)
+    # analyze/multi will return 'results', otherwise 'result'
+    results = results["results"] if results.get("results") else [results["result"]]
+    return template.render(results=results, verbose=verbose)
 
 
 def mdm_formatter(results, verbose):
