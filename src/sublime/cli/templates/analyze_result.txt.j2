@@ -12,7 +12,7 @@ Detection #{{ detection.detection_id }}: <bold>{{ detection.query }}</bold>
 <not-detected>Detection #{{ detection.detection_id }} did not flag this email.</not-detected>
 {%- endif %}
 {%- else %}
-<fail>Detection #{{ detection.detection_id }} failed.</fail> Error: {{ detection.message }}
+<fail>Detection #{{ detection.detection_id }} failed.</fail> Error: {{ detection.details }}
 {%- endif %}
 {%- if detection.query %}
 {{ "" }}
