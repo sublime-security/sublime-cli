@@ -3,16 +3,32 @@
 ╚═══════════════════════════╝
 {% for detection in results %}
 {%- if detection.query %}
-Detection #{{ detection.detection_id }}: <bold>{{ detection.query }}</bold>
+{%- if verbose %}
+Detection {{ detection.detection_id }}: <bold>{{ detection.query }}</bold>
+{%- else %}
+Detection #{{ loop.index }}: <bold>{{ detection.query }}</bold>
+{%- endif %}
 {%- endif %}
 {%- if detection.status == 'success' %}
 {%- if detection.result %}
-<detected>Detection #{{ detection.detection_id }} flagged this email.</detected>
+{%- if verbose %}
+<detected>Detection {{ detection.detection_id }} flagged this email.</detected>
 {%- else %}
-<not-detected>Detection #{{ detection.detection_id }} did not flag this email.</not-detected>
+<detected>Detection #{{ loop.index }} flagged this email.</detected>
 {%- endif %}
 {%- else %}
-<fail>Detection #{{ detection.detection_id }} failed.</fail> Error: {{ detection.details }}
+{%- if verbose %}
+<not-detected>Detection {{ detection.detection_id }} did not flag this email.</not-detected>
+{%- else %}
+<not-detected>Detection #{{ loop.index }} did not flag this email.</not-detected>
+{%- endif %}
+{%- endif %}
+{%- else %}
+{%- if verbose %}
+<fail>Detection {{ detection.detection_id }} failed.</fail> Error: {{ detection.details }}
+{%- else %}
+<fail>Detection #{{ loop.index }} failed.</fail> Error: {{ detection.details }}
+{%- endif %}
 {%- endif %}
 {%- if detection.query %}
 {{ "" }}
