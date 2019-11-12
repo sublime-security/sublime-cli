@@ -51,6 +51,6 @@ setup(
     ],
     entry_points={"console_scripts": ["sublime = sublime.cli:main"]},
     zip_safe=False,
-    keywords=["internet", "scanning", "threat intelligence", "security"],
+    keywords=["security", "phishing", "analysts", "soc", "threat intelligence", "security-automation", "email security"],
     download_url="https://github.com/sublime-security/sublime-cli",
 )

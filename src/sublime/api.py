@@ -62,7 +62,7 @@ class Sublime(object):
             params = {}
         headers = {
             "User-Agent": "Sublime/{}".format(__version__),
-            "key": self.api_key,
+            "Key": self.api_key,
         }
         url = "/".join([self.BASE_URL, self.API_VERSION, endpoint])
         LOGGER.debug("Sending API request...", url=url, params=params, json=json)

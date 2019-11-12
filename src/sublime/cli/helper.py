@@ -33,7 +33,6 @@ def load_detections(context, detections_file):
 
     # detections can span multiple lines, separated by an extra \n
     detections = []
-    detection_id = 1
     detection_str = ""
     line = detections_file.readline()
     while line:
@@ -46,9 +45,8 @@ def load_detections(context, detections_file):
         if not line:
             # reached the end of a detection
             if detection_str:
-                detection = create_detection(detection_str, detection_id)
+                detection = create_detection(detection_str)
                 detections.append(detection)
-                detection_id += 1
                 detection_str = ""
             # reached a line with just whitespace
             else:
@@ -62,9 +60,8 @@ def load_detections(context, detections_file):
 
     # true if there's no newline at the end of the last detection
     if detection_str:
-        detection = create_detection(detection_str, detection_id)
+        detection = create_detection(detection_str)
         detections.append(detection)
-        detection_id += 1
         detection_str = ""
 
     if not detections:
@@ -73,10 +70,9 @@ def load_detections(context, detections_file):
 
     return detections
 
-def create_detection(query, detection_id=1):
+def create_detection(query):
     detection = { 
-            "query": query,
-            "detection_id": detection_id
+            "query": query
     }
 
     return detection
