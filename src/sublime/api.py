@@ -29,7 +29,6 @@ class Sublime(object):
     BASE_URL = BASE_URL if BASE_URL else "https://api.sublimesecurity.com"
     API_VERSION = "v1"
     EP_MESSAGE_ANALYZE = "message/analyze"
-    EP_MODEL_CREATE = "model/create"
     EP_MODEL_ENRICH = "model/enrich"
     EP_MODEL_ANALYZE = "model/analyze"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
@@ -114,17 +113,6 @@ class Sublime(object):
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def create_mdm(self, eml):
-        """Generate an enriched Message Data Model from an MDM"""
-
-        LOGGER.debug("Creating Message Data Model from EML...")
-
-        body = {}
-        body["message"] = eml
-        endpoint = self.EP_MODEL_CREATE
-        response = self._request(endpoint, request_type='POST', json=body)
-        return response
-
     def enrich_eml(self, eml):
         """Enrich an EML.
 
@@ -134,12 +122,11 @@ class Sublime(object):
         :rtype: dict
 
         """
-        response = self.create_mdm(eml)
 
-        LOGGER.debug("Enriching EML...")
+        LOGGER.debug("Creating MDM and enriching from EML...")
 
         body = {}
-        body["message_data_model"] = response["message_data_model"]
+        body["message"] = eml
         endpoint = self.EP_MODEL_ENRICH
         with Halo(text='Enriching', spinner='dots'):
             response = self._request(endpoint, request_type='POST', json=body)
