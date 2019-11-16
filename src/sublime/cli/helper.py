@@ -72,7 +72,7 @@ def load_detections(context, detections_file):
 
 def create_detection(query):
     detection = { 
-            "query": query
+            "query": query.strip()
     }
 
     return detection
