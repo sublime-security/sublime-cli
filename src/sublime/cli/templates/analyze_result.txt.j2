@@ -9,7 +9,7 @@ Detection {{ detection.detection_id }}: <bold>{{ detection.query }}</bold>
 Detection #{{ loop.index }}: <bold>{{ detection.query }}</bold>
 {%- endif %}
 {%- endif %}
-{%- if detection.status == 'success' %}
+{%- if detection.success %}
 {%- if detection.result %}
 {%- if verbose %}
 <detected>Detection {{ detection.detection_id }} flagged this email.</detected>
@@ -25,9 +25,9 @@ Detection #{{ loop.index }}: <bold>{{ detection.query }}</bold>
 {%- endif %}
 {%- else %}
 {%- if verbose %}
-<fail>Detection {{ detection.detection_id }} failed.</fail> Error: {{ detection.details }}
+<fail>Detection {{ detection.detection_id }} failed.</fail> Error: {{ detection.error }}
 {%- else %}
-<fail>Detection #{{ loop.index }} failed.</fail> Error: {{ detection.details }}
+<fail>Detection #{{ loop.index }} failed.</fail> Error: {{ detection.error }}
 {%- endif %}
 {%- endif %}
 {%- if detection.query %}
