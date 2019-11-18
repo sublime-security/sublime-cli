@@ -25,6 +25,7 @@ ANSI_MARKUP = ansimarkup.AnsiMarkup(
         "noise": ansimarkup.parse("<light-yellow>"),
         "not-detected": ansimarkup.parse("<dim>"),
         "fail": ansimarkup.parse("<light-red>"),
+        "success": ansimarkup.parse("<green>"),
         "unknown": ansimarkup.parse("<dim>"),
         "detected": ansimarkup.parse("<light-green>"),
     }
@@ -49,9 +50,18 @@ def colored_output(function):
     return wrapper
 
 
-def json_formatter(result, _verbose):
+def json_formatter(result, verbose):
     """Format result as json."""
     return json.dumps(result, indent=4)
+
+
+@colored_output
+def enrich_details_formatter(result, verbose):
+    template = JINJA2_ENV.get_template("enrich_details.txt.j2")
+    total_enrichments = len(result["details"])
+    success_enrichments = len([True for detail in result["details"] if detail["success"]])
+    return template.render(details=result["details"], 
+            total=total_enrichments, successful=success_enrichments, verbose=verbose)
 
 
 @colored_output
@@ -79,6 +89,7 @@ FORMATTERS = {
     "json": json_formatter,
     "txt": {
         "enrich": mdm_formatter,
-        "analyze": analyze_formatter
+        "analyze": analyze_formatter,
+        "enrich_details": enrich_details_formatter
     },
 }

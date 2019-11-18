@@ -6,3 +6,4 @@ dist/
 sublime.egg-info/
 *.mdm
 *.eml
+*.txt

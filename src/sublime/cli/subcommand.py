@@ -44,7 +44,8 @@ def enrich(
     # results = [api_client.enrich(eml=input_file) for ip_address in ip_addresses]
     eml = load_eml_as_base64(context, input_file)
     results = api_client.enrich_eml(eml=eml)
-    return results["message_data_model"]
+    return results
+    # return results["message_data_model"]
 
 
 @analyze_command
@@ -75,7 +76,6 @@ def analyze(
     else:
         detection = create_detection(detection_query)
         results = api_client.analyze_mdm(message_data_model, detection, verbose)
-    return results
         
     return results
 

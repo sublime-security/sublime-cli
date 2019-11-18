@@ -40,18 +40,27 @@ def echo_result(function):
             # subcommand
             formatter = formatter[context.command.name]
 
-        # default behavior is to always save the MDM even if no output file is specified
-        if context.command.name == "enrich" and not params.get("output_file"):
-            input_file_relative_name = params.get('input_file').name
-            input_file_relative_no_ext, _ = os.path.splitext(input_file_relative_name)
-            input_file_name_no_ext = os.path.basename(input_file_relative_no_ext)
-            output_file_name = f'{input_file_name_no_ext}'
-            if output_format == "json":
-                output_file_name += ".mdm"
-            elif output_format == "txt":
-                output_file_name += ".txt"
+        if context.command.name == "enrich":
+            # default behavior is to always save the MDM
+            # even if no output file is specified
+            if not params.get("output_file"):
+                input_file_relative_name = params.get('input_file').name
+                input_file_relative_no_ext, _ = os.path.splitext(input_file_relative_name)
+                input_file_name_no_ext = os.path.basename(input_file_relative_no_ext)
+                output_file_name = f'{input_file_name_no_ext}'
+                if output_format == "json":
+                    output_file_name += ".mdm"
+                elif output_format == "txt":
+                    output_file_name += ".txt"
 
-            params["output_file"] = click.open_file(output_file_name, mode="w")
+                params["output_file"] = click.open_file(output_file_name, mode="w")
+
+            # we always want to print the details to the console
+            details_formatter = FORMATTERS["txt"]["enrich_details"]
+            output = details_formatter(result, params.get("verbose", False)).strip("\n")
+            click.echo(
+                output, file=click.open_file("-", mode="w")
+            )
 
         output = formatter(result, params.get("verbose", False)).strip("\n")
         click.echo(

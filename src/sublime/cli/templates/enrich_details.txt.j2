@@ -1,0 +1,14 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Enrichment Results") }}</header> ║
+╚═══════════════════════════╝
+
+<bold>{{ successful }} / {{ total }}</bold> enrichments <success>succeeded</success>.
+{%- for detail in details %}
+{%- if detail.success %}
+{%- if verbose %}
+{{ detail.name }} enrichment for <bold>{{ detail.target }}</bold> <success>succeeded.</success>
+{%- endif %}
+{%- else %}
+<bold>{{ detail.name }}</bold> enrichment for <bold>{{ detail.target }}</bold> <fail>failed.</fail> Reason: <bold>{{ detail.error }}</bold>
+{%- endif %}
+{%- endfor %}
