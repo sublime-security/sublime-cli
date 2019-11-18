@@ -84,7 +84,7 @@ class Sublime(object):
             body = response.text
 
         if response.status_code == 429:
-            raise RateLimitError()
+            raise RateLimitError(body)
         if response.status_code >= 400:
             raise RequestFailure(response.status_code, body)
 

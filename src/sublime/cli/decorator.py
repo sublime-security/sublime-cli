@@ -12,7 +12,7 @@ from requests.exceptions import RequestException
 
 from sublime.api import Sublime
 from sublime.cli.formatter import FORMATTERS
-from sublime.exceptions import RequestFailure
+from sublime.exceptions import RequestFailure, RateLimitError
 from sublime.util import load_config
 
 LOGGER = structlog.get_logger()
@@ -91,6 +91,12 @@ def handle_exceptions(function):
     def wrapper(*args, **kwargs):
         try:
             return function(*args, **kwargs)
+        except RateLimitError as exception:
+            body = exception.args[0]
+            error_message = "API error: {}".format(body["detail"])
+            LOGGER.error(error_message)
+            # click.echo(error_message)
+            click.get_current_context().exit(-1)
         except RequestFailure as exception:
             body = exception.args[1]
             error_message = "API error: {}".format(body["detail"])
