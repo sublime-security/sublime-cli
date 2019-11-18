@@ -62,6 +62,9 @@ def echo_result(function):
                 output, file=click.open_file("-", mode="w")
             )
 
+            # strip the extra info and just save the MDM
+            result = result["message_data_model"]
+
         output = formatter(result, params.get("verbose", False)).strip("\n")
         click.echo(
             output, file=params.get("output_file", click.open_file("-", mode="w"))
