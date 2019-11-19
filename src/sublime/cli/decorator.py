@@ -231,6 +231,7 @@ def analyze_command(function):
         if not kwargs.get('detections_file') and not kwargs.get('detection_query'):
             try:
                 detections_file = click.open_file("detections.pql", mode="r")
+                kwargs['detections_file'] = detections_file
             except FileNotFoundError as e:
                 raise MissingDetectionInput
 
