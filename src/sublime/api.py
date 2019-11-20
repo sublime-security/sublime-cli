@@ -29,7 +29,8 @@ class Sublime(object):
     BASE_URL = BASE_URL if BASE_URL else "https://api.sublimesecurity.com"
     API_VERSION = "v1"
     EP_MESSAGE_ANALYZE = "message/analyze"
-    EP_MODEL_ENRICH = "model/enrich"
+    EP_MESSAGE_ANALYZE_MULTI = "message/analyze/multi"
+    EP_MESSAGE_ENRICH = "message/enrich"
     EP_MODEL_ANALYZE = "model/analyze"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
@@ -127,8 +128,36 @@ class Sublime(object):
 
         body = {}
         body["message"] = eml
-        endpoint = self.EP_MODEL_ENRICH
+        endpoint = self.EP_MESSAGE_ENRICH
         with Halo(text='Enriching', spinner='dots'):
+            response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def analyze_eml(self, eml, detection, verbose):
+        """Analyze an EML against a detection."""
+
+        LOGGER.debug("Analyzing EML...")
+
+        body = {}
+        body["message"] = eml
+        body["detection"] = detection
+        endpoint = self.EP_MESSAGE_ANALYZE
+        with Halo(text='Enriching and analyzing', spinner='dots'):
+            response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def analyze_eml_multi(self, eml, detections, verbose):
+        """Analyze an EML against a list of detections."""
+
+        LOGGER.debug("Analyzing EML...")
+
+        body = {}
+        body["message"] = eml
+        body["detections"] = detections
+        if verbose:
+            body["response_type"] = "full"
+        endpoint = self.EP_MESSAGE_ANALYZE_MULTI
+        with Halo(text='Enriching and analyzing', spinner='dots'):
             response = self._request(endpoint, request_type='POST', json=body)
         return response
 

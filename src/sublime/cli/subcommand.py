@@ -44,8 +44,8 @@ def enrich(
     # results = [api_client.enrich(eml=input_file) for ip_address in ip_addresses]
     eml = load_eml_as_base64(context, input_file)
     results = api_client.enrich_eml(eml=eml)
+
     return results
-    # return results["message_data_model"]
 
 
 @analyze_command
@@ -62,21 +62,32 @@ def analyze(
     verbose,
 ):
     """Analyze an enriched MDM or raw EML."""
+    if detections_file:
+        detections = load_detections(context, detections_file)
+        multi = True
+    else:
+        detection = create_detection(detection_query)
+        multi = False
+
     # assume it's an EML if it does not end with .mdm
     if input_file.name.endswith(".mdm"):
         message_data_model = load_message_data_model(context, input_file)
+
+        if multi:
+            results = api_client.analyze_mdm_multi(
+                    message_data_model, 
+                    detections, 
+                    verbose)
+        else:
+            results = api_client.analyze_mdm(message_data_model, detection, verbose)
     else:
         eml = load_eml_as_base64(context, input_file)
-        result = api_client.enrich_eml(eml=eml)
-        message_data_model = result['message_data_model']
 
-    if detections_file:
-        detections = load_detections(context, detections_file)
-        results = api_client.analyze_mdm_multi(message_data_model, detections, verbose)
-    else:
-        detection = create_detection(detection_query)
-        results = api_client.analyze_mdm(message_data_model, detection, verbose)
-        
+        if multi:
+            results = api_client.analyze_eml_multi(eml, detections, verbose)
+        else:
+            results = api_client.analyze_eml(eml, detection, verbose)
+
     return results
 
 
