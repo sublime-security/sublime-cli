@@ -22,12 +22,12 @@ ANSI_MARKUP = ansimarkup.AnsiMarkup(
         "header": ansimarkup.parse("<bold>"),
         "key": ansimarkup.parse("<blue>"),
         "value": ansimarkup.parse("<green>"),
-        "noise": ansimarkup.parse("<light-yellow>"),
         "not-detected": ansimarkup.parse("<dim>"),
         "fail": ansimarkup.parse("<light-red>"),
         "success": ansimarkup.parse("<green>"),
         "unknown": ansimarkup.parse("<dim>"),
         "detected": ansimarkup.parse("<light-green>"),
+        "enrichment": ansimarkup.parse("<light-yellow>"),
     }
 )
 
