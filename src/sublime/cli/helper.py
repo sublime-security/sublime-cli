@@ -6,15 +6,27 @@ import base64
 import json
 
 import click
+import structlog
+
+LOGGER = structlog.get_logger()
 
 def load_eml_as_base64(context, input_file):
     if input_file is None:
         click.echo(context.get_help())
         context.exit(-1)
 
-    message = email.message_from_file(input_file)
-    return base64.b64encode(message.as_string().encode('utf-8')).decode('ascii')
-    # return base64.b64encode(message.as_bytes()).decode('ascii') # doesn't work for utf-8 messages
+    try:
+        message = email.message_from_file(input_file)
+        decoded = base64.b64encode(message.as_string().encode('utf-8')).decode('ascii')
+    except Exception as exception:
+        error_message = "Could not load EML: {}".format(exception)
+        LOGGER.error(error_message)
+        context.exit(-1)
+
+    return decoded
+
+    # doesn't work for utf-8 messages
+    # return base64.b64encode(message.as_bytes()).decode('ascii') 
 
 
 def load_message_data_model(context, input_file):
@@ -22,7 +34,13 @@ def load_message_data_model(context, input_file):
         click.echo(context.get_help())
         context.exit(-1)
     
-    message_data_model = json.load(input_file)
+    try:
+        message_data_model = json.load(input_file)
+    except Exception as exception:
+        error_message = "Could not load MDM: {}".format(exception)
+        LOGGER.error(error_message)
+        context.exit(-1)
+
     return message_data_model
 
 
