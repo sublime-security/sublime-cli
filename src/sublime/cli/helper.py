@@ -88,9 +88,16 @@ def load_detections(context, detections_file):
 
     return detections
 
-def create_detection(query):
+def create_detection(detection_str):
     detection = { 
-            "query": query.strip()
+            "detection": detection_str.strip()
     }
 
     return detection
+
+def create_query(query_str):
+    query = {
+            "query": query_str.strip()
+    }
+
+    return query

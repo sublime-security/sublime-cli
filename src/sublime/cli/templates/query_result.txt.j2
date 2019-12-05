@@ -1,0 +1,23 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Result") }}</header> ║
+╚═══════════════════════════╝
+{{ "" }}
+{%- if query.query %}
+{%- if verbose %}
+Query ID {{ query.query_id }}: <bold>{{ query.query }}</bold>
+{%- else %}
+Query: <bold>{{ query.query }}</bold>
+{%- endif %}
+{%- endif %}
+{%- if query.success %}
+{%- if verbose %}
+Result data type: {{ query.type }}
+{%- endif %}
+<bold>{{ query.result }}</bold>
+{%- else %}
+{%- if verbose %}
+<fail>Query {{ query.query_id }} failed.</fail> Error: {{ query.error }}
+{%- else %}
+<fail>Query failed.</fail> Error: {{ query.error }}
+{%- endif %}
+{%- endif %}

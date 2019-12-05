@@ -196,23 +196,20 @@ def analyze_command(function):
         help="Input EML or enriched MDM file", required=True
     )
     @click.option(
-        "-d", "--detections", "detections_file", type=click.File(), 
+        "-D", "--detections", "detections_file", type=click.File(), 
         help="Detections file [default: detections.pql]"
     )
     @click.option(
-        "-q", "--detection-query", "detection_query", type=str,
+        "-d", "--detection", "detection_str", type=str,
         help=(
-            "Raw detection query. Instead of using a detections file, "
+            "Raw detection. Instead of using a detections file, "
             "specify a single detection to be run directly surrounded "
             "by single quotes"
         )
     )
     @click.option(
         "-o", "--output", "output_file", type=click.File(mode="w"), 
-        help=(
-            "Output file. Defaults to the input_file name in the current directory "
-            "with a .mdm extension if none is specified"
-        )
+        help="Output file"
     )
     @click.option(
         "-f",
@@ -228,7 +225,7 @@ def analyze_command(function):
     @handle_exceptions
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
-        if not kwargs.get('detections_file') and not kwargs.get('detection_query'):
+        if not kwargs.get('detections_file') and not kwargs.get('detection_str'):
             try:
                 detections_file = click.open_file("detections.pql", mode="r")
                 kwargs['detections_file'] = detections_file
@@ -240,14 +237,52 @@ def analyze_command(function):
     return wrapper
 
 
+def query_command(function):
+    """Decorator that groups decorators common to query subcommand."""
+
+    @click.command()
+    @click.option("-k", "--api-key", help="Key to include in API requests")
+    @click.option(
+        "-i", "--input", "input_file", type=click.File(), 
+        help="Enriched MDM file", required=True
+    )
+    @click.option(
+        "-q", "--query", "query", type=str, required=True,
+        help=(
+            "Raw query, surrounded by single quotes"
+        )
+    )
+    @click.option(
+        "-o", "--output", "output_file", type=click.File(mode="w"), 
+        help="Output file"
+    )
+    @click.option(
+        "-f",
+        "--format",
+        "output_format",
+        type=click.Choice(["json", "txt"]),
+        default="txt",
+        help="Output format",
+    )
+    @pass_api_client
+    @click.pass_context
+    @echo_result
+    @handle_exceptions
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        return function(*args, **kwargs)
+
+    return wrapper
+
+
 class MissingDetectionInput(click.ClickException):
     """Exception used for analyze commands missing a detection file or raw query
     """
 
     def __init__(self):
         message = (
-                "You must specify either a detections file (-d) or a raw "
-                "detection query (-q)")
+                "You must specify either a .pql detections file (-D) or a raw "
+                "detection (-d)")
         super(MissingDetectionInput, self).__init__(message)
 
 

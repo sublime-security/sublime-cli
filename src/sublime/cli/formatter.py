@@ -73,6 +73,16 @@ def analyze_formatter(results, verbose):
     return template.render(results=results, verbose=verbose)
 
 
+@colored_output
+def query_formatter(results, verbose):
+    """Convert Query output into human-readable text."""
+    template = JINJA2_ENV.get_template("query_result.txt.j2")
+    result = results["result"]
+    if result["type"] in ("list", "dict"):
+        result["result"] = json_formatter(json.loads(result["result"]), False)
+    return template.render(query=result, verbose=verbose)
+
+
 def mdm_formatter(results, verbose):
     """Convert Message Data Model into human-readable text."""
     gron_output = gron.gron(json.dumps(results))
@@ -90,6 +100,7 @@ FORMATTERS = {
     "txt": {
         "enrich": mdm_formatter,
         "analyze": analyze_formatter,
-        "enrich_details": enrich_details_formatter
+        "enrich_details": enrich_details_formatter,
+        "query": query_formatter
     },
 }

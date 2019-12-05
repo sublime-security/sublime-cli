@@ -38,8 +38,8 @@ Usage
     Commands:
       analyze   Analyze an enriched MDM or raw EML.
       enrich    Enrich an EML.
-      feedback  Send feedback directly to the Sublime team.
       help      Show this message and exit.
+      query     Query an enriched MDM and get the output.
       repl      Start an interactive shell.
       setup     Configure API key.
       version   Get version and OS information for your Sublime commandline...

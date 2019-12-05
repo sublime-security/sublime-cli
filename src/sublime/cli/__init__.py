@@ -34,7 +34,7 @@ def configure_logging():
 
 @click.group(
     cls=DefaultGroup,
-    default="query",
+    # default="query",
     default_if_no_args=False,
     context_settings={"help_option_names": ("-h", "--help")},
 )

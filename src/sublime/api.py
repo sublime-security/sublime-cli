@@ -32,6 +32,7 @@ class Sublime(object):
     EP_MESSAGE_ANALYZE_MULTI = "message/analyze/multi"
     EP_MESSAGE_ENRICH = "message/enrich"
     EP_MODEL_ANALYZE = "model/analyze"
+    EP_MODEL_QUERY = "model/query"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
@@ -111,6 +112,17 @@ class Sublime(object):
         if verbose:
             body["response_type"] = "full"
         endpoint = self.EP_MODEL_ANALYZE
+        response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def query_mdm(self, message_data_model, query, verbose):
+        """Query an enriched Message Data Model"""
+        body = {}
+        body["message_data_model"] = message_data_model
+        body["query"] = query
+        if verbose:
+            body["response_type"] = "full"
+        endpoint = self.EP_MODEL_QUERY
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 

@@ -8,6 +8,7 @@ from sublime.__version__ import __version__
 from sublime.cli.decorator import (
     enrich_command,
     analyze_command,
+    query_command,
     not_implemented_command,
 )
 from sublime.cli.helper import *
@@ -56,7 +57,7 @@ def analyze(
     api_key,
     input_file,
     detections_file,
-    detection_query,
+    detection_str,
     output_file,
     output_format,
     verbose,
@@ -66,7 +67,7 @@ def analyze(
         detections = load_detections(context, detections_file)
         multi = True
     else:
-        detection = create_detection(detection_query)
+        detection = create_detection(detection_str)
         multi = False
 
     # assume it's an EML if it does not end with .mdm
@@ -87,6 +88,26 @@ def analyze(
             results = api_client.analyze_eml_multi(eml, detections, verbose)
         else:
             results = api_client.analyze_eml(eml, detection, verbose)
+
+    return results
+
+
+@query_command
+@click.option("-v", "--verbose", count=True, help="Verbose output")
+def query(
+    context,
+    api_client,
+    api_key,
+    input_file,
+    query,
+    output_file,
+    output_format,
+    verbose,
+):
+    """Query an enriched MDM and get the output."""
+    query = create_query(query)
+    message_data_model = load_message_data_model(context, input_file)
+    results = api_client.query_mdm(message_data_model, query, verbose)
 
     return results
 
