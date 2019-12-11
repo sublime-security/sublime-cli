@@ -31,6 +31,7 @@ class Sublime(object):
     EP_MESSAGE_ANALYZE = "message/analyze"
     EP_MESSAGE_ANALYZE_MULTI = "message/analyze/multi"
     EP_MESSAGE_ENRICH = "message/enrich"
+    EP_MESSAGE_CREATE = "message/create"
     EP_MODEL_ANALYZE = "model/analyze"
     EP_MODEL_QUERY = "model/query"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
@@ -123,6 +124,24 @@ class Sublime(object):
         if verbose:
             body["response_type"] = "full"
         endpoint = self.EP_MODEL_QUERY
+        response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def create_mdm(self, eml):
+        """Create an unenriched MDM from an EML.
+
+        :param eml: Raw EML to enrich.
+        :type eml: str
+        :return: Unenriched Message Data Model.
+        :rtype: dict
+
+        """
+
+        LOGGER.debug("Creating an unenriched MDM...")
+
+        body = {}
+        body["message"] = eml
+        endpoint = self.EP_MESSAGE_CREATE
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 

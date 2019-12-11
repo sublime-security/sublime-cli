@@ -99,6 +99,7 @@ FORMATTERS = {
     "json": json_formatter,
     "txt": {
         "enrich": mdm_formatter,
+        "create": mdm_formatter,
         "analyze": analyze_formatter,
         "enrich_details": enrich_details_formatter,
         "query": query_formatter

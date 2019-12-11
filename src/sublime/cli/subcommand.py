@@ -9,6 +9,7 @@ from sublime.cli.decorator import (
     enrich_command,
     analyze_command,
     query_command,
+    create_command,
     not_implemented_command,
 )
 from sublime.cli.helper import *
@@ -45,6 +46,26 @@ def enrich(
     # results = [api_client.enrich(eml=input_file) for ip_address in ip_addresses]
     eml = load_eml_as_base64(context, input_file)
     results = api_client.enrich_eml(eml=eml)
+
+    return results
+
+
+@create_command
+@click.option("-v", "--verbose", count=True, help="Verbose output")
+def create(
+    context,
+    api_client,
+    api_key,
+    input_file,
+    output_file,
+    output_format,
+    verbose,
+):
+    """Create an unenriched MDM from an EML."""
+    # emls = load emls from input directory
+    # results = [api_client.enrich(eml=input_file) for ip_address in ip_addresses]
+    eml = load_eml_as_base64(context, input_file)
+    results = api_client.create_mdm(eml=eml)
 
     return results
 

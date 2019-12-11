@@ -40,7 +40,7 @@ def echo_result(function):
             # subcommand
             formatter = formatter[context.command.name]
 
-        if context.command.name == "enrich":
+        if context.command.name == "enrich" or context.command.name == "create":
             # default behavior is to always save the MDM
             # even if no output file is specified
             if not params.get("output_file"):
@@ -55,12 +55,14 @@ def echo_result(function):
 
                 params["output_file"] = click.open_file(output_file_name, mode="w")
 
-            # we always want to print the details to the console
-            details_formatter = FORMATTERS["txt"]["enrich_details"]
-            output = details_formatter(result, params.get("verbose", False)).strip("\n")
-            click.echo(
-                output, file=click.open_file("-", mode="w")
-            )
+            if context.command.name == "enrich":
+                # we always want to print the details to the console
+                details_formatter = FORMATTERS["txt"]["enrich_details"]
+                output = details_formatter(result, 
+                        params.get("verbose", False)).strip("\n")
+                click.echo(
+                    output, file=click.open_file("-", mode="w")
+                )
 
             # strip the extra info and just save the MDM
             result = result["message_data_model"]
@@ -152,6 +154,42 @@ def pass_api_client(function):
 
 def enrich_command(function):
     """Decorator that groups decorators common to enrich subcommand."""
+
+    @click.command()
+    @click.option("-k", "--api-key", help="Key to include in API requests")
+    @click.option(
+        "-i", "--input", "input_file", type=click.File(), 
+        help="Input EML file", required=True
+    )
+    @click.option(
+        "-o", "--output", "output_file", type=click.File(mode="w"), 
+        help=(
+            "Output file. Defaults to the input_file name in the current "
+            "directory with a .mdm extension if none is specified"
+        )
+    )
+    @click.option(
+        "-f",
+        "--format",
+        "output_format",
+        type=click.Choice(["json", "txt"]),
+        default="json",
+        show_default=True,
+        help="Output format",
+    )
+    @pass_api_client
+    @click.pass_context
+    @echo_result
+    @handle_exceptions
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        return function(*args, **kwargs)
+
+    return wrapper
+
+
+def create_command(function):
+    """Decorator that groups decorators common to create subcommand."""
 
     @click.command()
     @click.option("-k", "--api-key", help="Key to include in API requests")
