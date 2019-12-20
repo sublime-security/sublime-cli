@@ -37,7 +37,7 @@ setup(
     license="MIT",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
-    package_data={"sublime.cli": ["templates/*.j2"]},
+    package_data={"sublime.cli": ["templates/*.j2", "subcommand_groups/*.py"]},
     install_requires=INSTALL_REQUIRES,
     long_description=read("README.rst") + "\n\n",
     classifiers=[
