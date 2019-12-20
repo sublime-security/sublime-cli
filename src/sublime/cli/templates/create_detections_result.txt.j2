@@ -1,0 +1,18 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+
+{%- for result in results %}
+{%- if result.name %}
+Detection <bold>{{ result.name }}</bold> <success>created</success>. Detection ID: {{ result.detection_id }}
+{%- if verbose %}
+<dim>Detection: {{ result.detection }}</dim>
+{%- endif %}
+{%- else %}
+Detection <success>created</success>. Detection ID: {{ result.detection_id }}
+{%- if verbose %}
+<dim>Detection: {{ result.detection }}</dim>
+{%- endif %}
+{%- endif %}
+{{ "" }}
+{%- endfor %}

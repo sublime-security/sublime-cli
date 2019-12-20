@@ -9,6 +9,7 @@ from click_default_group import DefaultGroup
 from click_repl import register_repl
 
 from sublime.cli import subcommand
+from sublime.cli.subcommand_groups import create
 
 
 def configure_logging():
@@ -51,6 +52,15 @@ SUBCOMMAND_FUNCTIONS = [
 
 for subcommand_function in SUBCOMMAND_FUNCTIONS:
     main.add_command(subcommand_function)
+
+SUBCOMMAND_GROUPS = [
+    subcommand_group
+    for subcommand_group in vars(create).values()
+    if isinstance(subcommand_group, click.Group)
+]
+
+for subcommand_group in SUBCOMMAND_GROUPS:
+    main.add_command(subcommand_group)
 
 register_repl(main)
 main()

@@ -35,6 +35,7 @@ class Sublime(object):
     EP_MODEL_ANALYZE = "model/analyze"
     EP_MODEL_QUERY = "model/query"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
+    EP_DETECTIONS = "org/detections/"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None, use_cache=True):
@@ -190,6 +191,17 @@ class Sublime(object):
         endpoint = self.EP_MESSAGE_ANALYZE_MULTI
         with Halo(text='Enriching and analyzing', spinner='dots'):
             response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def create_detection(self, detection, active):
+        """Create a detection."""
+        body = {}
+        body["detection"] = detection["detection"]
+        body["name"] = detection["name"]
+        body["active"] = active
+
+        endpoint = self.EP_DETECTIONS
+        response = self._request(endpoint, request_type='POST', json=body)
         return response
 
     def not_implemented(self, subcommand_name):

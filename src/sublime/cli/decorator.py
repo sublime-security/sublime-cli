@@ -37,23 +37,36 @@ def echo_result(function):
         formatter = FORMATTERS[output_format]
         if isinstance(formatter, dict):
             # For the text formatter, there's a separate formatter for each 
-            # subcommand
-            formatter = formatter[context.command.name]
+            if isinstance(context.parent.command, click.Group) and \
+                    context.parent.command.name != 'main':
+                # sub-sub command
+                parent_name = context.parent.command.name
+                cur_name = context.command.name
+                name = f"{parent_name}_{cur_name}"
+                formatter = formatter[name]
+            else:
+                # regular subcommand
+                formatter = formatter[context.command.name]
 
-        if context.command.name == "enrich" or context.command.name == "create":
+        if context.command.name == "enrich" or \
+                context.command.name == "generate":
             # default behavior is to always save the MDM
             # even if no output file is specified
             if not params.get("output_file"):
                 input_file_relative_name = params.get('input_file').name
-                input_file_relative_no_ext, _ = os.path.splitext(input_file_relative_name)
-                input_file_name_no_ext = os.path.basename(input_file_relative_no_ext)
+                input_file_relative_no_ext, _ = os.path.splitext(
+                        input_file_relative_name)
+                input_file_name_no_ext = os.path.basename(
+                        input_file_relative_no_ext)
                 output_file_name = f'{input_file_name_no_ext}'
+
                 if output_format == "json":
                     output_file_name += ".mdm"
                 elif output_format == "txt":
                     output_file_name += ".txt"
 
-                params["output_file"] = click.open_file(output_file_name, mode="w")
+                params["output_file"] = click.open_file(output_file_name, 
+                        mode="w")
 
             if context.command.name == "enrich":
                 # we always want to print the details to the console
@@ -67,9 +80,11 @@ def echo_result(function):
             # strip the extra info and just save the MDM
             result = result["message_data_model"]
 
-        output = formatter(result, params.get("verbose", False)).strip("\n")
+        output = formatter(result, 
+                params.get("verbose", False)).strip("\n")
         click.echo(
-            output, file=params.get("output_file", click.open_file("-", mode="w"))
+            output, 
+            file=params.get("output_file", click.open_file("-", mode="w"))
         )
 
         file_name = params.get("output_file")
@@ -188,8 +203,8 @@ def enrich_command(function):
     return wrapper
 
 
-def create_command(function):
-    """Decorator that groups decorators common to create subcommand."""
+def generate_command(function):
+    """Decorator that groups decorators common to generate subcommand."""
 
     @click.command()
     @click.option("-k", "--api-key", help="Key to include in API requests")
@@ -234,8 +249,9 @@ def analyze_command(function):
         help="Input EML or enriched MDM file", required=True
     )
     @click.option(
-        "-D", "--detections", "detections_file", type=click.File(), 
-        help="Detections file [default: detections.pql]"
+        "-D", "--detections", "detections_path", 
+        type=click.Path(exists=True), 
+        help="Detections file or directory [default: ./detections.pql]"
     )
     @click.option(
         "-d", "--detection", "detection_str", type=str,
@@ -263,13 +279,6 @@ def analyze_command(function):
     @handle_exceptions
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
-        if not kwargs.get('detections_file') and not kwargs.get('detection_str'):
-            try:
-                detections_file = click.open_file("detections.pql", mode="r")
-                kwargs['detections_file'] = detections_file
-            except FileNotFoundError as e:
-                raise MissingDetectionInput
-
         return function(*args, **kwargs)
 
     return wrapper
@@ -319,8 +328,9 @@ class MissingDetectionInput(click.ClickException):
 
     def __init__(self):
         message = (
-                "You must specify either a .pql detections file (-D) or a raw "
-                "detection (-d)")
+                "You must specify either a .pql detections file/directory (-D) "
+                "or a raw detection (-d)"
+                )
         super(MissingDetectionInput, self).__init__(message)
 
 

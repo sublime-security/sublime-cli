@@ -4,6 +4,7 @@ import sys
 import email
 import base64
 import json
+from pathlib import Path
 
 import click
 import structlog
@@ -44,6 +45,14 @@ def load_message_data_model(context, input_file):
     return message_data_model
 
 
+def load_detections_path(context, detections_path):
+    detections = []
+    for detections_file in Path(detections_path).rglob("*.pql"):
+        with detections_file.open() as f:
+            detections.extend(load_detections(context, f))
+
+    return detections
+
 def load_detections(context, detections_file):
     if detections_file is None:
         click.echo(context.get_help())
@@ -52,20 +61,30 @@ def load_detections(context, detections_file):
     # detections can span multiple lines, separated by an extra \n
     detections = []
     detection_str = ""
+    detection_name = ""
     line = detections_file.readline()
     while line:
-        line = line.strip('\n') # remove trailing newline
+        line = line.strip("\n") # remove trailing newline
         line = line.strip() # remove leading/trailing whitespace
-        if line.startswith('#'): # remove comments
+
+        if line.startswith("#"): # remove comments
+            line = detections_file.readline()
+            continue
+
+        if line.startswith(";"): # detection names
+            line = line.strip(";")
+            line = line.strip() # remove leading/trailing whitespace
+            detection_name = line
             line = detections_file.readline()
             continue
 
         if not line:
             # reached the end of a detection
             if detection_str:
-                detection = create_detection(detection_str)
+                detection = create_detection(detection_str, detection_name)
                 detections.append(detection)
                 detection_str = ""
+                detection_name = ""
             # reached a line with just whitespace
             else:
                 line = detections_file.readline()
@@ -78,9 +97,10 @@ def load_detections(context, detections_file):
 
     # true if there's no newline at the end of the last detection
     if detection_str:
-        detection = create_detection(detection_str)
+        detection = create_detection(detection_str, detection_name)
         detections.append(detection)
         detection_str = ""
+        detection_name = ""
 
     if not detections:
         click.echo("No detections found in detections file")
@@ -88,9 +108,10 @@ def load_detections(context, detections_file):
 
     return detections
 
-def create_detection(detection_str):
+def create_detection(detection_str, detection_name=""):
     detection = { 
-            "detection": detection_str.strip()
+            "detection": detection_str.strip(),
+            "name": detection_name.strip()
     }
 
     return detection
