@@ -193,15 +193,26 @@ class Sublime(object):
             response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def create_detection(self, detection, active):
+    def create_detection(self, detection, active, verbose):
         """Create a detection."""
         body = {}
         body["detection"] = detection["detection"]
         body["name"] = detection["name"]
         body["active"] = active
+        if verbose:
+            body["response_type"] = "full"
 
         endpoint = self.EP_DETECTIONS
         response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def get_detections(self, active):
+        """Get detections."""
+        params = {}
+        params["active"] = active
+
+        endpoint = self.EP_DETECTIONS
+        response = self._request(endpoint, request_type='GET', params=params)
         return response
 
     def not_implemented(self, subcommand_name):

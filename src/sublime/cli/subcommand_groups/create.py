@@ -82,6 +82,6 @@ def detections(
     else:
         detections = [create_detection(detection_str)]
 
-    results = [api_client.create_detection(d, active) for d in detections]
+    results = [api_client.create_detection(d, active, verbose) for d in detections]
 
     return results
