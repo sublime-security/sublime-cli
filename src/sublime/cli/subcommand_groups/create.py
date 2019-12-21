@@ -26,7 +26,7 @@ def create():
 @click.option(
     "-D", "--detections", "detections_path", 
     type=click.Path(exists=True), 
-    help="Detections file or directory [default: ./detections.pql]"
+    help="Detections file or directory"
 )
 @click.option(
     "-d", "--detection", "detection_str", type=str,
@@ -67,12 +67,10 @@ def detections(
 ):
     """Create a detection."""
     if not detections_path and not detection_str:
-        try:
-            detections_path = click.open_file("detections.pql", mode="r")
-        except FileNotFoundError as e:
-            raise MissingDetectionInput
+        raise MissingDetectionInput
 
     if detections_path:
+        print(detections_path)
         if os.path.isfile(detections_path):
             with open(detections_path) as f:
                 detections = load_detections(context, f)
