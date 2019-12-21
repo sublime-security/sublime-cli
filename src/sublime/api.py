@@ -64,7 +64,7 @@ class Sublime(object):
         if params is None:
             params = {}
         headers = {
-            "User-Agent": "Sublime/{}".format(__version__),
+            "User-Agent": "sublime-cli/{}".format(__version__),
             "Key": self.api_key,
         }
         url = "/".join([self.BASE_URL, self.API_VERSION, endpoint])
