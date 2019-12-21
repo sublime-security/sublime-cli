@@ -9,12 +9,15 @@
 {%- if result.name %}
 <key>Name:</key> <bold> {{ result.name }}</bold>
 {%- endif %}
-<key>Detection:</key> <bold>{{ result.detection }}</bold>
 {%- if result.active %}
 <green>Active</green>
 {%- else %}
 <light-red>Inactive</light-red>
 {%- endif %}
+<key>Detection:</key> <bold>{{ result.detection }}</bold>
+{%- if verbose %}
+<key>ID: </key><value> {{ result.detection_id }}</value>
 <key>Created: </key><value>{{ result.created_at }}</value>
+{%- endif %}
 {{ "" }}
 {%- endfor %}
