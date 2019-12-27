@@ -36,6 +36,7 @@ class Sublime(object):
     EP_MODEL_QUERY = "model/query"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
     EP_DETECTIONS = "org/detections/"
+    EP_DETECTION_RESULTS = "org/detection-results/"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None, use_cache=True):
@@ -212,6 +213,15 @@ class Sublime(object):
         params["active"] = active
 
         endpoint = self.EP_DETECTIONS
+        response = self._request(endpoint, request_type='GET', params=params)
+        return response
+
+    def get_detection_results(self, result):
+        """Get detection results."""
+        params = {}
+        params["result"] = result
+
+        endpoint = self.EP_DETECTION_RESULTS
         response = self._request(endpoint, request_type='GET', params=params)
         return response
 

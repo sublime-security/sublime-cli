@@ -106,6 +106,12 @@ def get_detections_formatter(results, verbose):
     template = JINJA2_ENV.get_template("get_detections_result.txt.j2")
     return template.render(results=results["detections"], verbose=verbose)
 
+@colored_output
+def get_detection_results_formatter(results, verbose):
+    """Convert get detection-results output into human-readable text."""
+    template = JINJA2_ENV.get_template("get_detection_results_result.txt.j2")
+    return template.render(results=results["results"], verbose=verbose)
+
 
 FORMATTERS = {
     "json": json_formatter,
@@ -116,6 +122,7 @@ FORMATTERS = {
         "enrich_details": enrich_details_formatter,
         "query": query_formatter,
         "create_detections": create_detections_formatter,
-        "get_detections": get_detections_formatter
+        "get_detections": get_detections_formatter,
+        "get_detection-results": get_detection_results_formatter
     },
 }
