@@ -192,6 +192,12 @@ def enrich_command(function):
         show_default=True,
         help="Output format",
     )
+    @click.option("-u", "--user", "mailbox_email_address",
+            help=(
+            "User's mailbox email address (used for live flow in Sublime"
+            "environments)"
+            )
+    )
     @pass_api_client
     @click.pass_context
     @echo_result
@@ -227,6 +233,12 @@ def generate_command(function):
         default="json",
         show_default=True,
         help="Output format",
+    )
+    @click.option("-u", "--user", "mailbox_email_address",
+            help=(
+            "User's mailbox email address (used for live flow in Sublime"
+            "environments)"
+            )
     )
     @pass_api_client
     @click.pass_context
@@ -272,6 +284,12 @@ def analyze_command(function):
         type=click.Choice(["json", "txt"]),
         default="txt",
         help="Output format",
+    )
+    @click.option("-u", "--user", "mailbox_email_address",
+            help=(
+            "User's mailbox email address (valid for EMLs only, used for "
+            "live flow in Sublime environments)"
+            )
     )
     @pass_api_client
     @click.pass_context

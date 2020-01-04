@@ -40,13 +40,14 @@ def enrich(
     input_file,
     output_file,
     output_format,
+    mailbox_email_address,
     verbose,
 ):
     """Enrich an EML."""
     # emls = load emls from input directory
     # results = [api_client.enrich(eml=input_file) for ip_address in ip_addresses]
     eml = load_eml_as_base64(context, input_file)
-    results = api_client.enrich_eml(eml=eml)
+    results = api_client.enrich_eml(eml, mailbox_email_address)
 
     return results
 
@@ -60,12 +61,13 @@ def generate(
     input_file,
     output_file,
     output_format,
+    mailbox_email_address,
     verbose,
 ):
     """Generate an unenriched MDM from an EML."""
     # emls = load emls from input directory
     eml = load_eml_as_base64(context, input_file)
-    results = api_client.create_mdm(eml=eml)
+    results = api_client.create_mdm(eml, mailbox_email_address)
 
     return results
 
@@ -81,6 +83,7 @@ def analyze(
     detection_str,
     output_file,
     output_format,
+    mailbox_email_address,
     verbose,
 ):
     """Analyze an enriched MDM or raw EML."""
@@ -124,11 +127,13 @@ def analyze(
             results = api_client.analyze_eml_multi(
                     eml, 
                     detections, 
+                    mailbox_email_address,
                     verbose)
         else:
             results = api_client.analyze_eml(
                     eml, 
                     detection, 
+                    mailbox_email_address,
                     verbose)
 
     return results

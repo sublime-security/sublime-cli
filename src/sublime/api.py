@@ -129,7 +129,7 @@ class Sublime(object):
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def create_mdm(self, eml):
+    def create_mdm(self, eml, mailbox_email_address=None):
         """Create an unenriched MDM from an EML.
 
         :param eml: Raw EML to enrich.
@@ -143,11 +143,12 @@ class Sublime(object):
 
         body = {}
         body["message"] = eml
+        body["mailbox_email_address"] = mailbox_email_address
         endpoint = self.EP_MESSAGE_CREATE
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def enrich_eml(self, eml):
+    def enrich_eml(self, eml, mailbox_email_address=None):
         """Enrich an EML.
 
         :param eml: Raw EML to enrich.
@@ -161,12 +162,13 @@ class Sublime(object):
 
         body = {}
         body["message"] = eml
+        body["mailbox_email_address"] = mailbox_email_address
         endpoint = self.EP_MESSAGE_ENRICH
         with Halo(text='Enriching', spinner='dots'):
             response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_eml(self, eml, detection, verbose):
+    def analyze_eml(self, eml, detection, mailbox_email_address, verbose):
         """Analyze an EML against a detection."""
 
         LOGGER.debug("Analyzing EML...")
@@ -174,12 +176,13 @@ class Sublime(object):
         body = {}
         body["message"] = eml
         body["detection"] = detection
+        body["mailbox_email_address"] = mailbox_email_address
         endpoint = self.EP_MESSAGE_ANALYZE
         with Halo(text='Enriching and analyzing', spinner='dots'):
             response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_eml_multi(self, eml, detections, verbose):
+    def analyze_eml_multi(self, eml, detections, mailbox_email_address, verbose):
         """Analyze an EML against a list of detections."""
 
         LOGGER.debug("Analyzing EML...")
@@ -187,6 +190,7 @@ class Sublime(object):
         body = {}
         body["message"] = eml
         body["detections"] = detections
+        body["mailbox_email_address"] = mailbox_email_address
         if verbose:
             body["response_type"] = "full"
         endpoint = self.EP_MESSAGE_ANALYZE_MULTI
