@@ -107,10 +107,28 @@ def get_detections_formatter(results, verbose):
     return template.render(results=results["detections"], verbose=verbose)
 
 @colored_output
-def get_detection_results_formatter(results, verbose):
-    """Convert get detection-results output into human-readable text."""
-    template = JINJA2_ENV.get_template("get_detection_results_result.txt.j2")
-    return template.render(results=results["results"], verbose=verbose)
+def get_flagged_messages_formatter(results, verbose):
+    """Convert get flagged-messages output into human-readable text."""
+
+    if results.get("results"):# /flagged-messages
+        template = JINJA2_ENV.get_template("get_flagged_messages_result.txt.j2")
+
+        return template.render(results=results["results"], verbose=verbose)
+
+    else: # /flagged-messages/{id}/detail
+        template = JINJA2_ENV.get_template("get_flagged_messages_detail.txt.j2")
+
+        total_enrichments = len(results["enrichment_results"]["details"])
+        total_successful_enrichments = len([True for detail in
+            results["enrichment_results"]["details"] if detail["success"]])
+
+        return template.render(
+            message_data_model_result=results["message_data_model_result"],
+            enrichment_details=results["enrichment_results"]["details"],
+            total_enrichments=total_enrichments,
+            total_successful_enrichments=total_successful_enrichments,
+            detection_results=results["detection_results"],
+            verbose=verbose)
 
 
 FORMATTERS = {
@@ -123,6 +141,6 @@ FORMATTERS = {
         "query": query_formatter,
         "create_detections": create_detections_formatter,
         "get_detections": get_detections_formatter,
-        "get_detection-results": get_detection_results_formatter
+        "get_messages": get_flagged_messages_formatter
     },
 }

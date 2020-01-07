@@ -1,0 +1,41 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+
+          <header>OVERVIEW</header>
+----------------------------
+<key>Subject: </key><bold>{{ message_data_model_result.subject }}</bold>
+<key>Sender:</key> <bold>{{ message_data_model_result.sender_display_name }} <{{message_data_model_result.sender_email_address}}></bold>
+<key>Mailbox:</key> <bold>{{ message_data_model_result.mailbox_email_address }}</bold>
+{%- if verbose %}
+<key>MDM ID: </key><dim>{{ message_data_model_result.message_data_model_id }}</dim>
+<key>Created: </key><dim>{{ message_data_model_result.created_at }}</dim>
+{%- endif %}
+
+{{ "" }}
+      <header>DETECTION RESULTS</header>
+----------------------------
+{% for result in detection_results -%}
+<bold>RESULT {{ loop.index }}</bold>
+{%- if result.detection_name %}
+<key>Name: </key><light-yellow>{{ result.detection_name }}</light-yellow>
+{%- endif %}
+<key>ID: </key><dim>{{ result.detection_id }}</dim>
+{%- if verbose %}
+<key>Created: </key><dim>{{ result.created_at }}</dim>
+<key>Detection:</key> <bold>{{ result.detection }}</bold>
+{%- endif %}
+{{ "" }}
+{% endfor %}
+      <header>ENRICHMENT RESULTS</header>
+----------------------------
+<bold>{{ total_successful_enrichments }} / {{ total_enrichments }}</bold> enrichments <success>succeeded</success>.
+{%- for detail in enrichment_details %}
+{%- if detail.success %}
+{%- if verbose %}
+<enrichment>{{ detail.name }}</enrichment> enrichment for <bold>{{ detail.target }}</bold> <success>succeeded.</success>
+{%- endif %}
+{%- else %}
+<bold>{{ detail.name }}</bold> enrichment for <bold>{{ detail.target }}</bold> <fail>failed.</fail> Reason: <bold>{{ detail.error }}</bold>
+{%- endif %}
+{%- endfor %}

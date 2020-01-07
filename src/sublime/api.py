@@ -36,7 +36,8 @@ class Sublime(object):
     EP_MODEL_QUERY = "model/query"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
     EP_DETECTIONS = "org/detections/"
-    EP_DETECTION_RESULTS = "org/detection-results/"
+    EP_FLAGGED_MESSAGES = "org/flagged-messages"
+    EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{id}/detail"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None, use_cache=True):
@@ -220,13 +221,21 @@ class Sublime(object):
         response = self._request(endpoint, request_type='GET', params=params)
         return response
 
-    def get_detection_results(self, result):
-        """Get detection results."""
+    def get_flagged_messages(self, result):
+        """Get flagged messages."""
         params = {}
         params["result"] = result
 
-        endpoint = self.EP_DETECTION_RESULTS
+        endpoint = self.EP_FLAGGED_MESSAGES
         response = self._request(endpoint, request_type='GET', params=params)
+        return response
+
+    def get_flagged_message_detail(self, message_data_model_id):
+        """Get detail view of a message."""
+
+        endpoint = self.EP_FLAGGED_MESSAGES_DETAIL.format(
+                id=message_data_model_id)
+        response = self._request(endpoint, request_type='GET')
         return response
 
     def not_implemented(self, subcommand_name):

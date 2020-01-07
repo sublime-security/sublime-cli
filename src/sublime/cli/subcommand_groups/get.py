@@ -60,7 +60,9 @@ def detections(
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
 @click.option("-n", "--not", "result", is_flag=True, default=True,
-        help="Whether the detection-result 'result' is True or not")
+        help="Invert: Return not-flagged messages")
+@click.option("-i", "--id", "message_data_model_id", 
+        help="Message Data Model ID")
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
@@ -77,17 +79,21 @@ def detections(
 @click.pass_context
 @echo_result
 @handle_exceptions
-def detection_results(
+def messages(
     context,
     api_client,
     api_key,
     result,
+    message_data_model_id,
     output_file,
     output_format,
     verbose,
 ):
-    """Get detection results."""
+    """Get messages. By default, flagged messages are returned."""
 
-    results = api_client.get_detection_results(result)
+    if not message_data_model_id:
+        results = api_client.get_flagged_messages(result)
+    else:
+        results = api_client.get_flagged_message_detail(message_data_model_id)
 
     return results
