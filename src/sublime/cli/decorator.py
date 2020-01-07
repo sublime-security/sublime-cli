@@ -194,7 +194,7 @@ def enrich_command(function):
     )
     @click.option("-u", "--user", "mailbox_email_address",
             help=(
-            "User's mailbox email address (used for live flow in Sublime"
+            "User's mailbox email address (used for live flow in Sublime "
             "environments)"
             )
     )
@@ -236,7 +236,7 @@ def generate_command(function):
     )
     @click.option("-u", "--user", "mailbox_email_address",
             help=(
-            "User's mailbox email address (used for live flow in Sublime"
+            "User's mailbox email address (used for live flow in Sublime "
             "environments)"
             )
     )
