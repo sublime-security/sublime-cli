@@ -36,6 +36,12 @@ def create():
         "by single quotes"
     )
 )
+@click.option(
+    "-n", "--name", "detection_name", type=str,
+    help=(
+        "Detection name"
+    )
+)
 @click.option("-a", "--active", "active", is_flag=True, default=False,
         help="Whether the detection should be enabled for live flow")
 @click.option(
@@ -60,6 +66,7 @@ def detections(
     api_key,
     detections_path,
     detection_str,
+    detection_name,
     active,
     output_file,
     output_format,
@@ -70,7 +77,6 @@ def detections(
         raise MissingDetectionInput
 
     if detections_path:
-        print(detections_path)
         if os.path.isfile(detections_path):
             with open(detections_path) as f:
                 detections = load_detections(context, f)
@@ -78,7 +84,11 @@ def detections(
         elif os.path.isdir(detections_path):
             detections = load_detections_path(context, detections_path)
     else:
-        detections = [create_detection(detection_str)]
+        if not detection_name:
+            click.echo("Detection name is required")
+            context.exit(-1)
+
+        detections = [create_detection(detection_str, detection_name)]
 
     results = [api_client.create_detection(d, active, verbose) for d in detections]
 

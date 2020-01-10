@@ -108,7 +108,7 @@ def load_detections(context, detections_file):
 
     return detections
 
-def create_detection(detection_str, detection_name=""):
+def create_detection(detection_str, detection_name):
     detection = { 
             "detection": detection_str.strip(),
             "name": detection_name.strip()
