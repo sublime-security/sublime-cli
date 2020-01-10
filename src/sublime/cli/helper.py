@@ -18,16 +18,16 @@ def load_eml_as_base64(context, input_file):
 
     try:
         message = email.message_from_file(input_file)
-        decoded = base64.b64encode(message.as_string().encode('utf-8')).decode('ascii')
+        decoded = base64.urlsafe_b64encode(message.as_string().encode('utf-8')).decode('ascii')
+
+        # fails for utf-8 messages:
+        # decoded = base64.b64encode(message.as_bytes()).decode('ascii') 
     except Exception as exception:
         error_message = "Could not load EML: {}".format(exception)
         LOGGER.error(error_message)
         context.exit(-1)
 
     return decoded
-
-    # doesn't work for utf-8 messages
-    # return base64.b64encode(message.as_bytes()).decode('ascii') 
 
 
 def load_message_data_model(context, input_file):
