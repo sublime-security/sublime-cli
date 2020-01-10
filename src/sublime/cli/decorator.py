@@ -80,6 +80,7 @@ def echo_result(function):
             # strip the extra info and just save the MDM
             result = result["message_data_model"]
 
+
         output = formatter(result, 
                 params.get("verbose", False)).strip("\n")
         click.echo(
@@ -90,6 +91,30 @@ def echo_result(function):
         file_name = params.get("output_file")
         if file_name:
             click.echo(f"Output saved to {file_name.name}")
+
+        # if the user asks for the message details, we save the MDM to a file
+        # we do this after the regular console output, otherwise won't see it
+        if context.command.name == "messages" and \
+                params.get('message_data_model_id') and \
+                params.get("verbose", False):
+
+            mdm_formatter = FORMATTERS["json"]
+            mdm_result = result["message_data_model_result"]
+            output_file_name = mdm_result.get("message_data_model_id")
+            output_file_name += ".mdm"
+            mdm = mdm_result.get("message_data_model")
+
+            output = mdm_formatter(mdm, 
+                    params.get("verbose", False)).strip("\n")
+            click.echo(
+                output, 
+                file=click.open_file(output_file_name, mode="w")
+            )
+            # add an extra newline for readability
+            if not params.get("output_file"):
+                click.echo("\n")
+
+            click.echo(f"Raw Message Data Model saved to {output_file_name}")
 
     return wrapper
 

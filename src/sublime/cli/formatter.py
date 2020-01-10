@@ -110,12 +110,7 @@ def get_detections_formatter(results, verbose):
 def get_flagged_messages_formatter(results, verbose):
     """Convert get flagged-messages output into human-readable text."""
 
-    if results.get("results"):# /flagged-messages
-        template = JINJA2_ENV.get_template("get_flagged_messages_result.txt.j2")
-
-        return template.render(results=results["results"], verbose=verbose)
-
-    else: # /flagged-messages/{id}/detail
+    if results.get("enrichment_results"): # /flagged-messages/{id}/detail
         template = JINJA2_ENV.get_template("get_flagged_messages_detail.txt.j2")
 
         total_enrichments = len(results["enrichment_results"]["details"])
@@ -129,6 +124,10 @@ def get_flagged_messages_formatter(results, verbose):
             total_successful_enrichments=total_successful_enrichments,
             detection_results=results["detection_results"],
             verbose=verbose)
+    else: # /flagged-messages
+        template = JINJA2_ENV.get_template("get_flagged_messages_result.txt.j2")
+
+        return template.render(results=results["results"], verbose=verbose)
 
 
 FORMATTERS = {
