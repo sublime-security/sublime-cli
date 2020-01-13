@@ -100,10 +100,22 @@ def create_detections_formatter(results, verbose):
     template = JINJA2_ENV.get_template("create_detections_result.txt.j2")
     return template.render(results=results, verbose=verbose)
 
+def format_detection(detection):
+    detection = detection.replace("&&", "\n  &&")
+    detection = detection.replace("||", "\n  ||")
+    detection = detection.replace("],", "],\n  ")
+
+    return detection
+
 @colored_output
 def get_detections_formatter(results, verbose):
     """Convert get detections output into human-readable text."""
     template = JINJA2_ENV.get_template("get_detections_result.txt.j2")
+
+    for result in results["detections"]:
+        if result["detection"]:
+            result["detection"] = format_detection(result["detection"])
+
     return template.render(results=results["detections"], verbose=verbose)
 
 @colored_output
@@ -116,6 +128,9 @@ def get_flagged_messages_formatter(results, verbose):
         total_enrichments = len(results["enrichment_results"]["details"])
         total_successful_enrichments = len([True for detail in
             results["enrichment_results"]["details"] if detail["success"]])
+
+        for result in results["detection_results"]:
+            result["detection"] = format_detection(result["detection"])
 
         return template.render(
             message_data_model_result=results["message_data_model_result"],
