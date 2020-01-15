@@ -7,3 +7,4 @@ sublime.egg-info/
 *.mdm
 *.eml
 *.txt
+.DS_Store
