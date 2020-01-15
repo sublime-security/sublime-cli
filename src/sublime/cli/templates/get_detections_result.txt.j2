@@ -2,6 +2,7 @@
 ║ <header>{{ "{:^25}".format("Results") }}</header> ║
 ╚═══════════════════════════╝
 
+{%- if verbose %}
 {%- for result in results %}
 <bold>DETECTION {{ loop.index }}</bold>
 {%- if result.active %}
@@ -13,9 +14,17 @@
 <key>Name: </key><light-yellow>{{ result.name }}</light-yellow>
 {%- endif %}
 <key>ID: </key><dim>{{ result.detection_id }}</dim>
-{%- if verbose %}
 <key>Created: </key><dim>{{ result.created_at }}</dim>
 <key>Detection:</key> <bold>{{ result.detection }}</bold>
-{%- endif %}
 {{ "" }}
 {%- endfor %}
+
+{%- else %}
+{%- for result in results %}
+{%- if result.active %}
+Detection <bold>{{ result.name }}</bold> <green>active</green>. Detection ID: {{ result.detection_id }}
+{%- else %}
+Detection <bold>{{ result.name }}</bold> <light-red>inactive</light-red>. Detection ID: {{ result.detection_id }}
+{%- endif %}
+{%- endfor %}
+{%- endif %}

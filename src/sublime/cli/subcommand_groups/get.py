@@ -24,7 +24,7 @@ def get():
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
 @click.option("-a", "--active", "active", is_flag=True, default=False,
-        help="Whether the detection should be enabled for live flow")
+        help="Filter by active detections only")
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
