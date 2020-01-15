@@ -107,7 +107,7 @@ def detections(
 
     else:
         if not detection_id:
-            click.echo("Detection ID is required")
+            click.echo("Detection ID or PQL file(s) is required")
             context.exit(-1)
 
         # depending on what we're updating, either of these could be null
@@ -118,5 +118,8 @@ def detections(
 
         results["success"] = [api_client.update_detection_by_id(
             detection_id, d, active, verbose) for d in detections]
+
+    results["success"] = sorted(results["success"], 
+            key=lambda i: i["original_name"] if i.get("original_name") else "")
 
     return results

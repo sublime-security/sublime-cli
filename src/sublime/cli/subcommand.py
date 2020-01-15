@@ -136,6 +136,10 @@ def analyze(
                     mailbox_email_address,
                     verbose)
 
+    if results.get("results"):
+        results["results"] = sorted(results["results"], 
+                key=lambda i: i["name"] if i.get("name") else "")
+
     return results
 
 

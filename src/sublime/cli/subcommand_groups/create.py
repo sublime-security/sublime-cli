@@ -98,4 +98,7 @@ def detections(
         except Exception as e:
             results["fail"].append(e.args[1])
 
+    results["success"] = sorted(results["success"], 
+            key=lambda i: i["name"] if i.get("name") else "")
+
     return results

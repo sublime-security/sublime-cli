@@ -68,8 +68,9 @@ def detections(
     else:
         results = api_client.get_detections(active)
 
-    results["detections"] = sorted(results["detections"], 
-            key=lambda i: i["name"])
+    if result.get("detections"):
+        results["detections"] = sorted(results["detections"], 
+                key=lambda i: i["name"] if i.get("name") else "")
 
     return results
 
