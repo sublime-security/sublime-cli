@@ -2,35 +2,60 @@
 ║ <header>{{ "{:^25}".format("Results") }}</header> ║
 ╚═══════════════════════════╝
 {% for detection in results %}
-{%- if detection.query %}
-{%- if verbose %}
-Detection {{ detection.detection_id }}: <bold>{{ detection.query }}</bold>
-{%- else %}
-Detection #{{ loop.index }}: <bold>{{ detection.query }}</bold>
-{%- endif %}
+{%- if detection.detection %}
 {%- endif %}
 {%- if detection.success %}
 {%- if detection.result %}
+{%- if detection.name %}
+{%- if detection.detection_id %}
+<detected>Detection</detected> <bold>{{ detection.name }}</bold> <detected>flagged this email.</detected> Detection ID: {{ detection.detection_id }}
+{%- else %}
+<detected>Detection</detected> <bold>{{ detection.name }}</bold> <detected>flagged this email.</detected>
+{%- endif %}
+{%- else %}
+{%- if detection.detection_id %}
+<detected>Detection</detected> <bold>#{{ loop.index }}</bold> <detected>flagged this email.</detected> Detection ID: {{ detection.detection_id }}
+{%- else %}
+<detected>Detection</detected> <bold>#{{ loop.index }}</bold> <detected>flagged this email.</detected> 
+{%- endif %}
+{%- endif %}
+{%- else %}
+
+{%- if detection.name %}
+{%- if detection.detection_id %}
+<not-detected>Detection</not-detected> <bold>{{ detection.name }}</bold> <not-detected>did not flag this email.</not-detected> Detection ID: {{ detection.detection_id }}
+{%- else %}
+<not-detected>Detection</not-detected> <bold>{{ detection.name }}</bold> <not-detected>did not flag this email.</not-detected>
+{%- endif %}
+{%- else %}
+{%- if detection.detection_id %}
+<not-detected>Detection</not-detected> <bold>#{{ loop.index }}</bold> <not-detected>did not flag this email.</not-detected> Detection ID: {{ detection.detection_id }}
+{%- else %}
+<not-detected>Detection</not-detected> <bold>#{{ loop.index }}</bold> <not-detected>did not flag this email.</not-detected> 
+{%- endif %}
+{%- endif %}
+
+{%- endif %}
+{%- else %}
+
+{%- if detection.name %}
+{%- if detection.detection_id %}
+<fail>Detection</fail> <bold>{{ detection.name }}</bold> <fail>failed.</fail> Detection ID: {{ detection.detection_id }}. Error: {{ detection.error }}
+{%- else %}
+<fail>Detection</fail> <bold>{{ detection.name }}</bold> <fail>failed.</fail> Error: {{ detection.error }}
+{%- endif %}
+{%- else %}
+{%- if detection.detection_id %}
+<fail>Detection</fail> <bold>#{{ loop.index }}</bold> <fail>failed.</fail> Detection ID: {{ detection.detection_id }}. Error: {{ detection.error }}
+{%- else %}
+<fail>Detection</fail> <bold>#{{ loop.index }}</bold> <fail>failed.</fail> Error: {{ detection.error }}
+{%- endif %}
+{%- endif %}
+{%- endif %}
+
 {%- if verbose %}
-<detected>Detection {{ detection.detection_id }} flagged this email.</detected>
-{%- else %}
-<detected>Detection #{{ loop.index }} flagged this email.</detected>
-{%- endif %}
-{%- else %}
-{%- if verbose %}
-<not-detected>Detection {{ detection.detection_id }} did not flag this email.</not-detected>
-{%- else %}
-<not-detected>Detection #{{ loop.index }} did not flag this email.</not-detected>
-{%- endif %}
-{%- endif %}
-{%- else %}
-{%- if verbose %}
-<fail>Detection {{ detection.detection_id }} failed.</fail> Error: {{ detection.error }}
-{%- else %}
-<fail>Detection #{{ loop.index }} failed.</fail> Error: {{ detection.error }}
-{%- endif %}
-{%- endif %}
-{%- if detection.query %}
+<key>Raw Detection</key>: <bold>{{ detection.detection }}</bold>
 {{ "" }}
 {%- endif %}
+
 {%- endfor %}

@@ -69,8 +69,14 @@ def enrich_details_formatter(result, verbose):
 def analyze_formatter(results, verbose):
     """Convert Analyze output into human-readable text."""
     template = JINJA2_ENV.get_template("analyze_result.txt.j2")
+
     # analyze/multi will return 'results', otherwise 'result'
     results = results["results"] if results.get("results") else [results["result"]]
+
+    for result in results:
+        if result["detection"]:
+            result["detection"] = format_detection(result["detection"])
+
     return template.render(results=results, verbose=verbose)
 
 
