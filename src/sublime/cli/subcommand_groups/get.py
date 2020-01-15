@@ -149,3 +149,36 @@ def me(
 
     return result
     
+@get.command()
+@click.option("-v", "--verbose", count=True, help="Verbose output")
+@click.option("-k", "--api-key", help="Key to include in API requests")
+@click.option(
+    "-o", "--output", "output_file", type=click.File(mode="w"), 
+    help="Output file"
+)
+@click.option(
+    "-f",
+    "--format",
+    "output_format",
+    type=click.Choice(["json", "txt"]),
+    default="txt",
+    help="Output format",
+)
+@pass_api_client
+@click.pass_context
+@echo_result
+@handle_exceptions
+def org(
+    context,
+    api_client,
+    api_key,
+    output_file,
+    output_format,
+    verbose,
+):
+    """Get information about the currently authenticated organization."""
+
+    result = api_client.get_org(verbose)
+
+    return result
+    

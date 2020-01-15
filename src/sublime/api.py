@@ -39,6 +39,7 @@ class Sublime(object):
     EP_DETECTION_BY_ID = "org/detections/{id}/id"
     EP_DETECTION_BY_NAME = "org/detections/{name}/name"
     EP_GET_ME = "org/sublime-users/me"
+    EP_GET_ORG = "org"
     EP_FLAGGED_MESSAGES = "org/flagged-messages"
     EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{id}/detail"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
@@ -274,6 +275,13 @@ class Sublime(object):
         """Get information about the currently authenticated Sublime user."""
 
         endpoint = self.EP_GET_ME
+        response = self._request(endpoint, request_type='GET')
+        return response
+
+    def get_org(self, verbose):
+        """Get information about the currently authenticated organization."""
+
+        endpoint = self.EP_GET_ORG
         response = self._request(endpoint, request_type='GET')
         return response
 

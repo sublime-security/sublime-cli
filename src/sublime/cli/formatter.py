@@ -167,8 +167,15 @@ def update_detections_formatter(results, verbose):
 
 @colored_output
 def get_me_formatter(result, verbose):
-    """Convert sublime user output into human-readable text."""
+    """Convert 'get me' output into human-readable text."""
     template = JINJA2_ENV.get_template("get_me_result.txt.j2")
+
+    return template.render(result=result, verbose=verbose)
+
+@colored_output
+def get_org_formatter(result, verbose):
+    """Convert 'get org' output into human-readable text."""
+    template = JINJA2_ENV.get_template("get_org_result.txt.j2")
 
     return template.render(result=result, verbose=verbose)
 
@@ -185,6 +192,7 @@ FORMATTERS = {
         "get_detections": get_detections_formatter,
         "get_messages": get_flagged_messages_formatter,
         "update_detections": update_detections_formatter,
-        "get_me": get_me_formatter
+        "get_me": get_me_formatter,
+        "get_org": get_org_formatter
     },
 }

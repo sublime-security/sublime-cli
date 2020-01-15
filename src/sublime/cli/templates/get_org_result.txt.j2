@@ -1,0 +1,11 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Organization") }}</header> ║
+╚═══════════════════════════╝
+
+<key>Name: </key><value>{{ result.name }}</value>
+<key>Type: </key><value>{{ result.type }}</value>
+{%- if verbose %}
+<key>Active license: </key><value>{{ result.active_licenses }}</value>
+<key>Total licenses: </key><value>{{ result.total_licenses }}</value>
+<key>Created: </key><value>{{ result.created_at }}</value>
+{%- endif %}
