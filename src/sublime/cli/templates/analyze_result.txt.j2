@@ -8,30 +8,30 @@
 {%- if detection.result %}
 {%- if detection.name %}
 {%- if detection.detection_id %}
-<detected>Detection</detected> <bold>{{ detection.name }}</bold> <detected>flagged this email.</detected> Detection ID: {{ detection.detection_id }}
+<detected>Detection</detected> <bold>{{ detection.name }}</bold> <detected>flagged this message.</detected> Detection ID: {{ detection.detection_id }}
 {%- else %}
-<detected>Detection</detected> <bold>{{ detection.name }}</bold> <detected>flagged this email.</detected>
+<detected>Detection</detected> <bold>{{ detection.name }}</bold> <detected>flagged this message.</detected>
 {%- endif %}
 {%- else %}
 {%- if detection.detection_id %}
-<detected>Detection</detected> <bold>#{{ loop.index }}</bold> <detected>flagged this email.</detected> Detection ID: {{ detection.detection_id }}
+<detected>Detection</detected> <bold>#{{ loop.index }}</bold> <detected>flagged this message.</detected> Detection ID: {{ detection.detection_id }}
 {%- else %}
-<detected>Detection</detected> <bold>#{{ loop.index }}</bold> <detected>flagged this email.</detected> 
+<detected>Detection</detected> <bold>#{{ loop.index }}</bold> <detected>flagged this message.</detected> 
 {%- endif %}
 {%- endif %}
 {%- else %}
 
 {%- if detection.name %}
 {%- if detection.detection_id %}
-<not-detected>Detection</not-detected> <bold>{{ detection.name }}</bold> <not-detected>did not flag this email.</not-detected> Detection ID: {{ detection.detection_id }}
+<not-detected>Detection</not-detected> <bold>{{ detection.name }}</bold> <not-detected>did not flag this message.</not-detected> Detection ID: {{ detection.detection_id }}
 {%- else %}
-<not-detected>Detection</not-detected> <bold>{{ detection.name }}</bold> <not-detected>did not flag this email.</not-detected>
+<not-detected>Detection</not-detected> <bold>{{ detection.name }}</bold> <not-detected>did not flag this message.</not-detected>
 {%- endif %}
 {%- else %}
 {%- if detection.detection_id %}
-<not-detected>Detection</not-detected> <bold>#{{ loop.index }}</bold> <not-detected>did not flag this email.</not-detected> Detection ID: {{ detection.detection_id }}
+<not-detected>Detection</not-detected> <bold>#{{ loop.index }}</bold> <not-detected>did not flag this message.</not-detected> Detection ID: {{ detection.detection_id }}
 {%- else %}
-<not-detected>Detection</not-detected> <bold>#{{ loop.index }}</bold> <not-detected>did not flag this email.</not-detected> 
+<not-detected>Detection</not-detected> <bold>#{{ loop.index }}</bold> <not-detected>did not flag this message.</not-detected> 
 {%- endif %}
 {%- endif %}
 
