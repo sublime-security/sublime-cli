@@ -36,8 +36,8 @@ class Sublime(object):
     EP_MODEL_QUERY = "model/query"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
     EP_DETECTIONS = "org/detections/"
-    EP_UPDATE_DETECTION_BY_ID = "org/detections/{id}/id"
-    EP_UPDATE_DETECTION_BY_NAME = "org/detections/{name}/name"
+    EP_DETECTION_BY_ID = "org/detections/{id}/id"
+    EP_DETECTION_BY_NAME = "org/detections/{name}/name"
     EP_FLAGGED_MESSAGES = "org/flagged-messages"
     EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{id}/detail"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
@@ -244,7 +244,7 @@ class Sublime(object):
         if verbose:
             body["response_type"] = "full"
 
-        endpoint = self.EP_UPDATE_DETECTION_BY_ID.format(id=detection_id)
+        endpoint = self.EP_DETECTION_BY_ID.format(id=detection_id)
         response = self._request(endpoint, request_type='PATCH', json=body)
         return response
 
@@ -265,7 +265,7 @@ class Sublime(object):
         if verbose:
             body["response_type"] = "full"
 
-        endpoint = self.EP_UPDATE_DETECTION_BY_NAME.format(name=detection["name"])
+        endpoint = self.EP_DETECTION_BY_NAME.format(name=detection["name"])
         response = self._request(endpoint, request_type='PATCH', json=body)
         return response
 
@@ -276,6 +276,18 @@ class Sublime(object):
 
         endpoint = self.EP_DETECTIONS
         response = self._request(endpoint, request_type='GET', params=params)
+        return response
+
+    def get_detection_by_id(self, detection_id, verbose):
+        """Get a detection by ID"""
+        endpoint = self.EP_DETECTION_BY_ID.format(id=detection_id)
+        response = self._request(endpoint, request_type='GET')
+        return response
+
+    def get_detection_by_name(self, detection_name, verbose):
+        """Get a detection by name"""
+        endpoint = self.EP_DETECTION_BY_NAME.format(name=detection_name)
+        response = self._request(endpoint, request_type='GET')
         return response
 
     def get_flagged_messages(self, result):

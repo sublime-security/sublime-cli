@@ -23,6 +23,10 @@ def get():
 @get.command()
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
+@click.option("-i", "--id", "detection_id", 
+        help="Detection ID")
+@click.option("-n", "--name", "detection_name", 
+        help="Detection name")
 @click.option("-a", "--active", "active", is_flag=True, default=False,
         help="Filter by active detections only")
 @click.option(
@@ -45,6 +49,8 @@ def detections(
     context,
     api_client,
     api_key,
+    detection_id,
+    detection_name,
     active,
     output_file,
     output_format,
@@ -52,7 +58,15 @@ def detections(
 ):
     """Get detections."""
 
-    results = api_client.get_detections(active)
+    results = {}
+    if detection_id:
+        results["detections"] = [api_client.get_detection_by_id(
+            detection_id, verbose)]
+    elif detection_name:
+        results["detections"] = [api_client.get_detection_by_name(
+            detection_name, verbose)]
+    else:
+        results = api_client.get_detections(active)
 
     return results
 

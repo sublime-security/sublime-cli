@@ -28,7 +28,8 @@ def update():
     type=click.Path(exists=True), 
     help="Detections file or directory"
 )
-@click.option("-i", "--id", "detection_id", help="Detection ID")
+@click.option("-i", "--id", "detection_id",
+        help="Update using detection ID")
 @click.option(
     "-d", "--detection", "detection_str", type=str,
     help=(
@@ -38,11 +39,12 @@ def update():
     )
 )
 @click.option(
-    "-n", "--name", "detection_name", type=str, help="Detection name"
+    "-n", "--name", "detection_name", type=str,
+    help="Change detection name"
 )
 @click.option("--active", "active", 
     type=click.Choice(['true', 'false'], case_sensitive=False),
-    help="Whether the detection should be enabled for live flow"
+    help="Enable or disable the detection for live flow"
 )
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
