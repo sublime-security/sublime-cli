@@ -68,6 +68,9 @@ def detections(
     else:
         results = api_client.get_detections(active)
 
+    results["detections"] = sorted(results["detections"], 
+            key=lambda i: i["name"])
+
     return results
 
 @get.command()
