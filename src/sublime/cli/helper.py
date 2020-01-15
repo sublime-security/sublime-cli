@@ -108,10 +108,13 @@ def load_detections(context, detections_file):
 
     return detections
 
-def create_detection(detection_str, detection_name):
+def create_detection(detection_str, detection_name=None):
+    detection_str = detection_str.strip() if detection_str else None
+    detection_name = detection_name.strip() if detection_name else None
+
     detection = { 
-            "detection": detection_str.strip(),
-            "name": detection_name.strip()
+            "detection": detection_str,
+            "name": detection_name
     }
 
     return detection

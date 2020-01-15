@@ -28,6 +28,7 @@ ANSI_MARKUP = ansimarkup.AnsiMarkup(
         "unknown": ansimarkup.parse("<dim>"),
         "detected": ansimarkup.parse("<light-green>"),
         "enrichment": ansimarkup.parse("<light-yellow>"),
+        "warning": ansimarkup.parse("<light-yellow>"),
     }
 )
 
@@ -98,7 +99,11 @@ def mdm_formatter(results, verbose):
 def create_detections_formatter(results, verbose):
     """Convert detections creation output into human-readable text."""
     template = JINJA2_ENV.get_template("create_detections_result.txt.j2")
-    return template.render(results=results, verbose=verbose)
+
+    return template.render(
+            success_results=results["success"], 
+            fail_results=results["fail"],
+            verbose=verbose)
 
 def format_detection(detection):
     detection = detection.replace("&&", "\n  &&")
@@ -144,6 +149,17 @@ def get_flagged_messages_formatter(results, verbose):
 
         return template.render(results=results["results"], verbose=verbose)
 
+@colored_output
+def update_detections_formatter(results, verbose):
+    """Convert update detections output into human-readable text."""
+
+    template = JINJA2_ENV.get_template("update_detections_result.txt.j2")
+    return template.render(
+            success_results=results["success"], 
+            fail_results=results["fail"],
+            verbose=verbose)
+
+
 
 FORMATTERS = {
     "json": json_formatter,
@@ -155,6 +171,7 @@ FORMATTERS = {
         "query": query_formatter,
         "create_detections": create_detections_formatter,
         "get_detections": get_detections_formatter,
-        "get_messages": get_flagged_messages_formatter
+        "get_messages": get_flagged_messages_formatter,
+        "update_detections": update_detections_formatter
     },
 }

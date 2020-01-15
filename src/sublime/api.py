@@ -36,6 +36,8 @@ class Sublime(object):
     EP_MODEL_QUERY = "model/query"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
     EP_DETECTIONS = "org/detections/"
+    EP_UPDATE_DETECTION_BY_ID = "org/detections/{id}/id"
+    EP_UPDATE_DETECTION_BY_NAME = "org/detections/{name}/name"
     EP_FLAGGED_MESSAGES = "org/flagged-messages"
     EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{id}/detail"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
@@ -80,12 +82,20 @@ class Sublime(object):
             response = self.session.post(
                     url, headers=headers, json=json
             )
+        elif request_type == 'PATCH':
+            response = self.session.patch(
+                    url, headers=headers, json=json
+            )
         else:
             raise Exception("not implemented")
 
 
         if "application/json" in response.headers.get("Content-Type", ""):
-            body = response.json()
+            # 204 has no content and will trigger an exception
+            if response.status_code != 204:
+                body = response.json()
+            else:
+                body = None
         else:
             body = response.text
 
@@ -202,14 +212,61 @@ class Sublime(object):
     def create_detection(self, detection, active, verbose):
         """Create a detection."""
         body = {}
-        body["detection"] = detection["detection"]
-        body["name"] = detection["name"]
         body["active"] = active
+
+        if detection.get("detection"):
+            body["detection"] = detection["detection"]
+
+        if detection.get("name"):
+            body["name"] = detection["name"]
+
         if verbose:
             body["response_type"] = "full"
 
         endpoint = self.EP_DETECTIONS
         response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    # be careful what values are set in the request - they'll force an update
+    def update_detection_by_id(self, detection_id, detection, active, verbose):
+        """Update a detection by ID."""
+        body = {}
+
+        if active is not None:
+            body["active"] = active
+
+        if detection.get("detection"):
+            body["detection"] = detection["detection"]
+
+        if detection.get("name"):
+            body["name"] = detection["name"]
+
+        if verbose:
+            body["response_type"] = "full"
+
+        endpoint = self.EP_UPDATE_DETECTION_BY_ID.format(id=detection_id)
+        response = self._request(endpoint, request_type='PATCH', json=body)
+        return response
+
+    # be careful what values are set in the request - they'll force an update
+    def update_detection_by_name(self, detection, active, verbose):
+        """Update a detection by name."""
+        body = {}
+
+        if active is not None:
+            body["active"] = active
+
+        if detection.get("detection"):
+            body["detection"] = detection["detection"]
+
+        if detection.get("name"):
+            body["name"] = detection["name"]
+
+        if verbose:
+            body["response_type"] = "full"
+
+        endpoint = self.EP_UPDATE_DETECTION_BY_NAME.format(name=detection["name"])
+        response = self._request(endpoint, request_type='PATCH', json=body)
         return response
 
     def get_detections(self, active):

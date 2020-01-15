@@ -9,7 +9,7 @@ from click_default_group import DefaultGroup
 from click_repl import register_repl
 
 from sublime.cli import subcommand
-from sublime.cli.subcommand_groups import get, create
+from sublime.cli.subcommand_groups import get, create, update
 
 
 def configure_logging():
@@ -54,7 +54,7 @@ for subcommand_function in SUBCOMMAND_FUNCTIONS:
     main.add_command(subcommand_function)
 
 SUBCOMMAND_GROUPS = []
-for sub in (create, get):
+for sub in (create, get, update):
     SUBCOMMAND_GROUPS.extend(
         subcommand_group
         for subcommand_group in vars(sub).values()

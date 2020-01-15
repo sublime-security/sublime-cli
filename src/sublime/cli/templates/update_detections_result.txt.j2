@@ -3,16 +3,10 @@
 ╚═══════════════════════════╝
 
 {%- for result in success_results %}
-{%- if result.name %}
-Detection <bold>{{ result.name }}</bold> <success>created</success>. Detection ID: {{ result.detection_id }}
-{%- if verbose %}
-<dim>Detection: {{ result.detection }}</dim>
-{%- endif %}
+{%- if result.updated %}
+Detection <bold>{{ result.original_name }}</bold> <success>updated</success>. Detection ID: {{ result.detection_id }}
 {%- else %}
-Detection <success>created</success>. Detection ID: {{ result.detection_id }}
-{%- if verbose %}
-<dim>Detection: {{ result.detection }}</dim>
-{%- endif %}
+Detection <bold>{{ result.original_name }}</bold> <warning>unchanged</warning>. Detection ID: {{ result.detection_id }}
 {%- endif %}
 {%- endfor %}
 

@@ -1,4 +1,4 @@
-"""CLI create subcommands."""
+"""CLI update subcommands."""
 
 import os
 import platform
@@ -16,11 +16,11 @@ from sublime.cli.helper import *
 
 
 @click.group()
-def create():
-    """Create an item in your Sublime environment."""
+def update():
+    """Update an item(s) in your Sublime environment."""
     pass
 
-@create.command()
+@update.command()
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
 @click.option(
@@ -28,6 +28,7 @@ def create():
     type=click.Path(exists=True), 
     help="Detections file or directory"
 )
+@click.option("-i", "--id", "detection_id", help="Detection ID")
 @click.option(
     "-d", "--detection", "detection_str", type=str,
     help=(
@@ -37,13 +38,12 @@ def create():
     )
 )
 @click.option(
-    "-n", "--name", "detection_name", type=str,
-    help=(
-        "Detection name"
-    )
+    "-n", "--name", "detection_name", type=str, help="Detection name"
 )
-@click.option("-a", "--active", "active", is_flag=True, default=False,
-        help="Whether the detection should be enabled for live flow")
+@click.option("--active", "active", 
+    type=click.Choice(['true', 'false'], case_sensitive=False),
+    help="Whether the detection should be enabled for live flow"
+)
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
@@ -65,6 +65,7 @@ def detections(
     api_client,
     api_key,
     detections_path,
+    detection_id,
     detection_str,
     detection_name,
     active,
@@ -72,10 +73,15 @@ def detections(
     output_format,
     verbose,
 ):
-    """Create a detection."""
-    if not detections_path and not detection_str:
-        raise MissingDetectionInput
+    """Update a detection(s)."""
+    if active == 'true':
+        active = True
+    elif active == 'false':
+        active = False
+    else:
+        active = None
 
+    results = {"success": [], "fail": []}
     if detections_path:
         if os.path.isfile(detections_path):
             with open(detections_path) as f:
@@ -83,19 +89,32 @@ def detections(
 
         elif os.path.isdir(detections_path):
             detections = load_detections_path(context, detections_path)
+
+        for d in detections:
+            '''
+            if not d["name"]:
+                click.echo("Detection name required when using a PQL path/file")
+                context.exit(-1)
+            '''
+
+            try:
+                results["success"].append(api_client.update_detection_by_name(
+                    d, active, verbose))
+            except Exception as e:
+                results["fail"].append(e.args[1])
+
     else:
-        if not detection_name:
-            click.echo("Detection name is required")
+        if not detection_id:
+            click.echo("Detection ID is required")
             context.exit(-1)
+
+        # depending on what we're updating, either of these could be null
+        detection_str = detection_str if detection_str else ""
+        detection_name = detection_name if detection_name else ""
 
         detections = [create_detection(detection_str, detection_name)]
 
-    results = {"success": [], "fail": []}
-    for d in detections:
-        try:
-            results["success"].append(
-                    api_client.create_detection(d, active, verbose))
-        except Exception as e:
-            results["fail"].append(e.args[1])
+        results["success"] = [api_client.update_detection_by_id(
+            detection_id, d, active, verbose) for d in detections]
 
     return results
