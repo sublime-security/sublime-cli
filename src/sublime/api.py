@@ -306,10 +306,13 @@ class Sublime(object):
         response = self._request(endpoint, request_type='GET')
         return response
 
-    def get_flagged_messages(self, result):
+    def get_flagged_messages(self, result, after, before):
         """Get flagged messages."""
         params = {}
         params["result"] = result
+        params["start"] = after
+        params["end"] = before
+        params["inclusive"] = False
 
         endpoint = self.EP_FLAGGED_MESSAGES
         response = self._request(endpoint, request_type='GET', params=params)

@@ -78,9 +78,19 @@ def detections(
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
 @click.option("-n", "--not", "result", is_flag=True, default=True,
-        help="Invert: Return not-flagged messages")
+    help="Invert: Return not-flagged messages")
+@click.option("--after", "after", 
+    type=click.DateTime(formats=get_datetime_formats()),
+    help=(
+        "Only retrieve messages after this date. "
+        "Default: 30 days ago. Format: ISO 8601"
+    )
+)
+@click.option("--before", "before",
+    type=click.DateTime(formats=get_datetime_formats()),
+    help="Only retrieve messages before this date. Format: ISO 8601")
 @click.option("-i", "--id", "message_data_model_id", 
-        help="Message Data Model ID")
+    help="Message Data Model ID")
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
@@ -102,15 +112,19 @@ def messages(
     api_client,
     api_key,
     result,
+    after,
+    before,
     message_data_model_id,
     output_file,
     output_format,
     verbose,
 ):
-    """Get messages. By default, flagged messages are returned."""
+    """
+    Get messages. By default, only flagged messages are returned.
+    """
 
     if not message_data_model_id:
-        results = api_client.get_flagged_messages(result)
+        results = api_client.get_flagged_messages(result, after, before)
     else:
         results = api_client.get_flagged_message_detail(message_data_model_id)
 

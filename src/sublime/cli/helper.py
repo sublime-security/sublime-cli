@@ -125,3 +125,13 @@ def create_query(query_str):
     }
 
     return query
+
+def get_datetime_formats():
+    formats=[
+            '%Y-%m-%d',
+            '%Y-%m-%dT%H:%M:%S',
+            '%Y-%m-%dT%H:%M:%S.%f%z',
+            '%Y-%m-%d %H:%M:%S'
+    ]
+
+    return formats
