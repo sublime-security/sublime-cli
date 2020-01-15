@@ -68,7 +68,7 @@ def detections(
     else:
         results = api_client.get_detections(active)
 
-    if result.get("detections"):
+    if results.get("detections"):
         results["detections"] = sorted(results["detections"], 
                 key=lambda i: i["name"] if i.get("name") else "")
 
@@ -115,3 +115,37 @@ def messages(
         results = api_client.get_flagged_message_detail(message_data_model_id)
 
     return results
+
+@get.command()
+@click.option("-v", "--verbose", count=True, help="Verbose output")
+@click.option("-k", "--api-key", help="Key to include in API requests")
+@click.option(
+    "-o", "--output", "output_file", type=click.File(mode="w"), 
+    help="Output file"
+)
+@click.option(
+    "-f",
+    "--format",
+    "output_format",
+    type=click.Choice(["json", "txt"]),
+    default="txt",
+    help="Output format",
+)
+@pass_api_client
+@click.pass_context
+@echo_result
+@handle_exceptions
+def me(
+    context,
+    api_client,
+    api_key,
+    output_file,
+    output_format,
+    verbose,
+):
+    """Get information about the currently authenticated Sublime user."""
+
+    result = api_client.get_me(verbose)
+
+    return result
+    
