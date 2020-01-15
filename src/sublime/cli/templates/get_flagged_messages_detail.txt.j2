@@ -13,6 +13,20 @@
 {%- endif %}
 
 {{ "" }}
+      <header>ENRICHMENT RESULTS</header>
+----------------------------
+<bold>{{ total_successful_enrichments }} / {{ total_enrichments }}</bold> enrichments <success>succeeded</success>.
+{%- for detail in enrichment_details %}
+{%- if detail.success %}
+{%- if verbose %}
+<enrichment>{{ detail.name }}</enrichment> enrichment for <bold>{{ detail.target }}</bold> <success>succeeded.</success>
+{%- endif %}
+{%- else %}
+<bold>{{ detail.name }}</bold> enrichment for <bold>{{ detail.target }}</bold> <fail>failed.</fail> Reason: <bold>{{ detail.error }}</bold>
+{%- endif %}
+{%- endfor %}
+
+{{ "" }}
   <header>FLAGGED DETECTION RESULTS</header>
 ----------------------------
 {% for result in detection_results -%}
@@ -27,15 +41,3 @@
 {%- endif %}
 {{ "" }}
 {% endfor %}
-      <header>ENRICHMENT RESULTS</header>
-----------------------------
-<bold>{{ total_successful_enrichments }} / {{ total_enrichments }}</bold> enrichments <success>succeeded</success>.
-{%- for detail in enrichment_details %}
-{%- if detail.success %}
-{%- if verbose %}
-<enrichment>{{ detail.name }}</enrichment> enrichment for <bold>{{ detail.target }}</bold> <success>succeeded.</success>
-{%- endif %}
-{%- else %}
-<bold>{{ detail.name }}</bold> enrichment for <bold>{{ detail.target }}</bold> <fail>failed.</fail> Reason: <bold>{{ detail.error }}</bold>
-{%- endif %}
-{%- endfor %}

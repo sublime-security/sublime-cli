@@ -11,9 +11,7 @@
 <key>Subject: </key><bold>{{ result.subject }}</bold>
 <key>Sender:</key> <bold>{{ result.sender_display_name }} <{{result.sender_email_address}}></bold>
 <key>Mailbox:</key> <bold>{{ result.mailbox_email_address }}</bold>
-{%- if verbose %}
 <key>MDM ID: </key><dim>{{ result.message_data_model_id }}</dim>
 <key>Created: </key><dim>{{ result.created_at }}</dim>
-{%- endif %}
 {{ "" }}
 {%- endfor %}
