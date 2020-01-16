@@ -81,8 +81,15 @@ def echo_result(function):
             result = result["message_data_model"]
 
 
-        output = formatter(result, 
-                params.get("verbose", False)).strip("\n")
+        # query subcommand formatter needs one extra argument passed to it
+        if context.command.name == "query":
+            output = formatter(result, 
+                    params.get("verbose", False),
+                    params.get("silent", False)).strip("\n")
+        else:
+            output = formatter(result, 
+                    params.get("verbose", False)).strip("\n")
+
         click.echo(
             output, 
             file=params.get("output_file", click.open_file("-", mode="w"))
@@ -336,8 +343,15 @@ def query_command(function):
         "-i", "--input", "input_file", type=click.File(), 
         help="Enriched MDM file", required=True
     )
+    @click.option("-s", "--silent", "silent", is_flag=True, default=False,
+        help="Silent mode, don't output queries with no result")
     @click.option(
-        "-q", "--query", "query", type=str, required=True,
+        "-Q", "--queries", "query_path", 
+        type=click.Path(exists=True), 
+        help="Query file or directory"
+    )
+    @click.option(
+        "-q", "--query", "query_str", type=str,
         help=(
             "Raw query, surrounded by single quotes"
         )

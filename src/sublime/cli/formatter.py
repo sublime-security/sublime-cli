@@ -14,7 +14,8 @@ import click
 import colorama
 from jinja2 import Environment, PackageLoader
 
-JINJA2_ENV = Environment(loader=PackageLoader("sublime.cli"))
+JINJA2_ENV = Environment(loader=PackageLoader("sublime.cli"),
+        extensions=['jinja2.ext.loopcontrols'])
 
 colorama.init()
 ANSI_MARKUP = ansimarkup.AnsiMarkup(
@@ -81,13 +82,19 @@ def analyze_formatter(results, verbose):
 
 
 @colored_output
-def query_formatter(results, verbose):
+def query_formatter(results, verbose, silent):
     """Convert Query output into human-readable text."""
     template = JINJA2_ENV.get_template("query_result.txt.j2")
-    result = results["result"]
-    if result["type"] in ("list", "dict"):
-        result["result"] = json_formatter(json.loads(result["result"]), False)
-    return template.render(query=result, verbose=verbose)
+
+    results = results["results"] if results.get("results") else [results["result"]]
+    for result in results:
+        if result["type"] in ("list", "dict"):
+            result["result"] = json_formatter(json.loads(result["result"]), False)
+
+        if result["query"]:
+            result["query"] = format_detection(result["query"])
+
+    return template.render(results=results, verbose=verbose, silent=silent)
 
 
 def mdm_formatter(results, verbose):

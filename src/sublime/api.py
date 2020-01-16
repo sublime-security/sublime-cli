@@ -33,8 +33,9 @@ class Sublime(object):
     EP_MESSAGE_ENRICH = "message/enrich"
     EP_MESSAGE_CREATE = "message/create"
     EP_MODEL_ANALYZE = "model/analyze"
-    EP_MODEL_QUERY = "model/query"
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
+    EP_MODEL_QUERY = "model/query"
+    EP_MODEL_QUERY_MULTI = "model/query/multi"
     EP_DETECTIONS = "org/detections/"
     EP_DETECTION_BY_ID = "org/detections/{id}/id"
     EP_DETECTION_BY_NAME = "org/detections/{name}/name"
@@ -128,6 +129,18 @@ class Sublime(object):
         if verbose:
             body["response_type"] = "full"
         endpoint = self.EP_MODEL_ANALYZE
+        response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def query_mdm_multi(self, message_data_model, queries, verbose):
+        """Query an enriched Message Data Model against a list of detections"""
+
+        body = {}
+        body["message_data_model"] = message_data_model
+        body["queries"] = queries 
+        if verbose:
+            body["response_type"] = "full"
+        endpoint = self.EP_MODEL_QUERY_MULTI
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 

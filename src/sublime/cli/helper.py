@@ -45,15 +45,17 @@ def load_message_data_model(context, input_file):
     return message_data_model
 
 
-def load_detections_path(context, detections_path):
+# this function is used for both loading detections and queries
+def load_detections_path(context, detections_path, query=False):
     detections = []
     for detections_file in Path(detections_path).rglob("*.pql"):
         with detections_file.open() as f:
-            detections.extend(load_detections(context, f))
+            detections.extend(load_detections(context, f, query))
 
     return detections
 
-def load_detections(context, detections_file):
+# this function is used for both loading detections and queries
+def load_detections(context, detections_file, query=False):
     if detections_file is None:
         click.echo(context.get_help())
         context.exit(-1)
@@ -81,7 +83,10 @@ def load_detections(context, detections_file):
         if not line:
             # reached the end of a detection
             if detection_str:
-                detection = create_detection(detection_str, detection_name)
+                if not query:
+                    detection = create_detection(detection_str, detection_name)
+                else:
+                    detection = create_query(detection_str, detection_name)
                 detections.append(detection)
                 detection_str = ""
                 detection_name = ""
@@ -97,13 +102,16 @@ def load_detections(context, detections_file):
 
     # true if there's no newline at the end of the last detection
     if detection_str:
-        detection = create_detection(detection_str, detection_name)
+        if not query:
+            detection = create_detection(detection_str, detection_name)
+        else:
+            detection = create_query(detection_str, detection_name)
         detections.append(detection)
         detection_str = ""
         detection_name = ""
 
     if not detections:
-        click.echo("No detections found in detections file")
+        click.echo("No detections/queries found in PQL file")
         context.exit(-1)
 
     return detections
@@ -119,9 +127,13 @@ def create_detection(detection_str, detection_name=None):
 
     return detection
 
-def create_query(query_str):
+def create_query(query_str, query_name=None):
+    query_str = query_str.strip() if query_str else None
+    query_name = query_name.strip() if query_name else None
+
     query = {
-            "query": query_str.strip()
+            "query": query_str,
+            "name": query_name
     }
 
     return query

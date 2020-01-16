@@ -150,15 +150,43 @@ def query(
     api_client,
     api_key,
     input_file,
-    query,
+    silent,
+    query_path,
+    query_str,
     output_file,
     output_format,
     verbose,
 ):
     """Query an enriched MDM and get the output."""
-    query = create_query(query)
+    if query_path:
+        if os.path.isfile(query_path):
+            with open(query_path) as f:
+                queries = load_detections(context, f, query=True)
+                multi = True
+
+        elif os.path.isdir(query_path):
+            queries = load_detections_path(context, query_path, query=True)
+            multi = True
+    else:
+        if not query_str:
+            click.echo("Query or PQL file(s) is required")
+            context.exit(-1)
+
+        query = create_query(query_str)
+        multi = False
+
     message_data_model = load_message_data_model(context, input_file)
-    results = api_client.query_mdm(message_data_model, query, verbose)
+
+    if multi:
+        results = api_client.query_mdm_multi(message_data_model, queries, verbose)
+    else:
+        results = api_client.query_mdm(message_data_model, query, verbose)
+
+    '''
+    if results.get("results"):
+        results["results"] = sorted(results["results"], 
+                key=lambda i: i["name"] if i.get("name") else "")
+    '''
 
     return results
 
