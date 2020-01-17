@@ -134,3 +134,65 @@ def detections(
             key=lambda i: i["original_name"] if i.get("original_name") else "")
 
     return results
+
+@update.command()
+@click.option("-v", "--verbose", count=True, help="Verbose output")
+@click.option("-k", "--api-key", help="Key to include in API requests")
+@click.option("-i", "--id", "message_data_model_id",
+        help="Message data model ID to update", required=True
+)
+@click.option(
+    "--reviewed", "reviewed",
+    type=click.Choice(['true', 'false'], case_sensitive=False),
+    required=True,
+    help="Review status"
+)
+@click.option("--safe", "safe", 
+    type=click.Choice(['true', 'false'], case_sensitive=False),
+    required=True,
+    help="Whether the message is safe or not"
+)
+@click.option(
+    "-o", "--output", "output_file", type=click.File(mode="w"), 
+    help="Output file"
+)
+@click.option(
+    "-f",
+    "--format",
+    "output_format",
+    type=click.Choice(["json", "txt"]),
+    default="txt",
+    help="Output format",
+)
+@pass_api_client
+@click.pass_context
+@echo_result
+@handle_exceptions
+def messages(
+    context,
+    api_client,
+    api_key,
+    message_data_model_id,
+    reviewed,
+    safe,
+    output_file,
+    output_format,
+    verbose,
+):
+    """Update a message(s)."""
+
+    if safe == 'true':
+        safe = True
+    elif safe == 'false':
+        safe = False
+    else:
+        click.echo("Threat status is required")
+        context.exit(-1)
+
+    results = [api_client.review_message(
+        message_data_model_id=message_data_model_id,
+        reviewed=reviewed,
+        safe=safe,
+        verbose=verbose)]
+
+    return results

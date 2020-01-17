@@ -79,6 +79,12 @@ def detections(
 @click.option("-k", "--api-key", help="Key to include in API requests")
 @click.option("-n", "--not", "result", is_flag=True, default=True,
     help="Invert: Return not-flagged messages")
+@click.option(
+    "--reviewed", "reviewed",
+    type=click.Choice(['true', 'false'], case_sensitive=False),
+    default="false", show_default=True,
+    help="Filter by review status"
+)
 @click.option("--after", "after", 
     type=click.DateTime(formats=get_datetime_formats()),
     help=(
@@ -112,6 +118,7 @@ def messages(
     api_client,
     api_key,
     result,
+    reviewed,
     after,
     before,
     message_data_model_id,
@@ -124,7 +131,11 @@ def messages(
     """
 
     if not message_data_model_id:
-        results = api_client.get_flagged_messages(result, after, before)
+        results = api_client.get_flagged_messages(
+                result, 
+                after, 
+                before,
+                reviewed)
     else:
         results = api_client.get_flagged_message_detail(message_data_model_id)
 

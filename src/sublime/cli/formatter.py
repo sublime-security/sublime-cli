@@ -173,6 +173,13 @@ def update_detections_formatter(results, verbose):
             verbose=verbose)
 
 @colored_output
+def update_messages_formatter(results, verbose):
+    """Convert update messages output into human-readable text."""
+
+    template = JINJA2_ENV.get_template("update_messages_result.txt.j2")
+    return template.render(results=results, verbose=verbose)
+
+@colored_output
 def get_me_formatter(result, verbose):
     """Convert 'get me' output into human-readable text."""
     template = JINJA2_ENV.get_template("get_me_result.txt.j2")
@@ -200,6 +207,7 @@ FORMATTERS = {
         "get_messages": get_flagged_messages_formatter,
         "update_detections": update_detections_formatter,
         "get_me": get_me_formatter,
-        "get_org": get_org_formatter
+        "get_org": get_org_formatter,
+        "update_messages": update_messages_formatter
     },
 }

@@ -39,6 +39,7 @@ class Sublime(object):
     EP_DETECTIONS = "org/detections/"
     EP_DETECTION_BY_ID = "org/detections/{id}/id"
     EP_DETECTION_BY_NAME = "org/detections/{name}/name"
+    EP_MODEL_REVIEW = "model/{id}/review"
     EP_GET_ME = "org/sublime-users/me"
     EP_GET_ORG = "org"
     EP_FLAGGED_MESSAGES = "org/flagged-messages"
@@ -317,13 +318,14 @@ class Sublime(object):
         response = self._request(endpoint, request_type='GET')
         return response
 
-    def get_flagged_messages(self, result, after, before):
+    def get_flagged_messages(self, result, after, before, reviewed):
         """Get flagged messages."""
         params = {}
         params["result"] = result
         params["start"] = after
         params["end"] = before
         params["inclusive"] = False
+        params["reviewed"] = reviewed
 
         endpoint = self.EP_FLAGGED_MESSAGES
         response = self._request(endpoint, request_type='GET', params=params)
@@ -335,6 +337,16 @@ class Sublime(object):
         endpoint = self.EP_FLAGGED_MESSAGES_DETAIL.format(
                 id=message_data_model_id)
         response = self._request(endpoint, request_type='GET')
+        return response
+
+    def review_message(self, message_data_model_id, reviewed, safe, verbose):
+        """Update review status of a message."""
+        body = {}
+        body["reviewed"] = reviewed
+        body["safe"] = safe
+
+        endpoint = self.EP_MODEL_REVIEW.format(id=message_data_model_id)
+        response = self._request(endpoint, request_type='POST', json=body)
         return response
 
     def not_implemented(self, subcommand_name):

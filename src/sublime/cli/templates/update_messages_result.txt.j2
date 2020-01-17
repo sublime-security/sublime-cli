@@ -1,0 +1,19 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+
+{%- for result in results %}
+{%- if result.reviewed %}
+{%- if result.safe %}
+<bold>Updated MDM ID {{ result.message_data_model_id }}: </bold><success>Reviewed</success> - <success>Safe</success>
+{%- else %}
+<bold>Updated MDM ID {{ result.message_data_model_id }}: </bold><success>Reviewed</success> - <fail>Not safe</fail>
+{%- endif %}
+{%- else %}
+{%- if result.safe %}
+<bold>Updated MDM ID {{ result.message_data_model_id }}: </bold><warning>Not Reviewed</warning> - <success>Safe</success>
+{%- else %}
+<bold>Updated MDM ID {{ result.message_data_model_id }}: </bold><warning>Not Reviewed</warning> - <fail>Not safe</fail>
+{%- endif %}
+{%- endif %}
+{%- endfor %}
