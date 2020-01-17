@@ -264,23 +264,21 @@ class Sublime(object):
         return response
 
     # be careful what values are set in the request - they'll force an update
-    def update_detection_by_name(self, detection, active, verbose):
+    def update_detection_by_name(self, name, detection, active, verbose):
         """Update a detection by name."""
         body = {}
+        body["name"] = name
 
         if active is not None:
             body["active"] = active
 
-        if detection.get("detection"):
-            body["detection"] = detection["detection"]
-
-        if detection.get("name"):
-            body["name"] = detection["name"]
+        if detection:
+            body["detection"] = detection
 
         if verbose:
             body["response_type"] = "full"
 
-        endpoint = self.EP_DETECTION_BY_NAME.format(name=detection["name"])
+        endpoint = self.EP_DETECTION_BY_NAME.format(name=name)
         response = self._request(endpoint, request_type='PATCH', json=body)
         return response
 

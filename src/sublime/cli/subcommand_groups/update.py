@@ -40,7 +40,10 @@ def update():
 )
 @click.option(
     "-n", "--name", "detection_name", type=str,
-    help="Change detection name"
+    help=(
+        "Update using detection name. "
+        "If a detection ID is provided, this will change the detection name"
+    )
 )
 @click.option("--active", "active", 
     type=click.Choice(['true', 'false'], case_sensitive=False),
@@ -92,22 +95,26 @@ def detections(
         elif os.path.isdir(detections_path):
             detections = load_detections_path(context, detections_path)
 
+        if detection_name or detection_id:
+            message = (
+                    "Detection names and IDs cannot be used with a PQL file yet.\n"
+                    "Use the -d option to pass the detection in as a string, or "
+                    "specify the detection name inside the PQL file."
+            )
+            click.echo(message)
+            context.exit(-1)
+
         for d in detections:
-            '''
-            if not d["name"]:
-                click.echo("Detection name required when using a PQL path/file")
-                context.exit(-1)
-            '''
 
             try:
                 results["success"].append(api_client.update_detection_by_name(
-                    d, active, verbose))
+                    d.get("name"), d.get("detection"), active, verbose))
             except Exception as e:
                 results["fail"].append(e.args[1])
 
     else:
-        if not detection_id:
-            click.echo("Detection ID or PQL file(s) is required")
+        if not detection_id and not detection_name:
+            click.echo("Detection ID, detection name, or PQL file(s) is required")
             context.exit(-1)
 
         # depending on what we're updating, either of these could be null
@@ -116,8 +123,12 @@ def detections(
 
         detections = [create_detection(detection_str, detection_name)]
 
-        results["success"] = [api_client.update_detection_by_id(
-            detection_id, d, active, verbose) for d in detections]
+        if detection_id:
+            results["success"] = [api_client.update_detection_by_id(
+                detection_id, d, active, verbose) for d in detections]
+        else:
+            results["success"] = [api_client.update_detection_by_name(
+                d.get("name"), d.get("detection"), active, verbose) for d in detections]
 
     results["success"] = sorted(results["success"], 
             key=lambda i: i["original_name"] if i.get("original_name") else "")
