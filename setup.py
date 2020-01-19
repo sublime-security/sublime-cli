@@ -25,6 +25,7 @@ INSTALL_REQUIRES = [
     "requests",
     "six",
     "structlog",
+    "websockets"
 ]
 
 setup(
