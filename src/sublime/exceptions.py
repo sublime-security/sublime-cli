@@ -7,3 +7,7 @@ class RequestFailure(Exception):
 
 class RateLimitError(RequestFailure):
     """API rate limit passed."""
+
+
+class WebSocketError(Exception):
+    """Websocket Error"""

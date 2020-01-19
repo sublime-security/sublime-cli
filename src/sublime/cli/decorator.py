@@ -12,7 +12,7 @@ from requests.exceptions import RequestException
 
 from sublime.api import Sublime
 from sublime.cli.formatter import FORMATTERS
-from sublime.exceptions import RequestFailure, RateLimitError
+from sublime.exceptions import RequestFailure, RateLimitError, WebSocketError
 from sublime.util import load_config
 
 LOGGER = structlog.get_logger()
@@ -157,6 +157,11 @@ def handle_exceptions(function):
             LOGGER.error(error_message)
             # click.echo(error_message)
             click.get_current_context().exit(-1)
+        except WebSocketError as exception:
+            error_message = "API error: {}".format(exception)
+            LOGGER.error(error_message)
+            # click.echo(error_message)
+            click.get_current_context().exit(-1)
 
     return wrapper
 
@@ -195,6 +200,34 @@ def pass_api_client(function):
 
         api_client = Sublime(api_key=api_key)
         return function(api_client, *args, **kwargs)
+
+    return wrapper
+
+
+def listen_command(function):
+    """Decorator that groups decorators common to listen subcommand."""
+
+    @click.command()
+    @click.option("-k", "--api-key", help="Key to include in API requests")
+    @click.argument("event")
+    @click.option(
+        "-o", "--output", "output_file", type=click.File(mode="w"), 
+        help="Output file"
+    )
+    @click.option(
+        "-f",
+        "--format",
+        "output_format",
+        type=click.Choice(["json", "txt"]),
+        default="txt",
+        help="Output format",
+    )
+    @pass_api_client
+    @click.pass_context
+    @handle_exceptions
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        return function(*args, **kwargs)
 
     return wrapper
 

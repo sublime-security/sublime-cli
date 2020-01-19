@@ -11,10 +11,20 @@ from sublime.cli.decorator import (
     analyze_command,
     query_command,
     generate_command,
+    listen_command,
     not_implemented_command
 )
 from sublime.cli.helper import *
 from sublime.util import CONFIG_FILE, DEFAULT_CONFIG, save_config
+
+# for the listen subcommand
+import ssl
+import asyncio
+import websockets
+from functools import wraps
+from sublime.cli.formatter import FORMATTERS 
+from websockets.exceptions import InvalidStatusCode
+from sublime.exceptions import WebSocketError
 
 
 '''
@@ -24,11 +34,82 @@ def feedback():
 '''
 
 
+# unused, not necessary
+def asyncio_wrapper(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        return asyncio.run(f(*args, **kwargs))
+
+    return wrapper
+
+
 @click.command(name="help")
 @click.pass_context
 def help_(context):
     """Show this message and exit."""
     click.echo(context.parent.get_help())
+
+
+@listen_command
+@click.option("-v", "--verbose", count=True, help="Verbose output")
+def listen(
+    context,
+    api_client,
+    api_key,
+    event,
+    output_file,
+    output_format,
+    verbose,
+):
+    """Listen for real-time events occuring in your Sublime environment."""
+
+    # we have to do the formatting here due to the nature of websockets
+    formatter = FORMATTERS[output_format]
+    formatter_name = "listen"
+    if isinstance(formatter, dict):
+        formatter = formatter[formatter_name]
+
+    async def wsrun(uri):
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        try:
+            async with websockets.connect(uri, ssl=ctx) as websocket:
+                await websocket.send('test')
+                while True:
+                    data = await websocket.recv()
+                    try:
+                        data = json.loads(data)
+                    except:
+                        pass
+
+                    output = formatter(data, verbose).strip("\n")
+
+                    # file output doesn't work yet
+                    if not output_file:
+                        click.echo(output, click.open_file("-", mode="w"))
+                    else:
+                        click.echo(output)
+
+        except InvalidStatusCode as e:
+            raise WebSocketError(e)
+        except Exception as e:
+            err = str(e)
+            if "Connect call failed" in err:
+                raise WebSocketError("Failed to establish connection")
+
+            raise WebSocketError("Connection closed")
+
+    api_key = api_client.api_key
+    BASE_API = os.environ.get('BASE_API')
+    BASE_API = BASE_API if BASE_API else "api.sublimesecurity.com"
+    ws = f"wss://{BASE_API}/v1/org/listen/ws?api_key={api_key}&event={event}"
+
+    asyncio.get_event_loop().run_until_complete(wsrun(ws))
+
+    if output_file:
+        click.echo(f"Output saved to {output_file}")
 
 
 @enrich_command
