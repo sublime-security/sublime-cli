@@ -1,5 +1,5 @@
-{%- if result.event_name == 'flagged-message' %}
-<bold>NEW FLAGGED MESSAGE</bold> <key>MDM ID: </key><dim>{{ result.message_data_model_id }}</dim>
+{%- if result.event_name == 'flagged-messages' %}
+<dim>{{ result.created_at }}</dim>  <bold>--></bold> <key>MDM ID: </key><value>{{ result.message_data_model_id }}</value>
 {%- else %}
 <bold>{{ result }}</bold>
 {%- endif %}

@@ -81,7 +81,9 @@ def listen(
                     data = await websocket.recv()
                     try:
                         data = json.loads(data)
-                    except:
+                        if "success" in data and not data["success"]:
+                            raise WebSocketError(data["error"])
+                    except ValueError:
                         pass
 
                     output = formatter(data, verbose).strip("\n")
@@ -93,7 +95,9 @@ def listen(
                         click.echo(output)
 
         except InvalidStatusCode as e:
-            raise WebSocketError(e)
+            raise
+        except WebSocketError as e:
+            raise
         except Exception as e:
             err = str(e)
             if "Connect call failed" in err:
