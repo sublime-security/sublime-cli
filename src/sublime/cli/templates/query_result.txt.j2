@@ -3,8 +3,7 @@
 ╚═══════════════════════════╝
 {% for query in results %}
 {%- if query.success %}
-{%- if query.result %}
-{%- if silent and (query.result == "None" or query.result == "[]") %}
+{%- if silent and (not query.result or query.result == "None" or query.result == "[]") %}
 {%- continue -%}
 {%- endif %}
 {%- if query.name %}
@@ -23,9 +22,6 @@
 <key>Query:</key> <bold>#{{ loop.index }}</bold>
 <key>Result:</key> {{ query.result }}
 {%- endif %}
-{%- endif %}
-{%- else %}
-{# no query output #}
 {%- endif %}
 {%- else %}
 {# query error #}
