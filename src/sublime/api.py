@@ -44,6 +44,7 @@ class Sublime(object):
     EP_GET_ORG = "org"
     EP_FLAGGED_MESSAGES = "org/flagged-messages"
     EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{id}/detail"
+    EP_SEND_MOCK_TUTORIAL_ONE = "org/sublime-users/mock-tutorial-one"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None, use_cache=True):
@@ -347,6 +348,12 @@ class Sublime(object):
 
         endpoint = self.EP_MODEL_REVIEW.format(id=message_data_model_id)
         response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def send_mock_tutorial_one(self, verbose):
+        endpoint = self.EP_SEND_MOCK_TUTORIAL_ONE
+        response = self._request(endpoint, request_type='POST')
+
         return response
 
     def not_implemented(self, subcommand_name):

@@ -70,9 +70,12 @@ def listen(
         formatter = formatter[formatter_name]
 
     async def wsrun(uri):
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
+        # if not in dev mode, force SSL over websocket
+        if os.getenv('ENV') != 'dev':
+            ctx = ssl.create_default_context()
+            ctx.verify_mode = ssl.CERT_REQUIRED
+        else:
+            ctx = None
 
         try:
             async with websockets.connect(uri, ssl=ctx) as websocket:
@@ -95,7 +98,9 @@ def listen(
                         click.echo(output)
 
         except InvalidStatusCode as e:
-            raise
+            # err = "Failed to establish connection."
+            # raise WebSocketError(err)
+            raise WebSocketError(e)
         except WebSocketError as e:
             raise
         except Exception as e:
@@ -103,12 +108,12 @@ def listen(
             if "Connect call failed" in err:
                 raise WebSocketError("Failed to establish connection")
 
-            raise WebSocketError("Connection closed")
+            raise WebSocketError(e)
 
     api_key = api_client.api_key
-    BASE_API = os.environ.get('BASE_API')
-    BASE_API = BASE_API if BASE_API else "api.sublimesecurity.com"
-    ws = f"wss://{BASE_API}/v1/org/listen/ws?api_key={api_key}&event={event}"
+    BASE_WEBSOCKET = os.environ.get('BASE_WEBSOCKET')
+    BASE_WEBSOCKET = BASE_WEBSOCKET if BASE_WEBSOCKET else "wss://api.sublimesecurity.com"
+    ws = f"{BASE_WEBSOCKET}/v1/org/listen/ws?api_key={api_key}&event={event}"
 
     asyncio.get_event_loop().run_until_complete(wsrun(ws))
 

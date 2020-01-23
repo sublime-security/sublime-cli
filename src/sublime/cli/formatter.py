@@ -200,6 +200,13 @@ def listen_formatter(result, verbose):
 
     return template.render(result=result, verbose=verbose)
 
+@colored_output
+def send_mock_formatter(result, verbose):
+    """Convert send mock output into human-readable text."""
+    template = JINJA2_ENV.get_template("send_mock_result.txt.j2")
+
+    return template.render(result=result, verbose=verbose)
+
 
 FORMATTERS = {
     "json": json_formatter,
@@ -216,6 +223,7 @@ FORMATTERS = {
         "get_me": get_me_formatter,
         "get_org": get_org_formatter,
         "update_messages": update_messages_formatter,
-        "listen": listen_formatter
+        "listen": listen_formatter,
+        "send_mock": send_mock_formatter
     },
 }
