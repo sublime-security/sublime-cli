@@ -176,6 +176,7 @@ def update_detections_formatter(results, verbose):
 def update_messages_formatter(results, verbose):
     """Convert update messages output into human-readable text."""
 
+    results = results["results"] if results.get("results") else [results["result"]]
     template = JINJA2_ENV.get_template("update_messages_result.txt.j2")
     return template.render(results=results, verbose=verbose)
 

@@ -40,6 +40,7 @@ class Sublime(object):
     EP_DETECTION_BY_ID = "org/detections/{id}/id"
     EP_DETECTION_BY_NAME = "org/detections/{name}/name"
     EP_MODEL_REVIEW = "model/{id}/review"
+    EP_MODEL_REVIEW_ALL = "model/review/multi/all"
     EP_GET_ME = "org/sublime-users/me"
     EP_GET_ORG = "org"
     EP_FLAGGED_MESSAGES = "org/flagged-messages"
@@ -347,6 +348,19 @@ class Sublime(object):
         body["safe"] = safe
 
         endpoint = self.EP_MODEL_REVIEW.format(id=message_data_model_id)
+        response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def review_all_messages(self, after, before, reviewed, safe, verbose):
+        """Update review status of all messages that meet the criteria."""
+        body = {}
+        body["start"] = after
+        body["end"] = before
+        body["inclusive"] = False
+        body["reviewed"] = reviewed
+        body["safe"] = safe
+
+        endpoint = self.EP_MODEL_REVIEW_ALL
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 

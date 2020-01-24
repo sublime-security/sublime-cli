@@ -139,7 +139,7 @@ def detections(
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
 @click.option("-i", "--id", "message_data_model_id",
-        help="Message data model ID to update", required=True
+        help="Message data model ID to update"
 )
 @click.option(
     "--reviewed", "reviewed",
@@ -151,6 +151,23 @@ def detections(
     type=click.Choice(['true', 'false'], case_sensitive=False),
     required=True,
     help="Whether the message is safe or not"
+)
+@click.option("--all", "review_all", is_flag=True,
+    help=(
+        "Update the review status/threat status on all messages that "
+        "are flagged, not reviewed, and within the timeframe specified"
+    )
+)
+@click.option("--after", "after", 
+    type=click.DateTime(formats=get_datetime_formats()),
+    help=(
+        "For --all, only update messages after this date. "
+        "Default: 30 days ago. Format: ISO 8601"
+    )
+)
+@click.option("--before", "before",
+    type=click.DateTime(formats=get_datetime_formats()),
+    help="For --all, only update messages before this date. Format: ISO 8601"
 )
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
@@ -175,6 +192,9 @@ def messages(
     message_data_model_id,
     reviewed,
     safe,
+    review_all,
+    after,
+    before,
     output_file,
     output_format,
     verbose,
@@ -189,10 +209,28 @@ def messages(
         click.echo("Threat status is required")
         context.exit(-1)
 
-    results = [api_client.review_message(
-        message_data_model_id=message_data_model_id,
-        reviewed=reviewed,
-        safe=safe,
-        verbose=verbose)]
+    if review_all:
+        if click.confirm(
+                'Are you sure you want to update all messages?', 
+                abort=False):
+            results = api_client.review_all_messages(
+                    after=after,
+                    before=before,
+                    reviewed=reviewed,
+                    safe=safe,
+                    verbose=verbose)
+
+        else:
+            click.echo("Aborted!")
+            context.exit(-1)
+    elif not message_data_model_id:
+        click.echo("Message Data Model ID is required")
+        context.exit(-1)
+    else:
+        results = api_client.review_message(
+            message_data_model_id=message_data_model_id,
+            reviewed=reviewed,
+            safe=safe,
+            verbose=verbose)
 
     return results

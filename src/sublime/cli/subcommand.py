@@ -61,7 +61,11 @@ def listen(
     output_format,
     verbose,
 ):
-    """Listen for real-time events occuring in your Sublime environment."""
+    """Listen for real-time events occuring in your Sublime environment.
+
+    Events: "flagged-messages"
+
+    """
 
     # we have to do the formatting here due to the nature of websockets
     formatter = FORMATTERS[output_format]
