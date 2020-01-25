@@ -280,7 +280,7 @@ def enrich_command(function):
 def generate_command(function):
     """Decorator that groups decorators common to generate subcommand."""
 
-    @click.command()
+    @click.command(hidden=True)
     @click.option("-k", "--api-key", help="Key to include in API requests")
     @click.option(
         "-i", "--input", "input_file", type=click.File(), 
