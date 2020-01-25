@@ -21,7 +21,7 @@ colorama.init()
 ANSI_MARKUP = ansimarkup.AnsiMarkup(
     tags={
         "header": ansimarkup.parse("<bold>"),
-        "key": ansimarkup.parse("<blue>"),
+        "key": ansimarkup.parse("<cyan>"),
         "value": ansimarkup.parse("<green>"),
         "not-detected": ansimarkup.parse("<dim>"),
         "fail": ansimarkup.parse("<light-red>"),
