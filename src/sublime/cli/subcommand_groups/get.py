@@ -28,8 +28,8 @@ def get():
 @click.option("-n", "--name", "detection_name", 
         help="Detection name")
 @click.option("-a", "--active", "active",
-    type=click.Choice(['true', 'false'], case_sensitive=False), default="false",
-    help="Enable or disable the detection for live flow"
+    type=click.Choice(['true', 'false'], case_sensitive=False),
+    help="Filter by active or inactive detections"
 )
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
@@ -61,8 +61,10 @@ def detections(
     """Get detections."""
     if active == 'true':
         active = True
-    else:
+    elif active == 'false':
         active = False
+    else:
+        active = None
 
     results = {}
     if detection_id:
