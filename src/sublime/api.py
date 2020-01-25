@@ -46,6 +46,7 @@ class Sublime(object):
     EP_FLAGGED_MESSAGES = "org/flagged-messages"
     EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{id}/detail"
     EP_SEND_MOCK_TUTORIAL_ONE = "org/sublime-users/mock-tutorial-one"
+    EP_UPDATE_USER_LICENSE = "org/users/email/{}/license"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None, use_cache=True):
@@ -367,6 +368,15 @@ class Sublime(object):
     def send_mock_tutorial_one(self, verbose):
         endpoint = self.EP_SEND_MOCK_TUTORIAL_ONE
         response = self._request(endpoint, request_type='POST')
+
+        return response
+
+    def update_user_license(self, email_address, active, verbose):
+        body = {}
+        body["active"] = active
+
+        endpoint = self.EP_UPDATE_USER_LICENSE.format(email_address)
+        response = self._request(endpoint, request_type='PATCH', json=body)
 
         return response
 

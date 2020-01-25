@@ -234,3 +234,56 @@ def messages(
             verbose=verbose)
 
     return results
+
+@update.command()
+@click.option("-v", "--verbose", count=True, help="Verbose output")
+@click.option("-k", "--api-key", help="Key to include in API requests")
+@click.option("-e", "--email", "email_address", required=True,
+        help="Email address of user to update"
+)
+@click.option("--active", "active", 
+    type=click.Choice(['true', 'false'], case_sensitive=False), required=True,
+    help="Activate/deactive the user for live flow"
+)
+@click.option(
+    "-o", "--output", "output_file", type=click.File(mode="w"), 
+    help="Output file"
+)
+@click.option(
+    "-f",
+    "--format",
+    "output_format",
+    type=click.Choice(["json", "txt"]),
+    default="txt",
+    help="Output format",
+)
+@pass_api_client
+@click.pass_context
+@echo_result
+@handle_exceptions
+def users(
+    context,
+    api_client,
+    api_key,
+    email_address,
+    active,
+    output_file,
+    output_format,
+    verbose,
+):
+    """Update a user(s)."""
+
+    if active == 'true':
+        active = True
+    elif active == 'false':
+        active = False
+    else:
+        click.echo("Invalid user state")
+        context.exit(-1)
+
+    results = [api_client.update_user_license(
+        email_address=email_address,
+        active=active,
+        verbose=verbose)]
+
+    return results
