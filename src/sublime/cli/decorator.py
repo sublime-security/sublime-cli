@@ -207,6 +207,7 @@ def pass_api_client(function):
     return wrapper
 
 
+# TODO: fix -o and -f
 def listen_command(function):
     """Decorator that groups decorators common to listen subcommand."""
 
@@ -215,7 +216,8 @@ def listen_command(function):
     @click.argument("event")
     @click.option(
         "-o", "--output", "output_file", type=click.File(mode="w"), 
-        help="Output file"
+        help="Output file",
+        hidden=True
     )
     @click.option(
         "-f",
@@ -224,6 +226,7 @@ def listen_command(function):
         type=click.Choice(["json", "txt"]),
         default="txt",
         help="Output format",
+        hidden=True
     )
     @pass_api_client
     @click.pass_context
