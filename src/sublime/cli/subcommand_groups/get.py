@@ -27,8 +27,10 @@ def get():
         help="Detection ID")
 @click.option("-n", "--name", "detection_name", 
         help="Detection name")
-@click.option("-a", "--active", "active", is_flag=True, default=False,
-        help="Filter by active detections only")
+@click.option("-a", "--active", "active",
+    type=click.Choice(['true', 'false'], case_sensitive=False), default="false",
+    help="Enable or disable the detection for live flow"
+)
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
@@ -57,6 +59,10 @@ def detections(
     verbose,
 ):
     """Get detections."""
+    if active == 'true':
+        active = True
+    else:
+        active = False
 
     results = {}
     if detection_id:
@@ -207,3 +213,48 @@ def org(
 
     return result
     
+@get.command()
+@click.option("-v", "--verbose", count=True, help="Verbose output")
+@click.option("-k", "--api-key", help="Key to include in API requests")
+@click.option("-a", "--active", "license_active",
+    type=click.Choice(['true', 'false'], case_sensitive=False), default="true",
+    help="Filter by users with active licenses only")
+@click.option(
+    "-o", "--output", "output_file", type=click.File(mode="w"), 
+    help="Output file"
+)
+@click.option(
+    "-f",
+    "--format",
+    "output_format",
+    type=click.Choice(["json", "txt"]),
+    default="txt",
+    help="Output format",
+)
+@pass_api_client
+@click.pass_context
+@echo_result
+@handle_exceptions
+def users(
+    context,
+    api_client,
+    api_key,
+    license_active,
+    output_file,
+    output_format,
+    verbose,
+):
+    """Get users."""
+    if license_active == 'true':
+        license_active = True
+    elif license_active == 'false':
+        license_active = False
+    else:
+        license_active = None
+
+    results = api_client.get_users(license_active, verbose)
+
+    results["users"] = sorted(results["users"], 
+            key=lambda i: i["email_address"])
+
+    return results

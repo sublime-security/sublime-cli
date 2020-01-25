@@ -43,6 +43,7 @@ class Sublime(object):
     EP_MODEL_REVIEW_ALL = "model/review/multi/all"
     EP_GET_ME = "org/sublime-users/me"
     EP_GET_ORG = "org"
+    EP_GET_USERS = "org/users"
     EP_FLAGGED_MESSAGES = "org/flagged-messages"
     EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{id}/detail"
     EP_SEND_MOCK_TUTORIAL_ONE = "org/sublime-users/mock-tutorial-one"
@@ -371,12 +372,21 @@ class Sublime(object):
 
         return response
 
-    def update_user_license(self, email_address, active, verbose):
+    def update_user_license(self, email_address, license_active, verbose):
         body = {}
-        body["active"] = active
+        body["license_active"] = license_active
 
         endpoint = self.EP_UPDATE_USER_LICENSE.format(email_address)
         response = self._request(endpoint, request_type='PATCH', json=body)
+
+        return response
+
+    def get_users(self, license_active, verbose):
+        params = {}
+        params["license_active"] = license_active
+
+        endpoint = self.EP_GET_USERS
+        response = self._request(endpoint, request_type='GET', params=params)
 
         return response
 

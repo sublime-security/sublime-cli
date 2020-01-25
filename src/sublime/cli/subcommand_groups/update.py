@@ -45,7 +45,7 @@ def update():
         "If a detection ID is provided, this will change the detection name"
     )
 )
-@click.option("--active", "active", 
+@click.option("-a", "--active", "active", 
     type=click.Choice(['true', 'false'], case_sensitive=False),
     help="Enable or disable the detection for live flow"
 )
@@ -241,9 +241,9 @@ def messages(
 @click.option("-e", "--email", "email_address", required=True,
         help="Email address of user to update"
 )
-@click.option("--active", "active", 
+@click.option("-a", "--active", "license_active", 
     type=click.Choice(['true', 'false'], case_sensitive=False), required=True,
-    help="Activate/deactive the user for live flow"
+    help="Activate/deactivate the user's license for live flow"
 )
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
@@ -266,24 +266,23 @@ def users(
     api_client,
     api_key,
     email_address,
-    active,
+    license_active,
     output_file,
     output_format,
     verbose,
 ):
     """Update a user(s)."""
-
-    if active == 'true':
-        active = True
-    elif active == 'false':
-        active = False
+    if license_active == 'true':
+        license_active = True
+    elif license_active == 'false':
+        license_active = False
     else:
         click.echo("Invalid user state")
         context.exit(-1)
 
     results = [api_client.update_user_license(
         email_address=email_address,
-        active=active,
+        license_active=license_active,
         verbose=verbose)]
 
     return results

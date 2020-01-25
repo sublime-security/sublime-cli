@@ -4,8 +4,8 @@
 
 {%- for result in results %}
 {%- if result.license_active %}
-<success>Activated</success> <bold>{{ result.email_address }}.</bold> <success>User is protected by Sublime.</success>
+<bold>{{ result.email_address }} ({{ result.full_name }})</bold> <success>active.</success>
 {%- else %}
-<fail>Deactivated</fail> <bold>{{ result.email_address }}.</bold> <fail>User is not protected by Sublime.</fail>
+<bold>{{ result.email_address }} ({{ result.full_name }})</bold> <fail>inactive.</fail>
 {%- endif %}
 {%- endfor %}
