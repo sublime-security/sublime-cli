@@ -42,8 +42,10 @@ def create():
         "Detection name"
     )
 )
-@click.option("-a", "--active", "active", is_flag=True, default=False,
-        help="Whether the detection should be enabled for live flow")
+@click.option("-a", "--active", "active", default="false", show_default=True,
+    type=click.Choice(['true', 'false'], case_sensitive=False),
+    help="Whether the detection should be enabled for live flow"
+)
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
@@ -73,6 +75,11 @@ def detections(
     verbose,
 ):
     """Create a detection."""
+    if active == 'true':
+        active = True
+    else:
+        active = False
+
     if not detections_path and not detection_str:
         raise MissingDetectionInput
 
