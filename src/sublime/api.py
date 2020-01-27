@@ -179,7 +179,7 @@ class Sublime(object):
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def enrich_eml(self, eml, mailbox_email_address=None):
+    def enrich_eml(self, eml, mailbox_email_address=None, route_type=None):
         """Enrich an EML.
 
         :param eml: Raw EML to enrich.
@@ -194,6 +194,8 @@ class Sublime(object):
         body = {}
         body["message"] = eml
         body["mailbox_email_address"] = mailbox_email_address
+        body["route_type"] = route_type
+
         endpoint = self.EP_MESSAGE_ENRICH
         with Halo(text='Enriching', spinner='dots'):
             response = self._request(endpoint, request_type='POST', json=body)

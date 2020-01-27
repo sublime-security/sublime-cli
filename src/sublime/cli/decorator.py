@@ -269,6 +269,11 @@ def enrich_command(function):
             "environments)"
             )
     )
+    @click.option("-t", "--type", "route_type",
+        type=click.Choice(['inbound', 'internal', 'outbound'], 
+            case_sensitive=False),
+        help="Set the message type"
+    )
     @pass_api_client
     @click.pass_context
     @echo_result

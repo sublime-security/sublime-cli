@@ -135,13 +135,14 @@ def enrich(
     output_file,
     output_format,
     mailbox_email_address,
+    route_type,
     verbose,
 ):
     """Enrich an EML."""
     # emls = load emls from input directory
     # results = [api_client.enrich(eml=input_file) for ip_address in ip_addresses]
     eml = load_eml_as_base64(context, input_file)
-    results = api_client.enrich_eml(eml, mailbox_email_address)
+    results = api_client.enrich_eml(eml, mailbox_email_address, route_type)
 
     return results
 
