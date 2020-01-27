@@ -36,17 +36,23 @@ Usage
       -h, --help  Show this message and exit.
 
     Commands:
-      analyze   Analyze an enriched MDM or raw EML.
-      enrich    Enrich an EML.
-      help      Show this message and exit.
-      query     Query an enriched MDM and get the output.
-      repl      Start an interactive shell.
-      setup     Configure API key.
-      version   Get version and OS information for your Sublime commandline...
+      analyze  Analyze an enriched MDM or raw EML.
+      create   Create an item in your Sublime environment.
+      enrich   Enrich an EML.
+      get      Get items from your Sublime environment.
+      help     Show this message and exit.
+      listen   Listen for real-time events occuring in your Sublime environment.
+      query    Query an enriched MDM and get the output.
+      repl     Start an interactive shell.
+      send     Send or generate mock data.
+      setup    Configure API key.
+      update   Update an item(s) in your Sublime environment.
+      version  Get version and OS information for your Sublime commandline...
 
 Development
 ===========
 **Override defaults**
 
 ``export BASE_URL=http://127.0.0.1:8000``
+
 ``export PYTHONPATH=/path/to/sublime-cli/src/``
