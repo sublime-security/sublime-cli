@@ -72,7 +72,7 @@ def analyze_formatter(results, verbose):
     template = JINJA2_ENV.get_template("analyze_result.txt.j2")
 
     # analyze/multi will return 'results', otherwise 'result'
-    results = results["results"] if results.get("results") else [results["result"]]
+    results = results["results"] if "results" in results else [results["result"]]
 
     for result in results:
         if result["detection"]:
@@ -86,7 +86,7 @@ def query_formatter(results, verbose, show_all):
     """Convert Query output into human-readable text."""
     template = JINJA2_ENV.get_template("query_result.txt.j2")
 
-    results = results["results"] if results.get("results") else [results["result"]]
+    results = results["results"] if "results" in results else [results["result"]]
     for result in results:
         if result["type"] in ("list", "dict"):
             result["result"] = json_formatter(json.loads(result["result"]), False)
@@ -176,7 +176,7 @@ def update_detections_formatter(results, verbose):
 def update_messages_formatter(results, verbose):
     """Convert update messages output into human-readable text."""
 
-    results = results["results"] if results.get("results") else [results["result"]]
+    results = results["results"] if "results" in results else [results["result"]]
     template = JINJA2_ENV.get_template("update_messages_result.txt.j2")
     return template.render(results=results, verbose=verbose)
 

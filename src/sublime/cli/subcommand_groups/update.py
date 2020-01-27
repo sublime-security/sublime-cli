@@ -210,9 +210,18 @@ def messages(
         context.exit(-1)
 
     if review_all:
-        if click.confirm(
-                'Are you sure you want to update all messages?', 
-                abort=False):
+        results_test = api_client.get_flagged_messages(
+                result=True,
+                after=after,
+                before=before,
+                reviewed=False)
+        count = len(results_test["results"])
+        if not count:
+            click.echo("No messages to update!")
+            context.exit(-1)
+
+        message = f"Are you sure you want to update all {count} messages?" 
+        if click.confirm(message, abort=False):
             results = api_client.review_all_messages(
                     after=after,
                     before=before,
