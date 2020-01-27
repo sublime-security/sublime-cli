@@ -85,7 +85,7 @@ def echo_result(function):
         if context.command.name == "query":
             output = formatter(result, 
                     params.get("verbose", False),
-                    params.get("silent", False)).strip("\n")
+                    params.get("show_all", False)).strip("\n")
         else:
             output = formatter(result, 
                     params.get("verbose", False)).strip("\n")
@@ -382,8 +382,12 @@ def query_command(function):
         "-i", "--input", "input_file", type=click.File(), 
         help="Enriched MDM file", required=True
     )
-    @click.option("-s", "--silent", "silent", is_flag=True, default=False,
-        help="Silent mode, don't output queries with no result")
+    @click.option("-a", "--all", "show_all", is_flag=True, default=False,
+        help=(
+            "For -Q queries, show all query ouput, even the ones with no result. "
+            "By default, only queries with a result will be shown."
+        )
+    )
     @click.option(
         "-Q", "--queries", "query_path", 
         type=click.Path(exists=True), 

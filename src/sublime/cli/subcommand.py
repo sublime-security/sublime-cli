@@ -244,7 +244,7 @@ def query(
     api_client,
     api_key,
     input_file,
-    silent,
+    show_all,
     query_path,
     query_str,
     output_file,

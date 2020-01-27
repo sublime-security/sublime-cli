@@ -82,7 +82,7 @@ def analyze_formatter(results, verbose):
 
 
 @colored_output
-def query_formatter(results, verbose, silent):
+def query_formatter(results, verbose, show_all):
     """Convert Query output into human-readable text."""
     template = JINJA2_ENV.get_template("query_result.txt.j2")
 
@@ -94,7 +94,7 @@ def query_formatter(results, verbose, silent):
         if result["query"]:
             result["query"] = format_detection(result["query"])
 
-    return template.render(results=results, verbose=verbose, silent=silent)
+    return template.render(results=results, verbose=verbose, show_all=show_all)
 
 
 def mdm_formatter(results, verbose):

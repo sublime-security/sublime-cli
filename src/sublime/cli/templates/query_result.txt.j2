@@ -3,7 +3,7 @@
 ╚═══════════════════════════╝
 {% for query in results %}
 {%- if query.success %}
-{%- if silent and (not query.result or query.result == "None" or query.result == "[]") %}
+{%- if not show_all and (not query.result or query.result == "None" or query.result == "[]") %}
 {%- continue -%}
 {%- endif %}
 {%- if query.name %}
