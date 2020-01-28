@@ -12,7 +12,8 @@ from sublime.cli.decorator import (
     query_command,
     generate_command,
     listen_command,
-    not_implemented_command
+    not_implemented_command,
+    MissingDetectionInput
 )
 from sublime.cli.helper import *
 from sublime.util import CONFIG_FILE, DEFAULT_CONFIG, save_config
