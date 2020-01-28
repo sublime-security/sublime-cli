@@ -150,7 +150,10 @@ def detections(
 @click.option("--safe", "safe", 
     type=click.Choice(['true', 'false'], case_sensitive=False),
     required=True,
-    help="Whether the message is safe or not"
+    help=(
+        "Whether the message is safe or not. There are no second "
+        "order effects to this (no blacklisting/whitelisting, etc.). "
+        "This strictly exists to enable simple filtering later." 
 )
 @click.option("--all", "review_all", is_flag=True,
     help=(
