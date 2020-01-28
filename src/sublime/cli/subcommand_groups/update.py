@@ -154,6 +154,7 @@ def detections(
         "Whether the message is safe or not. There are no second "
         "order effects to this (no blacklisting/whitelisting, etc.). "
         "This strictly exists to enable simple filtering later." 
+    )
 )
 @click.option("--all", "review_all", is_flag=True,
     help=(
