@@ -184,10 +184,7 @@ def analyze(
 ):
     """Analyze an enriched MDM or raw EML."""
     if not detections_path and not detection_str:
-        try:
-            detections_path = click.open_file("detections.pql", mode="r")
-        except FileNotFoundError as e:
-            raise MissingDetectionInput
+        raise MissingDetectionInput
 
     if detections_path:
         if os.path.isfile(detections_path):

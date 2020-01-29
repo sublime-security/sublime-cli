@@ -339,7 +339,7 @@ def analyze_command(function):
     @click.option(
         "-D", "--detections", "detections_path", 
         type=click.Path(exists=True), 
-        help="Detections file or directory [default: ./detections.pql]"
+        help="Detections file or directory"
     )
     @click.option(
         "-d", "--detection", "detection_str", type=str,
