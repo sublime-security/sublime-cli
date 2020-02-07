@@ -263,11 +263,6 @@ def messages(
     type=click.Choice(['true', 'false'], case_sensitive=False), required=True,
     help="Activate/deactivate the user's license for live flow"
 )
-@click.option("--all", "update_all", is_flag=True,
-    help=(
-        "Update the status of all users at once"
-    )
-)
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
