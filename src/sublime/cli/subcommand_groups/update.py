@@ -251,12 +251,22 @@ def messages(
 @update.command()
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
-@click.option("-e", "--email", "email_address", required=True,
+@click.option("-e", "--email", "email_address",
         help="Email address of user to update"
+)
+@click.option("--all", "update_all", is_flag=True,
+    help=(
+        "Update the status of all users at once"
+    )
 )
 @click.option("-a", "--active", "license_active", 
     type=click.Choice(['true', 'false'], case_sensitive=False), required=True,
     help="Activate/deactivate the user's license for live flow"
+)
+@click.option("--all", "update_all", is_flag=True,
+    help=(
+        "Update the status of all users at once"
+    )
 )
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
@@ -279,6 +289,7 @@ def users(
     api_client,
     api_key,
     email_address,
+    update_all,
     license_active,
     output_file,
     output_format,
@@ -293,9 +304,37 @@ def users(
         click.echo("Invalid user state")
         context.exit(-1)
 
-    results = [api_client.update_user_license(
-        email_address=email_address,
-        license_active=license_active,
-        verbose=verbose)]
+    if not update_all and not email_address:
+        click.echo("Specify a user or --all")
+        context.exit(-1)
+
+
+    if update_all:
+        results = []
+        all_users = api_client.get_users(license_active=None, verbose=False)
+        count = len(all_users["users"])
+        if not count:
+            click.echo("No users to update!")
+            context.exit(-1)
+
+        message = f"Are you sure you want to update all {count} users?" 
+        if click.confirm(message, abort=False):
+            for user in all_users["users"]:
+                result = api_client.update_user_license(
+                    email_address=user["email_address"],
+                    license_active=license_active,
+                    verbose=verbose)
+
+                results.append(result)
+
+        else:
+            click.echo("Aborted!")
+            context.exit(-1)
+
+    else:
+        results = [api_client.update_user_license(
+            email_address=email_address,
+            license_active=license_active,
+            verbose=verbose)]
 
     return results

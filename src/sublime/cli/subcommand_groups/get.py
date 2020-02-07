@@ -219,7 +219,7 @@ def org(
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
 @click.option("-a", "--active", "license_active",
-    type=click.Choice(['true', 'false'], case_sensitive=False), default="true",
+    type=click.Choice(['true', 'false'], case_sensitive=False),
     help="Filter by users with active licenses only")
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
