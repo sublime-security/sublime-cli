@@ -56,3 +56,5 @@ Development
 ``export BASE_URL=http://127.0.0.1:8000``
 
 ``export PYTHONPATH=/path/to/sublime-cli/src/``
+
+``export BASE_WEBSOCKET=ws://127.0.0.1:8000``

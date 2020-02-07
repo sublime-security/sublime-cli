@@ -2,6 +2,7 @@
 
 import os
 import platform
+from subprocess import call
 
 import click
 
@@ -50,6 +51,10 @@ def help_(context):
     """Show this message and exit."""
     click.echo(context.parent.get_help())
 
+def clear():
+    """Clear the console"""
+    # check and make call for appropriate operating system
+    _ = call('clear' if os.name =='posix' else 'cls')
 
 @listen_command
 @click.option("-v", "--verbose", count=True, help="Verbose output")
@@ -58,7 +63,6 @@ def listen(
     api_client,
     api_key,
     event,
-    output_file,
     output_format,
     verbose,
 ):
@@ -68,6 +72,9 @@ def listen(
 
     """
 
+    # this is used for keeping track of all events still in the queue
+
+    message_queue = []
     # we have to do the formatting here due to the nature of websockets
     formatter = FORMATTERS[output_format]
     formatter_name = "listen"
@@ -94,13 +101,30 @@ def listen(
                     except ValueError:
                         pass
 
-                    output = formatter(data, verbose).strip("\n")
+                    if isinstance(data, dict):
+                        if data.get("event_name") == "flagged-messages-reviewed":
+                            reviewed_id = data.get("message_data_model_id")
 
-                    # file output doesn't work yet
-                    if not output_file:
-                        click.echo(output, click.open_file("-", mode="w"))
+                            # loop through the queue and find/delete the MDM id
+                            for i, message in enumerate(message_queue):
+                                # ensure we're looking at a valid event
+                                if isinstance(message, dict):
+                                    cur_id = message.get("message_data_model_id")
+
+                                    if cur_id == reviewed_id:
+                                        del message_queue[i]
+                        else:
+                            message_queue.append(data)
                     else:
-                        click.echo(output)
+                        message_queue.append(data)
+
+                    clear()
+
+                    for item in message_queue:
+                        output = formatter(item, verbose).strip("\n")
+
+                        # file output doesn't work yet
+                        click.echo(output, click.open_file("-", mode="w"))
 
         except InvalidStatusCode as e:
             # err = "Failed to establish connection."

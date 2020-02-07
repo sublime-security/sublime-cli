@@ -215,11 +215,6 @@ def listen_command(function):
     @click.option("-k", "--api-key", help="Key to include in API requests")
     @click.argument("event")
     @click.option(
-        "-o", "--output", "output_file", type=click.File(mode="w"), 
-        help="Output file",
-        hidden=True
-    )
-    @click.option(
         "-f",
         "--format",
         "output_format",
