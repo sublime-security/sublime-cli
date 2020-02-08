@@ -213,7 +213,7 @@ def listen_command(function):
 
     @click.command()
     @click.option("-k", "--api-key", help="Key to include in API requests")
-    @click.argument("event")
+    @click.argument("event_name")
     @click.option(
         "-f",
         "--format",

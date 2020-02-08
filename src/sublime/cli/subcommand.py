@@ -62,7 +62,7 @@ def listen(
     context,
     api_client,
     api_key,
-    event,
+    event_name,
     output_format,
     verbose,
 ):
@@ -142,7 +142,7 @@ def listen(
     api_key = api_client.api_key
     BASE_WEBSOCKET = os.environ.get('BASE_WEBSOCKET')
     BASE_WEBSOCKET = BASE_WEBSOCKET if BASE_WEBSOCKET else "wss://api.sublimesecurity.com"
-    ws = f"{BASE_WEBSOCKET}/v1/org/listen/ws?api_key={api_key}&event={event}"
+    ws = f"{BASE_WEBSOCKET}/v1/org/listen/ws?api_key={api_key}&event_name={event_name}"
 
     asyncio.get_event_loop().run_until_complete(wsrun(ws))
 
