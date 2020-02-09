@@ -251,7 +251,7 @@ def messages(
 @update.command()
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
-@click.option("-e", "--email", "email_address",
+@click.option("-u", "--user", "email_address",
         help="Email address of user to update"
 )
 @click.option("--all", "update_all", is_flag=True,
