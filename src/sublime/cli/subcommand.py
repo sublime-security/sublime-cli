@@ -2,7 +2,6 @@
 
 import os
 import platform
-from subprocess import call
 
 import click
 
@@ -54,7 +53,7 @@ def help_(context):
 def clear():
     """Clear the console"""
     # check and make call for appropriate operating system
-    _ = call('clear' if os.name =='posix' else 'cls')
+    os.system('clear' if os.name =='posix' else 'cls')
 
 @listen_command
 @click.option("-v", "--verbose", count=True, help="Verbose output")
