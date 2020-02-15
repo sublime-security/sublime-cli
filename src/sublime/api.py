@@ -1,6 +1,8 @@
 """Sublime API client."""
 
 import os
+import json
+import datetime
 from collections import OrderedDict
 
 import more_itertools
@@ -364,6 +366,11 @@ class Sublime(object):
         body["reviewed"] = reviewed
         body["safe"] = safe
 
+        # we need to serialize the datetime objects in the body
+        # we do this here to avoid having to change the _request method
+        body = json.dumps(body, cls=JSONEncoder)
+        body = json.loads(body)
+
         endpoint = self.EP_MODEL_REVIEW_ALL
         response = self._request(endpoint, request_type='POST', json=body)
         return response
@@ -403,3 +410,9 @@ class Sublime(object):
         response = self._request(endpoint)
         return response
 
+
+class JSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.isoformat()
+        return json.JSONEncoder.default(self, obj)
