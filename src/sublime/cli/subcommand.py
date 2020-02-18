@@ -82,7 +82,7 @@ def listen(
 
     async def wsrun(uri):
         # if not in dev mode, force SSL over websocket
-        if os.getenv('ENV') != 'dev':
+        if os.getenv('ENV') != 'local':
             ctx = ssl.create_default_context()
             ctx.verify_mode = ssl.CERT_REQUIRED
         else:
