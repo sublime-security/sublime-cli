@@ -50,6 +50,8 @@ class Sublime(object):
     EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{id}/detail"
     EP_SEND_MOCK_TUTORIAL_ONE = "org/sublime-users/mock-tutorial-one"
     EP_UPDATE_USER_LICENSE = "org/users/email/{}/license"
+    EP_BACKTEST_DETECTION = "org/detections/backtest"
+    EP_BACKTEST_DETECTIONS = "org/detections/backtest/multi"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None, use_cache=True):
@@ -379,6 +381,35 @@ class Sublime(object):
         endpoint = self.EP_SEND_MOCK_TUTORIAL_ONE
         response = self._request(endpoint, request_type='POST')
 
+        return response
+
+    # currently unused
+    def backtest_detection(self, detection, after, before):
+        body = {}
+        body["start"] = after
+        body["end"] = before
+        body["inclusive"] = False
+        body["detection"] = detection
+
+        body = json.dumps(body, cls=JSONEncoder)
+        body = json.loads(body)
+
+        endpoint = self.EP_BACKTEST_DETECTION
+        response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def backtest_detections(self, detections, after, before):
+        body = {}
+        body["start"] = after
+        body["end"] = before
+        body["inclusive"] = False
+        body["detections"] = detections
+
+        body = json.dumps(body, cls=JSONEncoder)
+        body = json.loads(body)
+
+        endpoint = self.EP_BACKTEST_DETECTIONS
+        response = self._request(endpoint, request_type='POST', json=body)
         return response
 
     def update_user_license(self, email_address, license_active, verbose):

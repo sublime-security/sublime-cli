@@ -222,6 +222,24 @@ def get_users_formatter(results, verbose):
 
     return template.render(results=results["users"], verbose=verbose)
 
+@colored_output
+def backtest_detections_formatter(results, verbose):
+    """Convert backtest detection output into human-readable text."""
+    template = JINJA2_ENV.get_template("backtest_detections_results.txt.j2")
+
+    if results.get("detections"):
+        detections = results["detections"]
+
+    if results.get("detection"):
+        detections = [results["detection"]]
+
+    return template.render(
+            detections=detections,
+            results=results["results"], 
+            total_messages_flagged=results["total_messages_flagged"],
+            total_messages_analyzed=results["total_messages_analyzed"],
+            verbose=verbose)
+
 
 FORMATTERS = {
     "json": json_formatter,
@@ -241,6 +259,7 @@ FORMATTERS = {
         "listen": listen_formatter,
         "send_mock": send_mock_formatter,
         "update_users": update_users_formatter,
-        "get_users": get_users_formatter
+        "get_users": get_users_formatter,
+        "backtest_detections": backtest_detections_formatter
     },
 }
