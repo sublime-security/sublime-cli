@@ -2,6 +2,7 @@
 
 import os
 import platform
+import time
 
 import click
 
@@ -97,6 +98,35 @@ def detections(
     else:
         detections = [create_detection(detection_str)]
 
-    results = api_client.backtest_detections(detections, after, before)
+    job_response = api_client.backtest_detections(detections, after, before)
+    job_id = job_response["job_id"]
+
+    # no idea why this is required, but the second api_client call fails w/o it 
+    api_client.session.close()
+
+    while True:
+        job_status_response = api_client.get_job_status(job_id)
+        job_status = job_status_response["status"]
+
+        if job_status == "running":
+            print("Tasks remaining: {}".format(
+                job_status_response["tasks_remaining"]))
+
+        elif job_status == "pending":
+            print("Job pending")
+
+        elif job_status == "completed":
+            results = api_client.get_job_output(job_id)
+            # restore the original backtest_detections results
+            results = results["results"]
+            break
+
+        elif job_status == "failed":
+            raise Exception("Job failed")
+
+        else:
+            raise Exception("Unrecognized job status")
+
+        time.sleep(5)
 
     return results

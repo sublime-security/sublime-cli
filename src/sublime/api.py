@@ -52,6 +52,8 @@ class Sublime(object):
     EP_UPDATE_USER_LICENSE = "org/users/email/{}/license"
     EP_BACKTEST_DETECTION = "org/detections/backtest"
     EP_BACKTEST_DETECTIONS = "org/detections/backtest/multi"
+    EP_GET_JOB_STATUS = "jobs/{}/status"
+    EP_GET_JOB_OUTPUT = "jobs/{}/output"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None, use_cache=True):
@@ -427,6 +429,18 @@ class Sublime(object):
 
         endpoint = self.EP_GET_USERS
         response = self._request(endpoint, request_type='GET', params=params)
+
+        return response
+
+    def get_job_status(self, job_id):
+        endpoint = self.EP_GET_JOB_STATUS.format(job_id)
+        response = self._request(endpoint, request_type='GET')
+
+        return response
+
+    def get_job_output(self, job_id):
+        endpoint = self.EP_GET_JOB_OUTPUT.format(job_id)
+        response = self._request(endpoint, request_type='GET')
 
         return response
 
