@@ -14,6 +14,7 @@ from sublime.cli.decorator import (
     MissingDetectionInput
 )
 from sublime.cli.helper import *
+from sublime.exceptions import JobError
 
 
 @click.group()
@@ -47,7 +48,7 @@ def backtest():
     type=click.DateTime(formats=get_datetime_formats()),
     help=(
         "Only analyze messages after this date. "
-        "Default: 3 days ago. Format: ISO 8601"
+        "Default: last 24 hours. Format: ISO 8601"
     )
 )
 @click.option("--before", "before",
@@ -100,6 +101,7 @@ def detections(
 
     job_response = api_client.backtest_detections(detections, after, before)
     job_id = job_response["job_id"]
+    print(f"Job with ID {job_id} submitted")
 
     # no idea why this is required, but the second api_client call fails w/o it 
     api_client.session.close()
@@ -117,15 +119,17 @@ def detections(
 
         elif job_status == "completed":
             results = api_client.get_job_output(job_id)
-            # restore the original backtest_detections results
+
+            # return the original backtest_detections results
             results = results["results"]
             break
 
         elif job_status == "failed":
-            raise Exception("Job failed")
+            results = api_client.get_job_output(job_id)
+            raise JobError(results["message"])
 
         else:
-            raise Exception("Unrecognized job status")
+            raise JobError("Unrecognized job status")
 
         time.sleep(5)
 

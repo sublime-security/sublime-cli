@@ -4,6 +4,7 @@
 
 <key>Total messages analyzed: </key><bold>{{ total_messages_analyzed }}</bold>
 <key>Total messages flagged: </key><bold>{{ total_messages_flagged }}</bold>
+<key>Total new messages flagged: </key><bold>{{ total_new_messages_flagged }}</bold>
 
 {{ "" }}
   <header>DETECTIONS BACKTESTED</header>
@@ -11,17 +12,14 @@
 {%- for detection in detections %}
 {%- if detection.name %}
 <key>Name: </key><light-yellow>{{ detection.name }}</light-yellow>
-{%- endif %}
-{%- if detection.detection_id %}
+{%- elif detection.detection_id %}
 <key>Detection ID: </key><dim>{{ detection.detection_id }}</dim>
-{%- endif %}
-{%- if verbose %}
+{%- elif detection.detection %}
 <key>Raw Detection:</key> <bold>{{ detection.detection }}</bold>
 {{ "" }}
 {%- endif %}
 {%- endfor %}
 
-{{ "" }}
   <header>FLAGGED MESSAGES</header>
 ----------------------------
 {%- if results -%}
@@ -36,7 +34,8 @@
 <key>Mailbox:</key> <bold>{{ result.mailbox_email_address }}</bold>
 <key>MDM ID: </key><dim>{{ result.message_data_model_id }}</dim>
 <key>Created: </key><dim>{{ result.created_at }}</dim>
-<key>Detections: </key><bold>{% for detection in result.detections_flagged %}{% if detection.name %} {{ detection.name }} {% else %} {{ detection.detection_id }} {% endif %}{% endfor %}</bold>
+<key>Detections flagged: </key><bold>{% for detection in result.detections_flagged %}{% if detection.name %} {{ detection.name }}{% elif detection.detection_id %} {{ detection.detection_id }}{% else %} <detection name not set>{% endif %}{% endfor %}</bold>
+<key>Prior detections flagged: </key><bold>{% for detection in result.prior_detections_flagged %}{% if detection.name %} {{ detection.name }}{% elif detection.detection_id %} {{ detection.detection_id }}{% else %} <detection name not set>{% endif %}{% endfor %}</bold>
 {{ "" }}
 {%- endfor %}
 {%- else -%}

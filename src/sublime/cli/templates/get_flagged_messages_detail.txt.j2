@@ -31,8 +31,8 @@
 ----------------------------
 {% for result in detection_results -%}
 <bold>RESULT {{ loop.index }}</bold>
-{%- if result.detection_name %}
-<key>Name: </key><light-yellow>{{ result.detection_name }}</light-yellow>
+{%- if result.name %}
+<key>Name: </key><light-yellow>{{ result.name }}</light-yellow>
 {%- endif %}
 <key>Detection ID: </key><dim>{{ result.detection_id }}</dim>
 {%- if verbose %}

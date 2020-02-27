@@ -11,3 +11,7 @@ class RateLimitError(RequestFailure):
 
 class WebSocketError(Exception):
     """Websocket Error"""
+
+
+class JobError(Exception):
+    """Exceptions on job execution"""

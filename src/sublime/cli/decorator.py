@@ -12,7 +12,7 @@ from requests.exceptions import RequestException
 
 from sublime.api import Sublime
 from sublime.cli.formatter import FORMATTERS
-from sublime.exceptions import RequestFailure, RateLimitError, WebSocketError
+from sublime.exceptions import *
 from sublime.util import load_config
 
 LOGGER = structlog.get_logger()
@@ -162,6 +162,11 @@ def handle_exceptions(function):
             click.get_current_context().exit(-1)
         except WebSocketError as exception:
             error_message = "API error: {}".format(exception)
+            LOGGER.error(error_message)
+            # click.echo(error_message)
+            click.get_current_context().exit(-1)
+        except JobError as exception:
+            error_message = "Job error: {}".format(exception)
             LOGGER.error(error_message)
             # click.echo(error_message)
             click.get_current_context().exit(-1)
