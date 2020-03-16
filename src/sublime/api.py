@@ -206,7 +206,7 @@ class Sublime(object):
             response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_eml(self, eml, detection, mailbox_email_address, verbose):
+    def analyze_eml(self, eml, detection, mailbox_email_address, route_type, verbose):
         """Analyze an EML against a detection."""
 
         LOGGER.debug("Analyzing EML...")
@@ -215,12 +215,13 @@ class Sublime(object):
         body["message"] = eml
         body["detection"] = detection
         body["mailbox_email_address"] = mailbox_email_address
+        body["route_type"] = route_type
         endpoint = self.EP_MESSAGE_ANALYZE
         with Halo(text='Enriching and analyzing', spinner='dots'):
             response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_eml_multi(self, eml, detections, mailbox_email_address, verbose):
+    def analyze_eml_multi(self, eml, detections, mailbox_email_address, route_type, verbose):
         """Analyze an EML against a list of detections."""
 
         LOGGER.debug("Analyzing EML...")
@@ -229,6 +230,7 @@ class Sublime(object):
         body["message"] = eml
         body["detections"] = detections
         body["mailbox_email_address"] = mailbox_email_address
+        body["route_type"] = route_type
         if verbose:
             body["response_type"] = "full"
         endpoint = self.EP_MESSAGE_ANALYZE_MULTI

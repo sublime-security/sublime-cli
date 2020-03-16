@@ -272,6 +272,8 @@ def enrich_command(function):
     @click.option("-t", "--type", "route_type",
         type=click.Choice(['inbound', 'internal', 'outbound'], 
             case_sensitive=False),
+        default="inbound",
+        show_default=True,
         help="Set the message type"
     )
     @pass_api_client
@@ -348,6 +350,13 @@ def analyze_command(function):
             "specify a single detection to be run directly surrounded "
             "by single quotes"
         )
+    )
+    @click.option("-t", "--type", "route_type",
+        type=click.Choice(['inbound', 'internal', 'outbound'], 
+            case_sensitive=False),
+        default="inbound",
+        show_default=True,
+        help="Set the message type"
     )
     @click.option(
         "-o", "--output", "output_file", type=click.File(mode="w"), 

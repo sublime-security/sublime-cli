@@ -200,6 +200,7 @@ def analyze(
     input_file,
     detections_path,
     detection_str,
+    route_type,
     output_file,
     output_format,
     mailbox_email_address,
@@ -244,12 +245,14 @@ def analyze(
                     eml, 
                     detections, 
                     mailbox_email_address,
+                    route_type,
                     verbose)
         else:
             results = api_client.analyze_eml(
                     eml, 
                     detection, 
                     mailbox_email_address,
+                    route_type,
                     verbose)
 
     if results.get("results"):
