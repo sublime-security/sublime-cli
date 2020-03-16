@@ -86,7 +86,7 @@ def detections(
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
 @click.option("-n", "--not", "result", is_flag=True, default=True,
-    help="Invert: Return not-flagged messages")
+    help="Invert: Return not-flagged messages from the last 30 minutes")
 @click.option(
     "--reviewed", "reviewed",
     type=click.Choice(['true', 'false'], case_sensitive=False),
