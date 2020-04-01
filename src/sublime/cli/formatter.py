@@ -236,6 +236,14 @@ def backtest_detections_formatter(results, verbose):
             verbose=verbose)
 
 
+@colored_output
+def delete_messages_formatter(results, verbose):
+    """Convert delete external message output into human-readable text."""
+    template = JINJA2_ENV.get_template("delete_messages_result.txt.j2")
+
+    return template.render(results=results, verbose=verbose)
+
+
 FORMATTERS = {
     "json": json_formatter,
     "txt": {
@@ -255,6 +263,7 @@ FORMATTERS = {
         "send_mock": send_mock_formatter,
         "update_users": update_users_formatter,
         "get_users": get_users_formatter,
-        "backtest_detections": backtest_detections_formatter
+        "backtest_detections": backtest_detections_formatter,
+        "delete_messages": delete_messages_formatter
     },
 }

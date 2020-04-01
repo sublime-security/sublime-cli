@@ -256,7 +256,4 @@ def users(
 
     results = api_client.get_users(license_active, verbose)
 
-    results["users"] = sorted(results["users"], 
-            key=lambda i: i["email_address"])
-
     return results

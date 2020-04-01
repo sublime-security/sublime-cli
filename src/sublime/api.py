@@ -43,6 +43,7 @@ class Sublime(object):
     EP_DETECTION_BY_NAME = "org/detections/name/{name}"
     EP_MODEL_REVIEW = "review/{id}"
     EP_MODEL_REVIEW_ALL = "review/multi/all"
+    EP_MODEL_DELETE_ORIGINAL = "model/{}/external-message"
     EP_GET_ME = "org/sublime-users/me"
     EP_GET_ORG = "org"
     EP_GET_USERS = "org/users"
@@ -98,6 +99,10 @@ class Sublime(object):
         elif request_type == 'PATCH':
             response = self.session.patch(
                     url, headers=headers, json=json
+            )
+        elif request_type == 'DELETE':
+            response = self.session.delete(
+                    url, headers=headers, params=params
             )
         else:
             raise Exception("not implemented")
@@ -221,7 +226,8 @@ class Sublime(object):
             response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_eml_multi(self, eml, detections, mailbox_email_address, route_type, verbose):
+    def analyze_eml_multi(self, eml, detections, mailbox_email_address, 
+            route_type, verbose):
         """Analyze an EML against a list of detections."""
 
         LOGGER.debug("Analyzing EML...")
@@ -427,6 +433,16 @@ class Sublime(object):
     def get_job_output(self, job_id):
         endpoint = self.EP_GET_JOB_OUTPUT.format(job_id)
         response = self._request(endpoint, request_type='GET')
+
+        return response
+
+    def delete_model_external_message(self, message_data_model_id, permanent):
+        params = {}
+        if permanent:
+            params["permanent"] = permanent
+
+        endpoint = self.EP_MODEL_DELETE_ORIGINAL.format(message_data_model_id)
+        response = self._request(endpoint, request_type='DELETE', params=params)
 
         return response
 
