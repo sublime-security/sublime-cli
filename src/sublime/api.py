@@ -39,16 +39,16 @@ class Sublime(object):
     EP_MODEL_QUERY = "model/query"
     EP_MODEL_QUERY_MULTI = "model/query/multi"
     EP_DETECTIONS = "org/detections"
-    EP_DETECTION_BY_ID = "org/detections/{id}"
+    EP_DETECTION_BY_ID = "org/detections/{}"
     EP_DETECTION_BY_NAME = "org/detections/name/{name}"
-    EP_MODEL_REVIEW = "actions/admin/review/{id}"
-    EP_MODEL_REVIEW_ALL = "actions/admin/review/multi/all"
-    EP_MODEL_DELETE_ORIGINAL = "model/{}/external-message"
+    EP_ADMIN_ACTION_REVIEW = "actions/admin/review/{}"
+    EP_ADMIN_ACTION_REVIEW_ALL = "actions/admin/review/multi/all"
+    EP_ADMIN_ACTION_DELETE = "actions/admin/delete/{}"
     EP_GET_ME = "org/sublime-users/me"
     EP_GET_ORG = "org"
     EP_GET_USERS = "org/users"
     EP_FLAGGED_MESSAGES = "org/flagged-messages"
-    EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{id}/detail"
+    EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{}/detail"
     EP_SEND_MOCK_TUTORIAL_ONE = "org/sublime-users/mock-tutorial-one"
     EP_UPDATE_USER_LICENSE = "org/users/email/{}/license"
     EP_BACKTEST_DETECTIONS = "org/detections/backtest/multi"
@@ -279,7 +279,7 @@ class Sublime(object):
         if verbose:
             body["response_type"] = "full"
 
-        endpoint = self.EP_DETECTION_BY_ID.format(id=detection_id)
+        endpoint = self.EP_DETECTION_BY_ID.format(detection_id)
         response = self._request(endpoint, request_type='PATCH', json=body)
         return response
 
@@ -327,7 +327,7 @@ class Sublime(object):
 
     def get_detection_by_id(self, detection_id, verbose):
         """Get a detection by ID"""
-        endpoint = self.EP_DETECTION_BY_ID.format(id=detection_id)
+        endpoint = self.EP_DETECTION_BY_ID.format(detection_id)
         response = self._request(endpoint, request_type='GET')
         return response
 
@@ -354,7 +354,7 @@ class Sublime(object):
         """Get detail view of a message."""
 
         endpoint = self.EP_FLAGGED_MESSAGES_DETAIL.format(
-                id=message_data_model_id)
+                message_data_model_id)
         response = self._request(endpoint, request_type='GET')
         return response
 
@@ -364,7 +364,7 @@ class Sublime(object):
         body["reviewed"] = reviewed
         body["safe"] = safe
 
-        endpoint = self.EP_MODEL_REVIEW.format(id=message_data_model_id)
+        endpoint = self.EP_ADMIN_ACTION_REVIEW.format(message_data_model_id)
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 
@@ -382,7 +382,7 @@ class Sublime(object):
         body = json.dumps(body, cls=JSONEncoder)
         body = json.loads(body)
 
-        endpoint = self.EP_MODEL_REVIEW_ALL
+        endpoint = self.EP_ADMIN_ACTION_REVIEW_ALL
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 
@@ -441,7 +441,7 @@ class Sublime(object):
         if permanent:
             params["permanent"] = permanent
 
-        endpoint = self.EP_MODEL_DELETE_ORIGINAL.format(message_data_model_id)
+        endpoint = self.EP_ADMIN_ACTION_DELETE.format(message_data_model_id)
         response = self._request(endpoint, request_type='DELETE', params=params)
 
         return response
