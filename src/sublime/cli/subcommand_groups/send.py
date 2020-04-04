@@ -4,6 +4,7 @@ import os
 import platform
 
 import click
+import structlog
 
 from sublime.__version__ import __version__
 from sublime.cli.decorator import (
@@ -14,6 +15,7 @@ from sublime.cli.decorator import (
 )
 from sublime.cli.helper import *
 
+LOGGER = structlog.get_logger()
 
 @click.group()
 def send():
@@ -58,7 +60,7 @@ def mock(
     if command == "tutorial-one":
         result = api_client.send_mock_tutorial_one(verbose)
     else:
-        click.echo("Invalid command")
+        LOGGER.error("Invalid command")
         context.exit(-1)
 
     return result

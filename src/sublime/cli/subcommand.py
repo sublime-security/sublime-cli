@@ -4,6 +4,7 @@ import os
 import platform
 
 import click
+import structlog
 
 from sublime.__version__ import __version__
 from sublime.cli.decorator import (
@@ -27,6 +28,7 @@ from sublime.cli.formatter import FORMATTERS
 from websockets.exceptions import InvalidStatusCode
 from sublime.exceptions import WebSocketError
 
+LOGGER = structlog.get_logger()
 
 '''
 @not_implemented_command
@@ -288,7 +290,7 @@ def query(
             multi = True
     else:
         if not query_str:
-            click.echo("Query or PQL file(s) is required")
+            LOGGER.error("Query or PQL file(s) is required")
             context.exit(-1)
 
         query = create_query(query_str)
