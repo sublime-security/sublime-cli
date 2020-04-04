@@ -170,6 +170,8 @@ def handle_exceptions(function):
             LOGGER.error(error_message)
             # click.echo(error_message)
             click.get_current_context().exit(-1)
+        except LoadDetectionError as exception:
+            click.get_current_context().exit(-1)
 
     return wrapper
 
