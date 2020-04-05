@@ -1,0 +1,11 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+
+{%- for result in results %}
+{%- if result.success %}
+<success>Deleted MDM ID</success> <bold>{{ result.message_data_model_id }}</bold> <success>from </success><bold>{{ result.mailbox_email_address }}.</bold>
+{%- else %}
+<fail>Failed to delete MDM ID</fail> <bold>{{ result.message_data_model_id }}</bold> <fail>from </fail><bold>{{ result.mailbox_email_address }}:</bold><fail> {{ result.error }}</fail>
+{%- endif %}
+{%- endfor %}

@@ -15,3 +15,7 @@ class WebSocketError(Exception):
 
 class JobError(Exception):
     """Exceptions on job execution"""
+
+
+class LoadDetectionError(Exception):
+    """Exceptions while loading detections file"""

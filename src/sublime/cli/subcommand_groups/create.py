@@ -4,6 +4,7 @@ import os
 import platform
 
 import click
+import structlog
 
 from sublime.__version__ import __version__
 from sublime.cli.decorator import (
@@ -14,6 +15,7 @@ from sublime.cli.decorator import (
 )
 from sublime.cli.helper import *
 
+LOGGER = structlog.get_logger()
 
 @click.group()
 def create():
@@ -91,11 +93,14 @@ def detections(
         elif os.path.isdir(detections_path):
             detections = load_detections_path(context, detections_path)
     else:
-        if not detection_name:
-            click.echo("Detection name is required")
-            context.exit(-1)
-
         detections = [create_detection(detection_str, detection_name)]
+
+    # detection names are required on the backend, but they're not required
+    # to just run in the CLI. so here we ensure each detection has a name
+    for detection in detections:
+        if not detection["name"]:
+            LOGGER.error("Detection names are required")
+            context.exit(-1)
 
     results = {"success": [], "fail": []}
     for d in detections:

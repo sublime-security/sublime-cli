@@ -4,6 +4,7 @@ import os
 import platform
 
 import click
+import structlog
 
 from sublime.__version__ import __version__
 from sublime.cli.decorator import (
@@ -14,6 +15,7 @@ from sublime.cli.decorator import (
 )
 from sublime.cli.helper import *
 
+LOGGER = structlog.get_logger()
 
 @click.group()
 def update():
@@ -114,7 +116,7 @@ def detections(
 
     else:
         if not detection_id and not detection_name:
-            click.echo("Detection ID, detection name, or PQL file(s) is required")
+            LOGGER.error("Detection ID, detection name, or PQL file(s) is required")
             context.exit(-1)
 
         # depending on what we're updating, either of these could be null
@@ -210,7 +212,7 @@ def messages(
     elif safe == 'false':
         safe = False
     else:
-        click.echo("Threat status is required")
+        LOGGER.error("Threat status is required")
         context.exit(-1)
 
     if review_all:
@@ -237,7 +239,7 @@ def messages(
             click.echo("Aborted!")
             context.exit(-1)
     elif not message_data_model_id:
-        click.echo("Message Data Model ID is required")
+        LOGGER.error("Message Data Model ID is required")
         context.exit(-1)
     else:
         results = api_client.review_message(
@@ -296,11 +298,11 @@ def users(
     elif license_active == 'false':
         license_active = False
     else:
-        click.echo("Invalid user state")
+        LOGGER.error("Invalid user state")
         context.exit(-1)
 
     if not update_all and not email_address:
-        click.echo("Specify a user or --all")
+        LOGGER.error("You must specify a user or --all")
         context.exit(-1)
 
 

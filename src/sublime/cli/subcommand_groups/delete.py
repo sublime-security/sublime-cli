@@ -1,10 +1,9 @@
-"""CLI send subcommands."""
+"""CLI delete subcommands."""
 
 import os
 import platform
 
 import click
-import structlog
 
 from sublime.__version__ import __version__
 from sublime.cli.decorator import (
@@ -15,17 +14,23 @@ from sublime.cli.decorator import (
 )
 from sublime.cli.helper import *
 
-LOGGER = structlog.get_logger()
 
 @click.group()
-def send():
-    """Send or generate mock data."""
+def delete():
+    """Delete an item(s) in your Sublime environment."""
     pass
 
-@send.command()
+@delete.command()
 @click.option("-v", "--verbose", count=True, help="Verbose output")
 @click.option("-k", "--api-key", help="Key to include in API requests")
-@click.argument("command")
+@click.option(
+    "-i", "--message-data-model-id", "message_data_model_id", 
+    help="Message Data Model ID", required=True
+)
+@click.option(
+    "-p", "--permanent", "permanent", is_flag=True,
+    help="Permanently delete the message (don't send to Trash)"
+)
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
@@ -42,25 +47,20 @@ def send():
 @click.pass_context
 @echo_result
 @handle_exceptions
-def mock(
+@click.option("-v", "--verbose", count=True, help="Verbose output")
+def messages(
     context,
     api_client,
     api_key,
-    command,
+    message_data_model_id,
+    permanent,
     output_file,
     output_format,
     verbose,
 ):
-    """Send mock email messages to yourself.
+    """Delete a message from a user's mailbox using the Message Data Model ID"""
 
-    Commands: "tutorial-one"
+    result = api_client.delete_model_external_message(message_data_model_id, permanent)
+    results = [result]
 
-    """
-
-    if command == "tutorial-one":
-        result = api_client.send_mock_tutorial_one(verbose)
-    else:
-        LOGGER.error("Invalid command")
-        context.exit(-1)
-
-    return result
+    return results

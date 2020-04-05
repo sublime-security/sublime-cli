@@ -8,6 +8,7 @@ from pathlib import Path
 
 import click
 import structlog
+from sublime.exceptions import LoadDetectionError
 
 LOGGER = structlog.get_logger()
 
@@ -44,13 +45,18 @@ def load_message_data_model(context, input_file):
 
     return message_data_model
 
-
 # this function is used for both loading detections and queries
 def load_detections_path(context, detections_path, query=False):
     detections = []
     for detections_file in Path(detections_path).rglob("*.pql"):
         with detections_file.open() as f:
-            detections.extend(load_detections(context, f, query))
+            try:
+                detections.extend(load_detections(context, f, query))
+            except LoadDetectionError as exception:
+                # we want to continue reading the rest of the files
+                # the error message will be displayed inside of
+                # load_detection
+                pass
 
     return detections
 
@@ -64,6 +70,7 @@ def load_detections(context, detections_file, query=False):
     detections = []
     detection_str = ""
     detection_name = ""
+    comment_exists = False
     line = detections_file.readline()
     while line:
         line = line.strip("\n") # remove trailing newline
@@ -71,6 +78,7 @@ def load_detections(context, detections_file, query=False):
 
         if line.startswith("#"): # remove comments
             line = detections_file.readline()
+            comment_exists = True
             continue
 
         if line.startswith(";"): # detection names
@@ -80,24 +88,39 @@ def load_detections(context, detections_file, query=False):
             line = detections_file.readline()
             continue
 
+        # empty lines signify the end of a detection
         if not line:
-            # reached the end of a detection
             if detection_str:
-                if not query:
-                    detection = create_detection(detection_str, detection_name)
-                else:
+                if query:
                     detection = create_query(detection_str, detection_name)
+                else:
+                    detection = create_detection(detection_str, detection_name)
                 detections.append(detection)
-                detection_str = ""
-                detection_name = ""
-            # reached a line with just whitespace
-            else:
-                line = detections_file.readline()
-                continue
+            elif detection_name:
+                # reached a detection with just a name, no raw detection
+                if comment_exists:
+                    error = (
+                            "This rule is commented out and may require "
+                            "customization: '{}' in {}".format(
+                                detection_name, detections_file.name)
+                            )
+                    LOGGER.error(error)
+                else:
+                    error = (
+                            "Missing detection: '{}' in {}'".format(
+                                detection_name, detections_file.name)
+                            )
+                    LOGGER.error(error)
+
+            # reset variables
+            detection_str = ""
+            detection_name = ""
+            comment_exists = False
         else:
             # append multi-line detections
             detection_str += " " + line + " "
 
+        # advance to the next line
         line = detections_file.readline()
 
     # true if there's no newline at the end of the last detection
@@ -107,12 +130,35 @@ def load_detections(context, detections_file, query=False):
         else:
             detection = create_query(detection_str, detection_name)
         detections.append(detection)
-        detection_str = ""
-        detection_name = ""
+    elif detection_name:
+        # reached a detection with just a name, no raw detection
+        if comment_exists:
+            error = (
+                    "This rule is commented out and may require "
+                    "customization: '{}' in {}".format(
+                        detection_name, detections_file.name)
+                    )
+            LOGGER.error(error)
+        else:
+            error = (
+                    "Missing detection: '{}' in {}'".format(
+                        detection_name, detections_file.name)
+                    )
+            LOGGER.error(error)
 
     if not detections:
-        click.echo("No detections/queries found in PQL file")
-        context.exit(-1)
+        if detection_name:
+            error = (
+                    "Missing detection: '{}' in {}'".format(
+                        detection_name, detections_file.name)
+                    )
+            raise LoadDetectionError
+        else:
+            error = (
+                    "No detections or queries found in '{}'".format(
+                        detections_file.name)
+                    )
+            raise LoadDetectionError
 
     return detections
 
