@@ -49,7 +49,7 @@ def load_message_data_model(context, input_file):
 def load_detections_path(context, detections_path, query=False):
     detections = []
     for detections_file in Path(detections_path).rglob("*.pql"):
-        with detections_file.open() as f:
+        with detections_file.open(encoding='utf-8') as f:
             try:
                 detections.extend(load_detections(context, f, query))
             except LoadDetectionError as exception:

@@ -214,7 +214,7 @@ def analyze(
 
     if detections_path:
         if os.path.isfile(detections_path):
-            with open(detections_path) as f:
+            with open(detections_path, encoding='utf-8') as f:
                 detections = load_detections(context, f)
                 multi = True
 
@@ -281,7 +281,7 @@ def query(
     """Query an enriched MDM and get the output."""
     if query_path:
         if os.path.isfile(query_path):
-            with open(query_path) as f:
+            with open(query_path, encoding='utf-8') as f:
                 queries = load_detections(context, f, query=True)
                 multi = True
 

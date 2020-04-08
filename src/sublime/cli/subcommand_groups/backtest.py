@@ -91,7 +91,7 @@ def detections(
 
     if detections_path:
         if os.path.isfile(detections_path):
-            with open(detections_path) as f:
+            with open(detections_path, encoding='utf-8') as f:
                 detections = load_detections(context, f)
 
         elif os.path.isdir(detections_path):
