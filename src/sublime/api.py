@@ -8,7 +8,6 @@ from collections import OrderedDict
 import more_itertools
 import requests
 import structlog
-from halo import Halo
 
 from sublime.__version__ import __version__
 from sublime.exceptions import RateLimitError, RequestFailure
@@ -207,8 +206,7 @@ class Sublime(object):
         body["route_type"] = route_type
 
         endpoint = self.EP_MESSAGE_ENRICH
-        with Halo(text='Enriching', spinner='dots'):
-            response = self._request(endpoint, request_type='POST', json=body)
+        response = self._request(endpoint, request_type='POST', json=body)
         return response
 
     def analyze_eml(self, eml, detection, mailbox_email_address, route_type, verbose):
@@ -221,9 +219,9 @@ class Sublime(object):
         body["detection"] = detection
         body["mailbox_email_address"] = mailbox_email_address
         body["route_type"] = route_type
+
         endpoint = self.EP_MESSAGE_ANALYZE
-        with Halo(text='Enriching and analyzing', spinner='dots'):
-            response = self._request(endpoint, request_type='POST', json=body)
+        response = self._request(endpoint, request_type='POST', json=body)
         return response
 
     def analyze_eml_multi(self, eml, detections, mailbox_email_address, 
@@ -239,9 +237,9 @@ class Sublime(object):
         body["route_type"] = route_type
         if verbose:
             body["response_type"] = "full"
+
         endpoint = self.EP_MESSAGE_ANALYZE_MULTI
-        with Halo(text='Enriching and analyzing', spinner='dots'):
-            response = self._request(endpoint, request_type='POST', json=body)
+        response = self._request(endpoint, request_type='POST', json=body)
         return response
 
     def create_detection(self, detection, active, verbose):

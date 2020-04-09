@@ -5,6 +5,7 @@ import platform
 
 import click
 import structlog
+from halo import Halo
 
 from sublime.__version__ import __version__
 from sublime.cli.decorator import (
@@ -168,7 +169,8 @@ def enrich(
     # emls = load emls from input directory
     # results = [api_client.enrich(eml=input_file) for ip_address in ip_addresses]
     eml = load_eml_as_base64(context, input_file)
-    results = api_client.enrich_eml(eml, mailbox_email_address, route_type)
+    with Halo(text='Enriching', spinner='dots'):
+        results = api_client.enrich_eml(eml, mailbox_email_address, route_type)
 
     return results
 
@@ -242,20 +244,21 @@ def analyze(
     else:
         eml = load_eml_as_base64(context, input_file)
 
-        if multi:
-            results = api_client.analyze_eml_multi(
-                    eml, 
-                    detections, 
-                    mailbox_email_address,
-                    route_type,
-                    verbose)
-        else:
-            results = api_client.analyze_eml(
-                    eml, 
-                    detection, 
-                    mailbox_email_address,
-                    route_type,
-                    verbose)
+        with Halo(text='Enriching and analyzing', spinner='dots'):
+            if multi:
+                results = api_client.analyze_eml_multi(
+                        eml, 
+                        detections, 
+                        mailbox_email_address,
+                        route_type,
+                        verbose)
+            else:
+                results = api_client.analyze_eml(
+                        eml, 
+                        detection, 
+                        mailbox_email_address,
+                        route_type,
+                        verbose)
 
     if results.get("results"):
         results["results"] = sorted(results["results"], 
