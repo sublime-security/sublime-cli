@@ -10,7 +10,7 @@ import requests
 import structlog
 
 from sublime.__version__ import __version__
-from sublime.exceptions import RateLimitError, RequestFailure
+from sublime.exceptions import RateLimitError, InvalidRequestError, APIError
 from sublime.util import load_config
 
 LOGGER = structlog.get_logger()
@@ -75,7 +75,9 @@ class Sublime(object):
         :type json: dict
         :returns: Response's JSON payload
         :rtype: dict
-        :raises RequestFailure: when HTTP status code is not 2xx
+        :raises InvalidRequestError: when HTTP status code is 400 or 404
+        :raises RateLimitError: when HTTP status code is 429
+        :raises APIError: for all other 4xx or 5xx status codes
 
         """
         if params is None:
@@ -116,12 +118,38 @@ class Sublime(object):
         else:
             body = response.text
 
-        if response.status_code == 429:
-            raise RateLimitError(body)
         if response.status_code >= 400:
-            raise RequestFailure(response.status_code, body)
+            self.handle_error_response(response, body)
 
         return body
+
+    def handle_error_response(self, resp, resp_body):
+        try:
+            error_data = resp_body["error"]
+        except:
+            raise APIError(
+                    "Invalid response from API: %r (HTTP response code "
+                    "was %d)" % (resp_body, resp.status_code),
+                    status_code=resp.status_code,
+                    headers=resp.headers)
+
+        if resp.status_code in [400, 404]:
+            err = InvalidRequestError(
+                    message=error_data["message"],
+                    status_code=resp.status_code,
+                    headers=resp.headers)
+        elif resp.status_code == 429:
+            err = RateLimitError(
+                    message=error_data["message"],
+                    status_code=resp.status_code,
+                    headers=resp.headers)
+        else:
+            err = APIError(
+                    message=error_data["message"],
+                    status_code=resp.status_code,
+                    headers=resp.headers)
+
+        raise err
 
     def analyze_mdm_multi(self, message_data_model, detections, verbose):
         """Analyze an enriched Message Data Model against a list of detections"""
