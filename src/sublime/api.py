@@ -10,7 +10,7 @@ import requests
 import structlog
 
 from sublime.__version__ import __version__
-from sublime.exceptions import RateLimitError, InvalidRequestError, APIError
+from sublime.error import RateLimitError, InvalidRequestError, APIError
 from sublime.util import load_config
 
 LOGGER = structlog.get_logger()

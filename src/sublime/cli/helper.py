@@ -8,7 +8,7 @@ from pathlib import Path
 
 import click
 import structlog
-from sublime.exceptions import LoadDetectionError
+from sublime.error import LoadDetectionError
 
 LOGGER = structlog.get_logger()
 

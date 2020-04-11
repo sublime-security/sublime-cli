@@ -27,7 +27,7 @@ import websockets
 from functools import wraps
 from sublime.cli.formatter import FORMATTERS 
 from websockets.exceptions import InvalidStatusCode
-from sublime.exceptions import WebSocketError
+from sublime.error import WebSocketError
 
 LOGGER = structlog.get_logger()
 

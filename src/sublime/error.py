@@ -1,4 +1,4 @@
-"""Sublime API client exceptions."""
+"""Sublime API client errors."""
 
 
 class SublimeError(Exception):
@@ -36,7 +36,7 @@ class SublimeError(Exception):
 
 
 class InvalidRequestError(SublimeError):
-    """Exception to capture an invalid request (400 or 404)."""
+    """Invalid request (400 or 404)."""
 
 
 class RateLimitError(SublimeError):
@@ -44,7 +44,7 @@ class RateLimitError(SublimeError):
 
 
 class APIError(SublimeError):
-    """Exception to capture all other failed requests."""
+    """All other failed requests."""
 
 
 class WebSocketError(Exception):
@@ -52,8 +52,8 @@ class WebSocketError(Exception):
 
 
 class JobError(Exception):
-    """Exceptions during job execution"""
+    """Errors during job execution"""
 
 
 class LoadDetectionError(Exception):
-    """Exceptions while loading detections file"""
+    """Errors while loading detections file"""

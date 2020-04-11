@@ -14,7 +14,7 @@ from sublime.cli.decorator import (
     MissingDetectionInput
 )
 from sublime.cli.helper import *
-from sublime.exceptions import JobError
+from sublime.error import JobError
 
 
 @click.group()

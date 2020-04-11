@@ -12,7 +12,7 @@ from requests.exceptions import RequestException
 
 from sublime.api import Sublime
 from sublime.cli.formatter import FORMATTERS
-from sublime.exceptions import *
+from sublime.error import *
 from sublime.util import load_config
 
 LOGGER = structlog.get_logger()
