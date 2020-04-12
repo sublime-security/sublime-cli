@@ -153,20 +153,28 @@ def handle_exceptions(function):
             LOGGER.error(error_message)
             click.get_current_context().exit(-1)
         except WebSocketError as error:
-            error_message = "API error: {}".format(error)
+            error_message = "API error: {}".format(error.message)
             LOGGER.error(error_message)
             click.get_current_context().exit(-1)
         except JobError as error:
-            error_message = "Job error: {}".format(error)
+            error_message = "Job error: {}".format(error.message)
             LOGGER.error(error_message)
             # click.echo(error_message)
             click.get_current_context().exit(-1)
         except LoadDetectionError as error:
-            # handle this quietly, 
-            # since the error would have been displayed already
+            error_message = "Load detection error: {}".format(error.message)
+            LOGGER.error(error_message)
+            click.get_current_context().exit(-1)
+        except LoadEMLError as error:
+            error_message = "Load EML error: {}".format(error.message)
+            LOGGER.error(error_message)
+            click.get_current_context().exit(-1)
+        except LoadMessageDataModelError as error:
+            error_message = "Load MDM error: {}".format(error.message)
+            LOGGER.error(error_message)
             click.get_current_context().exit(-1)
         except RequestException as error:
-            error_message = "Error: {}".format(error)
+            error_message = "Request error: {}".format(error)
             LOGGER.error(error_message)
             click.get_current_context().exit(-1)
 

@@ -168,7 +168,7 @@ def enrich(
     """Enrich an EML."""
     # emls = load emls from input directory
     # results = [api_client.enrich(eml=input_file) for ip_address in ip_addresses]
-    eml = load_eml_as_base64(context, input_file)
+    eml = load_eml(input_file)
     with Halo(text='Enriching', spinner='dots'):
         results = api_client.enrich_eml(eml, mailbox_email_address, route_type)
 
@@ -189,7 +189,7 @@ def generate(
 ):
     """Generate an unenriched MDM from an EML."""
     # emls = load emls from input directory
-    eml = load_eml_as_base64(context, input_file)
+    eml = load_eml(input_file)
     results = api_client.create_mdm(eml, mailbox_email_address)
 
     return results
@@ -217,11 +217,11 @@ def analyze(
     if detections_path:
         if os.path.isfile(detections_path):
             with open(detections_path, encoding='utf-8') as f:
-                detections = load_detections(context, f)
+                detections = load_detections(f)
                 multi = True
 
         elif os.path.isdir(detections_path):
-            detections = load_detections_path(context, detections_path)
+            detections = load_detections_path(detections_path)
             multi = True
     else:
         detection = create_detection(detection_str)
@@ -229,7 +229,7 @@ def analyze(
 
     # assume it's an EML if it doesn't end with .mdm
     if input_file.name.endswith(".mdm"):
-        message_data_model = load_message_data_model(context, input_file)
+        message_data_model = load_message_data_model(input_file)
 
         if multi:
             results = api_client.analyze_mdm_multi(
@@ -242,7 +242,7 @@ def analyze(
                     detection, 
                     verbose)
     else:
-        eml = load_eml_as_base64(context, input_file)
+        eml = load_eml(input_file)
 
         with Halo(text='Enriching and analyzing', spinner='dots'):
             if multi:
@@ -285,11 +285,11 @@ def query(
     if query_path:
         if os.path.isfile(query_path):
             with open(query_path, encoding='utf-8') as f:
-                queries = load_detections(context, f, query=True)
+                queries = load_detections(f, query=True)
                 multi = True
 
         elif os.path.isdir(query_path):
-            queries = load_detections_path(context, query_path, query=True)
+            queries = load_detections_path(query_path, query=True)
             multi = True
     else:
         if not query_str:
@@ -299,7 +299,7 @@ def query(
         query = create_query(query_str)
         multi = False
 
-    message_data_model = load_message_data_model(context, input_file)
+    message_data_model = load_message_data_model(input_file)
 
     if multi:
         results = api_client.query_mdm_multi(message_data_model, queries, verbose)

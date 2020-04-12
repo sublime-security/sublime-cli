@@ -36,7 +36,7 @@ class SublimeError(Exception):
 
 
 class InvalidRequestError(SublimeError):
-    """Invalid request (400 or 404)."""
+    """Invalid request (HTTP 400 or 404)."""
 
 
 class RateLimitError(SublimeError):
@@ -47,13 +47,21 @@ class APIError(SublimeError):
     """All other failed requests."""
 
 
-class WebSocketError(Exception):
-    """Websocket Error"""
+class WebSocketError(SublimeError):
+    """Websocket Error."""
 
 
-class JobError(Exception):
-    """Errors during job execution"""
+class JobError(SublimeError):
+    """Error during job execution."""
 
 
-class LoadDetectionError(Exception):
-    """Errors while loading detections file"""
+class LoadDetectionError(SublimeError):
+    """Error loading detections file."""
+
+
+class LoadMessageDataModelError(SublimeError):
+    """Error loading Message Data Model file."""
+
+
+class LoadEMLError(SublimeError):
+    """Error loading EML."""
