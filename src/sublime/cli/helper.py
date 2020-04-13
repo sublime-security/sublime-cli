@@ -61,23 +61,49 @@ def load_message_data_model(input_file):
 
     return message_data_model
 
-# this function is used for both loading detections and queries
-def load_detections_path(detections_path, query=False):
+def load_detections_path(detections_path, query=False, ignore_errors=True):
+    """Load detections or queries from a path.
+
+    :param detections_path: Path to detections
+    :type detections_path: string
+    :param query: Whether the files contain queries opposed to detections
+    :type query: boolean
+    :param ignore_errors: Ignore detection loading errors
+    :type query: boolean
+    :returns: A list of detections or queries
+    :rtype: list
+    :raises: LoadDetectionError
+
+    """
     detections = []
     for detections_file in Path(detections_path).rglob("*.pql"):
         with detections_file.open(encoding='utf-8') as f:
             try:
-                detections.extend(load_detections(f, query=query))
-            except LoadDetectionError as exception:
+                detections.extend(load_detections(f, query, ignore_errors))
+            except LoadDetectionError as error:
                 # We want to ignore errors and continue reading the rest 
-                # of the files. Error messages will be displayed inside of
-                # load_detections
-                pass
+                # of the files. 
+                if ignore_errors:
+                    LOGGER.warning(error.message)
+                else:
+                    raise
 
     return detections
 
-# this function is used for both loading detections and queries
-def load_detections(detections_file, query=False, ignore_errors=True):
+def load_detections(detections_file, query=False, ignore_errors=False):
+    """Load detections or queries from a file.
+
+    :param detections_file: Detections file
+    :type detections_file: _io.TextIOWrapper
+    :param query: Whether the file contains queries opposed to detections
+    :type query: boolean
+    :param ignore_errors: Ignore detection loading errors
+    :type query: boolean
+    :returns: A list of detections or queries
+    :rtype: list
+    :raises: LoadDetectionError
+
+    """
     if detections_file is None:
         raise LoadDetectionError("Missing PQL file")
 
