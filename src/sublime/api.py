@@ -363,7 +363,8 @@ class Sublime(object):
         response = self._request(endpoint, request_type='GET')
         return response
 
-    def get_flagged_messages(self, result, after, before, reviewed):
+    def get_flagged_messages(self, result=True, after=None, before=None, 
+            reviewed=False, safe=None):
         """Get flagged messages."""
         params = {}
         params["result"] = result
@@ -371,6 +372,9 @@ class Sublime(object):
         params["end"] = before
         params["inclusive"] = False
         params["reviewed"] = reviewed
+
+        if safe is not None:
+            params["safe"] = safe
 
         endpoint = self.EP_FLAGGED_MESSAGES
         response = self._request(endpoint, request_type='GET', params=params)
