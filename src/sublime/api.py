@@ -37,6 +37,7 @@ class Sublime(object):
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
     EP_MODEL_QUERY = "model/query"
     EP_MODEL_QUERY_MULTI = "model/query/multi"
+    EP_COMMUNITY_DETECTIONS = "detections"
     EP_DETECTIONS = "org/detections"
     EP_DETECTION_BY_ID = "org/detections/{}"
     EP_DETECTION_BY_NAME = "org/detections/name/{name}"
@@ -343,7 +344,7 @@ class Sublime(object):
         return response
 
     def get_detections(self, active):
-        """Get detections."""
+        """Get org detections."""
         params = {}
         params["active"] = active
 
@@ -352,14 +353,20 @@ class Sublime(object):
         return response
 
     def get_detection_by_id(self, detection_id, verbose):
-        """Get a detection by ID"""
+        """Get a detection by ID."""
         endpoint = self.EP_DETECTION_BY_ID.format(detection_id)
         response = self._request(endpoint, request_type='GET')
         return response
 
     def get_detection_by_name(self, detection_name, verbose):
-        """Get a detection by name"""
+        """Get a detection by name."""
         endpoint = self.EP_DETECTION_BY_NAME.format(name=detection_name)
+        response = self._request(endpoint, request_type='GET')
+        return response
+
+    def get_community_detections(self):
+        """Get community detections."""
+        endpoint = self.EP_COMMUNITY_DETECTIONS
         response = self._request(endpoint, request_type='GET')
         return response
 

@@ -31,6 +31,9 @@ def get():
     type=click.Choice(['true', 'false'], case_sensitive=False),
     help="Filter by active or inactive detections"
 )
+@click.option("-c", "--community", is_flag=True,
+    help="Get community detections"
+)
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
@@ -54,6 +57,7 @@ def detections(
     detection_id,
     detection_name,
     active,
+    community,
     output_file,
     output_format,
     verbose,
@@ -67,7 +71,10 @@ def detections(
         active = None
 
     results = {}
-    if detection_id:
+    # TODO: this is not an elif
+    if community:
+        results = api_client.get_community_detections()
+    elif detection_id:
         results["detections"] = [api_client.get_detection_by_id(
             detection_id, verbose)]
     elif detection_name:
@@ -75,10 +82,6 @@ def detections(
             detection_name, verbose)]
     else:
         results = api_client.get_detections(active)
-
-    if results.get("detections"):
-        results["detections"] = sorted(results["detections"], 
-                key=lambda i: i["name"] if i.get("name") else "")
 
     return results
 

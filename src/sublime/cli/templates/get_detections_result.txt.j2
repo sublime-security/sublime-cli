@@ -24,9 +24,21 @@
 {%- else %}
 {%- for result in results %}
 {%- if result.active %}
-Detection <bold>{{ result.name }}</bold> <green>active</green>. Detection ID: {{ result.detection_id }}
+{%- if result.shared %}
+<bold>{{ result.name }}</bold> <light-yellow>({{ result.created_by_sublime_user_full_name }})</light-yellow> [shared] <green>active</green> <dim>ID: {{ result.detection_id }}</dim>
+{%- elif result.subscribed %}
+<bold>{{ result.name }}</bold> <light-yellow>({{ result.created_by_sublime_user_full_name }})</light-yellow> [subscribed] <green>active</green> <dim>ID: {{ result.detection_id }}</dim>
 {%- else %}
-Detection <bold>{{ result.name }}</bold> <light-red>inactive</light-red>. Detection ID: {{ result.detection_id }}
+<bold>{{ result.name }}</bold> <light-yellow>({{ result.created_by_sublime_user_full_name }})</light-yellow> <green>active</green> <dim>ID: {{ result.detection_id }}</dim>
+{%- endif %}
+{%- else %}
+{%- if result.shared %}
+<bold>{{ result.name }}</bold> <light-yellow>({{ result.created_by_sublime_user_full_name }})</light-yellow> [shared] <light-red>inactive</light-red> <dim>ID: {{ result.detection_id }}</dim>
+{%- elif result.subscribed %}
+<bold>{{ result.name }}</bold> <light-yellow>({{ result.created_by_sublime_user_full_name }})</light-yellow> [subscribed] <light-red>inactive</light-red> <dim>ID: {{ result.detection_id }}</dim>
+{%- else %}
+<bold>{{ result.name }}</bold> <light-yellow>({{ result.created_by_sublime_user_full_name }})</light-yellow> <light-red>inactive</light-red> <dim>ID: {{ result.detection_id }}</dim>
+{%- endif %}
 {%- endif %}
 {%- endfor %}
 {%- endif %}
