@@ -368,8 +368,8 @@ class Sublime(object):
         """Get flagged messages."""
         params = {}
         params["result"] = result
-        params["start"] = after
-        params["end"] = before
+        params["start_time"] = after
+        params["end_time"] = before
         params["inclusive"] = False
         params["reviewed"] = reviewed
 
@@ -401,8 +401,8 @@ class Sublime(object):
     def review_all_messages(self, after, before, reviewed, safe, verbose):
         """Update review status of all messages that meet the criteria."""
         body = {}
-        body["start"] = after
-        body["end"] = before
+        body["start_time"] = after
+        body["end_time"] = before
         body["inclusive"] = False
         body["reviewed"] = reviewed
         body["safe"] = safe
@@ -424,8 +424,8 @@ class Sublime(object):
 
     def backtest_detections(self, detections, after, before):
         body = {}
-        body["start"] = after
-        body["end"] = before
+        body["start_time"] = after
+        body["end_time"] = before
         body["inclusive"] = False
         body["detections"] = detections
 
