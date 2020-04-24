@@ -12,7 +12,7 @@ from requests.exceptions import RequestException
 
 from sublime.api import Sublime
 from sublime.cli.formatter import FORMATTERS
-from sublime.exceptions import *
+from sublime.error import *
 from sublime.util import load_config
 
 LOGGER = structlog.get_logger()
@@ -127,7 +127,7 @@ def echo_result(function):
 
 
 def handle_exceptions(function):
-    """Print error and exit on API client exception.
+    """Print error and exit on API client errors.
 
     :param function: Subcommand that returns a result from the API.
     :type function: callable
@@ -140,37 +140,42 @@ def handle_exceptions(function):
     def wrapper(*args, **kwargs):
         try:
             return function(*args, **kwargs)
-        except RateLimitError as exception:
-            body = exception.args[0]
-            error_message = "API error: {}".format(body["detail"])
+        except RateLimitError as error:
+            error_message = "API error: {}".format(error.message)
+            LOGGER.error(error_message)
+            click.get_current_context().exit(-1)
+        except InvalidRequestError as error:
+            error_message = "API error: {}".format(error.message)
+            LOGGER.error(error_message)
+            click.get_current_context().exit(-1)
+        except APIError as error:
+            error_message = "API error: {}".format(error.message)
+            LOGGER.error(error_message)
+            click.get_current_context().exit(-1)
+        except WebSocketError as error:
+            error_message = "API error: {}".format(error.message)
+            LOGGER.error(error_message)
+            click.get_current_context().exit(-1)
+        except JobError as error:
+            error_message = "Job error: {}".format(error.message)
             LOGGER.error(error_message)
             # click.echo(error_message)
             click.get_current_context().exit(-1)
-        except RequestFailure as exception:
-            body = exception.args[1]
-            try:
-                error_message = "API error: {}".format(body["detail"])
-            except TypeError:
-                error_message = "API error: {}".format(body)
+        except LoadDetectionError as error:
+            error_message = "Load detection error: {}".format(error.message)
             LOGGER.error(error_message)
-            # click.echo(error_message)
             click.get_current_context().exit(-1)
-        except RequestException as exception:
-            error_message = "API error: {}".format(exception)
+        except LoadEMLError as error:
+            error_message = "Load EML error: {}".format(error.message)
             LOGGER.error(error_message)
-            # click.echo(error_message)
             click.get_current_context().exit(-1)
-        except WebSocketError as exception:
-            error_message = "API error: {}".format(exception)
+        except LoadMessageDataModelError as error:
+            error_message = "Load MDM error: {}".format(error.message)
             LOGGER.error(error_message)
-            # click.echo(error_message)
             click.get_current_context().exit(-1)
-        except JobError as exception:
-            error_message = "Job error: {}".format(exception)
+        except RequestException as error:
+            error_message = "Request error: {}".format(error)
             LOGGER.error(error_message)
-            # click.echo(error_message)
-            click.get_current_context().exit(-1)
-        except LoadDetectionError as exception:
             click.get_current_context().exit(-1)
 
     return wrapper
@@ -473,7 +478,7 @@ def not_implemented_command(function):
         command_name = function.__name__
         try:
             api_client.not_implemented(command_name)
-        except RequestFailure:
+        except Exception:
             raise SubcommandNotImplemented(command_name)
 
     return wrapper

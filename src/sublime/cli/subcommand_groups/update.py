@@ -92,10 +92,10 @@ def detections(
     if detections_path:
         if os.path.isfile(detections_path):
             with open(detections_path, encoding='utf-8') as f:
-                detections = load_detections(context, f)
+                detections = load_detections(f)
 
         elif os.path.isdir(detections_path):
-            detections = load_detections_path(context, detections_path)
+            detections = load_detections_path(detections_path)
 
         if detection_name or detection_id:
             message = (

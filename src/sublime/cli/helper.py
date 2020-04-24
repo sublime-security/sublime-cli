@@ -8,63 +8,104 @@ from pathlib import Path
 
 import click
 import structlog
-from sublime.exceptions import LoadDetectionError
+from sublime.error import *
 
 LOGGER = structlog.get_logger()
 
-def load_eml_as_base64(context, input_file):
+
+def load_eml(input_file):
+    """Load EML file.
+
+    :param input_file: File handle.
+    :type input_file: _io.TextIOWrapper
+    :returns: Base64-encoded EML
+    :rtype: string
+    :raises: LoadEMLError
+
+    """
     if input_file is None:
-        click.echo(context.get_help())
-        context.exit(-1)
+        raise LoadEMLError("Missing EML file")
 
     try:
         message = email.message_from_file(input_file)
-        decoded = base64.urlsafe_b64encode(message.as_string().encode('utf-8')).decode('ascii')
+        decoded = base64.urlsafe_b64encode(
+                message.as_string().encode('utf-8')).decode('ascii')
 
         # fails for utf-8 messages:
         # decoded = base64.b64encode(message.as_bytes()).decode('ascii') 
     except Exception as exception:
-        error_message = "Could not load EML: {}".format(exception)
-        LOGGER.error(error_message)
-        context.exit(-1)
+        error_message = "{}".format(exception)
+        raise LoadEMLError(error_message)
 
     return decoded
 
 
-def load_message_data_model(context, input_file):
+def load_message_data_model(input_file):
+    """Load Message Data Model file.
+
+    :param input_file: File handle.
+    :type input_file: _io.TextIOWrapper
+    :returns: Message Data Model JSON object
+    :rtype: dict
+    :raises: LoadMessageDataModelError
+
+    """
     if input_file is None:
-        click.echo(context.get_help())
-        context.exit(-1)
+        raise LoadMessageDataModelError("Missing Message Data Model file")
     
     try:
         message_data_model = json.load(input_file)
     except Exception as exception:
-        error_message = "Could not load MDM: {}".format(exception)
-        LOGGER.error(error_message)
-        context.exit(-1)
+        error_message = "{}".format(exception)
+        raise LoadMessageDataModelError(error_message)
 
     return message_data_model
 
-# this function is used for both loading detections and queries
-def load_detections_path(context, detections_path, query=False):
+def load_detections_path(detections_path, query=False, ignore_errors=True):
+    """Load detections or queries from a path.
+
+    :param detections_path: Path to detections
+    :type detections_path: string
+    :param query: Whether the files contain queries opposed to detections
+    :type query: boolean
+    :param ignore_errors: Ignore detection loading errors
+    :type query: boolean
+    :returns: A list of detections or queries
+    :rtype: list
+    :raises: LoadDetectionError
+
+    """
     detections = []
     for detections_file in Path(detections_path).rglob("*.pql"):
         with detections_file.open(encoding='utf-8') as f:
             try:
-                detections.extend(load_detections(context, f, query))
-            except LoadDetectionError as exception:
-                # we want to continue reading the rest of the files
-                # the error message will be displayed inside of
-                # load_detection
-                pass
+                detections.extend(load_detections(f, query, ignore_errors))
+            except LoadDetectionError as error:
+                # We want to ignore errors and continue reading the rest 
+                # of the files. 
+                if ignore_errors:
+                    LOGGER.warning(error.message)
+                else:
+                    raise
 
     return detections
 
-# this function is used for both loading detections and queries
-def load_detections(context, detections_file, query=False):
+def load_detections(detections_file, query=False, ignore_errors=False):
+    """Load detections or queries from a file.
+
+    :param detections_file: Detections file
+    :type detections_file: _io.TextIOWrapper
+    :param query: Whether the file contains queries opposed to detections
+    :type query: boolean
+    :param ignore_errors: Ignore detection loading errors
+    :type query: boolean
+    :returns: A list of detections or queries
+    :rtype: list
+    :raises: LoadDetectionError
+
+    """
     if detections_file is None:
-        click.echo(context.get_help())
-        context.exit(-1)
+        raise LoadDetectionError("Missing PQL file")
 
     # detections can span multiple lines, separated by an extra \n
     detections = []
@@ -104,13 +145,19 @@ def load_detections(context, detections_file, query=False):
                             "customization: '{}' in {}".format(
                                 detection_name, detections_file.name)
                             )
-                    LOGGER.error(error)
+                    if ignore_errors:
+                        LOGGER.warning(error)
+                    else:
+                        raise LoadDetectionError(error)
                 else:
                     error = (
                             "Missing detection: '{}' in {}'".format(
                                 detection_name, detections_file.name)
                             )
-                    LOGGER.error(error)
+                    if ignore_errors:
+                        LOGGER.warning(error)
+                    else:
+                        raise LoadDetectionError(error)
 
             # reset variables
             detection_str = ""
@@ -138,27 +185,41 @@ def load_detections(context, detections_file, query=False):
                     "customization: '{}' in {}".format(
                         detection_name, detections_file.name)
                     )
-            LOGGER.error(error)
+            if ignore_errors:
+                LOGGER.warning(error)
+            else:
+                raise LoadDetectionError(error)
+
         else:
             error = (
                     "Missing detection: '{}' in {}'".format(
                         detection_name, detections_file.name)
                     )
-            LOGGER.error(error)
+            if ignore_errors:
+                LOGGER.warning(error)
+            else:
+                raise LoadDetectionError(error)
 
+    # did we load any valid detections?
     if not detections:
         if detection_name:
             error = (
                     "Missing detection: '{}' in {}'".format(
                         detection_name, detections_file.name)
                     )
-            raise LoadDetectionError
+            if ignore_errors:
+                LOGGER.warning(error)
+            else:
+                raise LoadDetectionError(error)
         else:
             error = (
                     "No detections or queries found in '{}'".format(
                         detections_file.name)
                     )
-            raise LoadDetectionError
+            if ignore_errors:
+                LOGGER.warning(error)
+            else:
+                raise LoadDetectionError(error)
 
     return detections
 
