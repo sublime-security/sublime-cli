@@ -17,5 +17,5 @@ Detection <success>created</success>. Detection ID: {{ result.detection_id }}
 {%- endfor %}
 
 {%- for result in fail_results %}
-Detection <fail>failed: </fail><bold>{{ result.detail }}</bold>
+Detection <fail>failed: </fail><bold>{{ result.message }}</bold>
 {%- endfor %}
