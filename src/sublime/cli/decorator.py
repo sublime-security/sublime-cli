@@ -77,8 +77,11 @@ def echo_result(function):
                     output, file=click.open_file("-", mode="w")
                 )
 
-            # strip the extra info and just save the MDM
-            result = result["message_data_model"]
+                # strip the extra info and just save the MDM
+                result = result["message_data_model"]
+            else:
+                # strip the extra info and just save the unenriched MDM
+                result = result["unenriched_message_data_model"]
 
 
         # query subcommand formatter needs one extra argument passed to it
