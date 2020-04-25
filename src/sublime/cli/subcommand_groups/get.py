@@ -93,8 +93,18 @@ def detections(
 @click.option(
     "--reviewed", "reviewed",
     type=click.Choice(['true', 'false'], case_sensitive=False),
-    default="false", show_default=True,
-    help="Filter by review status"
+    help=(
+        "Filter by review status. The default is False unless --safe is "
+        "specified, in which case the default is True"
+    )
+)
+@click.option(
+    "--safe", "safe",
+    type=click.Choice(['true', 'false'], case_sensitive=False),
+    help=(
+        "Filter by whether the message threat status has been set "
+        "to safe or not safe"
+    )
 )
 @click.option("--after", "after", 
     type=click.DateTime(formats=get_datetime_formats()),
@@ -130,6 +140,7 @@ def messages(
     api_key,
     result,
     reviewed,
+    safe,
     after,
     before,
     message_data_model_id,
@@ -142,11 +153,25 @@ def messages(
     """
 
     if not message_data_model_id:
+        if safe is None and reviewed is None:
+            # If neither safe nor reviewed were specified,
+            # the default reviewed value is False.
+            reviewed = False
+        elif safe is not None and reviewed is None:
+            # If safe was specified and reviewed was not,
+            # the default reviewed value is True.
+            reviewed = True
+        else:
+            # In all other instances, 
+            # we use the user's values and don't set anything explicitly
+            pass
+
         results = api_client.get_flagged_messages(
                 result, 
                 after, 
                 before,
-                reviewed)
+                reviewed,
+                safe)
     else:
         results = api_client.get_flagged_message_detail(message_data_model_id)
 

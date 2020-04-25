@@ -11,5 +11,5 @@ Detection <bold>{{ result.original_name }}</bold> <warning>unchanged</warning>. 
 {%- endfor %}
 
 {%- for result in fail_results %}
-Detection <fail>failed: </fail><bold>{{ result.detail }}</bold>
+Detection <fail>failed: </fail><bold>{{ result.message }}</bold>
 {%- endfor %}

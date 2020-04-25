@@ -112,7 +112,8 @@ def detections(
                 results["success"].append(api_client.update_detection_by_name(
                     d.get("name"), d.get("detection"), active, verbose))
             except Exception as e:
-                results["fail"].append(e.args[1])
+                breakpoint()
+                results["fail"].append(e)
 
     else:
         if not detection_id and not detection_name:

@@ -370,14 +370,18 @@ class Sublime(object):
         response = self._request(endpoint, request_type='GET')
         return response
 
-    def get_flagged_messages(self, result, after, before, reviewed):
+    def get_flagged_messages(self, result=True, after=None, before=None, 
+            reviewed=False, safe=None):
         """Get flagged messages."""
         params = {}
         params["result"] = result
-        params["start"] = after
-        params["end"] = before
+        params["start_time"] = after
+        params["end_time"] = before
         params["inclusive"] = False
         params["reviewed"] = reviewed
+
+        if safe is not None:
+            params["safe"] = safe
 
         endpoint = self.EP_FLAGGED_MESSAGES
         response = self._request(endpoint, request_type='GET', params=params)
@@ -404,8 +408,8 @@ class Sublime(object):
     def review_all_messages(self, after, before, reviewed, safe, verbose):
         """Update review status of all messages that meet the criteria."""
         body = {}
-        body["start"] = after
-        body["end"] = before
+        body["start_time"] = after
+        body["end_time"] = before
         body["inclusive"] = False
         body["reviewed"] = reviewed
         body["safe"] = safe
@@ -427,8 +431,8 @@ class Sublime(object):
 
     def backtest_detections(self, detections, after, before):
         body = {}
-        body["start"] = after
-        body["end"] = before
+        body["start_time"] = after
+        body["end_time"] = before
         body["inclusive"] = False
         body["detections"] = detections
 
