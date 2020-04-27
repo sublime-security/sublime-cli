@@ -40,7 +40,7 @@ setup(
     packages=find_packages(where="src"),
     package_data={"sublime.cli": ["templates/*.j2", "subcommand_groups/*.py"]},
     install_requires=INSTALL_REQUIRES,
-    long_description=read("README.rst") + "\n\n",
+    long_description=read("README.md") + "\n\n",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
