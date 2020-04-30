@@ -130,11 +130,30 @@ def get_detections_formatter(results, verbose):
     """Convert get detections output into human-readable text."""
     template = JINJA2_ENV.get_template("get_detections_result.txt.j2")
 
+    max_name_width = 0
+    max_user_org_width = 0
     for result in results["detections"]:
+        if result["name"]:
+            name_width = len(result["name"])
+            if name_width > max_name_width:
+                max_name_width = name_width
+
         if result["detection"]:
             result["detection"] = format_detection(result["detection"])
 
-    return template.render(results=results["detections"], verbose=verbose)
+        if result.get("created_by_org_name"):
+            cur_user_org_width = len(result["created_by_org_name"])
+
+        if result.get("created_by_sublime_user_full_name"):
+            cur_user_org_width += len(result["created_by_sublime_user_full_name"])
+
+        if cur_user_org_width > max_user_org_width:
+            max_user_org_width = cur_user_org_width
+
+    return template.render(results=results["detections"],
+            name_width=max_name_width,
+            max_user_org_width=max_user_org_width,
+            verbose=verbose)
 
 @colored_output
 def get_flagged_messages_formatter(results, verbose):

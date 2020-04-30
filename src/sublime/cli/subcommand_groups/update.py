@@ -109,7 +109,8 @@ def detections(
         for d in detections:
 
             try:
-                results["success"].append(api_client.update_detection_by_name(
+                results["success"].append(
+                        api_client.update_org_detection_by_name(
                     d.get("name"), d.get("detection"), active, verbose))
             except Exception as e:
                 breakpoint()
@@ -127,10 +128,10 @@ def detections(
         detections = [create_detection(detection_str, detection_name)]
 
         if detection_id:
-            results["success"] = [api_client.update_detection_by_id(
+            results["success"] = [api_client.update_org_detection(
                 detection_id, d, active, verbose) for d in detections]
         else:
-            results["success"] = [api_client.update_detection_by_name(
+            results["success"] = [api_client.update_org_detection_by_name(
                 d.get("name"), d.get("detection"), active, verbose) for d in detections]
 
     results["success"] = sorted(results["success"], 

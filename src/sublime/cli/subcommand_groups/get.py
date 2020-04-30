@@ -71,17 +71,24 @@ def detections(
         active = None
 
     results = {}
-    # TODO: this is not an elif
+
     if community:
-        results = api_client.get_community_detections()
+        if detection_id:
+            results["detections"] = [api_client.get_community_detection(
+                    detection_id, verbose)]
+        elif detection_name:
+            results["detections"] = [api_client.get_community_detection_by_name(
+                    detection_name, verbose)]
+        else:
+            results = api_client.get_community_detections()
     elif detection_id:
-        results["detections"] = [api_client.get_detection_by_id(
+        results["detections"] = [api_client.get_org_detection(
             detection_id, verbose)]
     elif detection_name:
-        results["detections"] = [api_client.get_detection_by_name(
+        results["detections"] = [api_client.get_org_detection_by_name(
             detection_name, verbose)]
     else:
-        results = api_client.get_detections(active)
+        results = api_client.get_org_detections(active)
 
     return results
 

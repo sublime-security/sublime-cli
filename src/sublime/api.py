@@ -37,10 +37,12 @@ class Sublime(object):
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
     EP_MODEL_QUERY = "model/query"
     EP_MODEL_QUERY_MULTI = "model/query/multi"
-    EP_COMMUNITY_DETECTIONS = "detections"
-    EP_DETECTIONS = "org/detections"
-    EP_DETECTION_BY_ID = "org/detections/{}"
-    EP_DETECTION_BY_NAME = "org/detections/name/{name}"
+    EP_COMMUNITY_DETECTIONS = "community/detections"
+    EP_COMMUNITY_DETECTION_BY_ID = "community/detections/{}"
+    EP_COMMUNITY_DETECTION_BY_NAME = "community/detections/name/{}"
+    EP_ORG_DETECTIONS = "org/detections"
+    EP_ORG_DETECTION_BY_ID = "org/detections/{}"
+    EP_ORG_DETECTION_BY_NAME = "org/detections/name/{}"
     EP_ADMIN_ACTION_REVIEW = "actions/admin/review/{}"
     EP_ADMIN_ACTION_REVIEW_ALL = "actions/admin/review/multi/all"
     EP_ADMIN_ACTION_DELETE = "actions/admin/delete/{}"
@@ -271,7 +273,7 @@ class Sublime(object):
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def create_detection(self, detection, active, verbose):
+    def create_org_detection(self, detection, active, verbose):
         """Create a detection."""
         body = {}
         body["active"] = active
@@ -285,13 +287,13 @@ class Sublime(object):
         if verbose:
             body["response_type"] = "full"
 
-        endpoint = self.EP_DETECTIONS
+        endpoint = self.EP_ORG_DETECTIONS
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 
     # be careful what values are set in the request - they'll force an update
-    def update_detection_by_id(self, detection_id, detection, active, verbose):
-        """Update a detection by ID."""
+    def update_org_detection(self, detection_id, detection, active, verbose):
+        """Update an detection by ID."""
         body = {}
 
         if active is not None:
@@ -303,18 +305,14 @@ class Sublime(object):
         if detection.get("name"):
             body["name"] = detection["name"]
 
-        if verbose:
-            body["response_type"] = "full"
-
-        endpoint = self.EP_DETECTION_BY_ID.format(detection_id)
+        endpoint = self.EP_ORG_DETECTION_BY_ID.format(detection_id)
         response = self._request(endpoint, request_type='PATCH', json=body)
         return response
 
     # be careful what values are set in the request - they'll force an update
-    def update_detection_by_name(self, name, detection, active, verbose):
-        """Update a detection by name."""
+    def update_org_detection_by_name(self, name, detection, active, verbose):
+        """Update an org detection by name."""
         body = {}
-        body["name"] = name
 
         if active is not None:
             body["active"] = active
@@ -325,7 +323,7 @@ class Sublime(object):
         if verbose:
             body["response_type"] = "full"
 
-        endpoint = self.EP_DETECTION_BY_NAME.format(name=name)
+        endpoint = self.EP_ORG_DETECTION_BY_NAME.format(name)
         response = self._request(endpoint, request_type='PATCH', json=body)
         return response
 
@@ -343,30 +341,42 @@ class Sublime(object):
         response = self._request(endpoint, request_type='GET')
         return response
 
-    def get_detections(self, active):
+    def get_org_detections(self, active):
         """Get org detections."""
         params = {}
         params["active"] = active
 
-        endpoint = self.EP_DETECTIONS
+        endpoint = self.EP_ORG_DETECTIONS
         response = self._request(endpoint, request_type='GET', params=params)
         return response
 
-    def get_detection_by_id(self, detection_id, verbose):
-        """Get a detection by ID."""
-        endpoint = self.EP_DETECTION_BY_ID.format(detection_id)
+    def get_org_detection(self, detection_id, verbose):
+        """Get an org detection by ID."""
+        endpoint = self.EP_ORG_DETECTION_BY_ID.format(detection_id)
         response = self._request(endpoint, request_type='GET')
         return response
 
-    def get_detection_by_name(self, detection_name, verbose):
-        """Get a detection by name."""
-        endpoint = self.EP_DETECTION_BY_NAME.format(name=detection_name)
+    def get_org_detection_by_name(self, detection_name, verbose):
+        """Get an org detection by name."""
+        endpoint = self.EP_ORG_DETECTION_BY_NAME.format(detection_name)
         response = self._request(endpoint, request_type='GET')
         return response
 
     def get_community_detections(self):
         """Get community detections."""
         endpoint = self.EP_COMMUNITY_DETECTIONS
+        response = self._request(endpoint, request_type='GET')
+        return response
+
+    def get_community_detection(self, detection_id, verbose):
+        """Get a community detection by ID."""
+        endpoint = self.EP_COMMUNITY_DETECTION_BY_ID.format(detection_id)
+        response = self._request(endpoint, request_type='GET')
+        return response
+
+    def get_community_detection_by_name(self, detection_name, verbose):
+        """Get a community detection by name."""
+        endpoint = self.EP_COMMUNITY_DETECTION_BY_NAME.format(detection_name)
         response = self._request(endpoint, request_type='GET')
         return response
 
