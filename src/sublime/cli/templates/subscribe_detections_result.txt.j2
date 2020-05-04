@@ -1,0 +1,11 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+
+{%- for result in success_results %}
+<success>Subscribed to </success><bold>{{ result.name }}</bold> <light-yellow>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</light-yellow> <dim>ID: {{ result.id }}</dim>
+{%- endfor %}
+
+{%- for result in fail_results %}
+<fail>Subscription failed: </fail><bold>{{ result.message }}</bold>
+{%- endfor %}

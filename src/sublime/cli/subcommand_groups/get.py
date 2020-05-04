@@ -27,12 +27,25 @@ def get():
         help="Detection ID")
 @click.option("-n", "--name", "detection_name", 
         help="Detection name")
+@click.option("-c", "--community", is_flag=True,
+    help="Get community detections"
+)
 @click.option("-a", "--active", "active",
     type=click.Choice(['true', 'false'], case_sensitive=False),
     help="Filter by active or inactive detections"
 )
-@click.option("-c", "--community", is_flag=True,
-    help="Get community detections"
+@click.option("-s", "--search", "search",
+    type=str, 
+    help=(
+        "Free text search across detection source, name, and descriptions. "
+        "Case insensitive"
+    )
+)
+@click.option("--org-id", "created_by_org_id",
+    type=str, help="Filter by author org ID"
+)
+@click.option("--sublime-user-id", "created_by_sublime_user_id",
+    type=str, help="Filter by Sublime user ID"
 )
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
@@ -56,8 +69,11 @@ def detections(
     api_key,
     detection_id,
     detection_name,
-    active,
     community,
+    active,
+    search,
+    created_by_org_id,
+    created_by_sublime_user_id,
     output_file,
     output_format,
     verbose,
@@ -67,8 +83,6 @@ def detections(
         active = True
     elif active == 'false':
         active = False
-    else:
-        active = None
 
     results = {}
 
@@ -80,7 +94,10 @@ def detections(
             results["detections"] = [api_client.get_community_detection_by_name(
                     detection_name, verbose)]
         else:
-            results = api_client.get_community_detections()
+            results = api_client.get_community_detections(
+                    search=search,
+                    created_by_org_id=created_by_org_id,
+                    created_by_sublime_user_id=created_by_sublime_user_id)
     elif detection_id:
         results["detections"] = [api_client.get_org_detection(
             detection_id, verbose)]
@@ -88,7 +105,11 @@ def detections(
         results["detections"] = [api_client.get_org_detection_by_name(
             detection_name, verbose)]
     else:
-        results = api_client.get_org_detections(active)
+        results = api_client.get_org_detections(
+                active=active,
+                search=search,
+                created_by_org_id=created_by_org_id,
+                created_by_sublime_user_id=created_by_sublime_user_id)
 
     return results
 

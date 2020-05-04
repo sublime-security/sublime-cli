@@ -113,7 +113,6 @@ def detections(
                         api_client.update_org_detection_by_name(
                     d.get("name"), d.get("detection"), active, verbose))
             except Exception as e:
-                breakpoint()
                 results["fail"].append(e)
 
     else:

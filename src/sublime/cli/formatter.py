@@ -254,11 +254,27 @@ def backtest_detections_formatter(results, verbose):
             total_new_messages_flagged=results["total_new_messages_flagged"],
             verbose=verbose)
 
-
 @colored_output
 def delete_messages_formatter(results, verbose):
     """Convert delete external message output into human-readable text."""
     template = JINJA2_ENV.get_template("delete_messages_result.txt.j2")
+
+    return template.render(results=results, verbose=verbose)
+
+@colored_output
+def subscribe_detections_formatter(results, verbose):
+    """Convert subscribe detections output into human-readable text."""
+    template = JINJA2_ENV.get_template("subscribe_detections_result.txt.j2")
+
+    return template.render(
+            success_results=results["success"], 
+            fail_results=results["fail"],
+            verbose=verbose)
+
+@colored_output
+def share_detections_formatter(results, verbose):
+    """Convert share detections output into human-readable text."""
+    template = JINJA2_ENV.get_template("share_detections_result.txt.j2")
 
     return template.render(results=results, verbose=verbose)
 
@@ -283,6 +299,8 @@ FORMATTERS = {
         "update_users": update_users_formatter,
         "get_users": get_users_formatter,
         "backtest_detections": backtest_detections_formatter,
-        "delete_messages": delete_messages_formatter
+        "delete_messages": delete_messages_formatter,
+        "subscribe_detections": subscribe_detections_formatter,
+        "share_detections": share_detections_formatter
     },
 }

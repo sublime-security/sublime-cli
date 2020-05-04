@@ -1,0 +1,11 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+
+{%- for result in results %}
+{%- if result.org_detection.shared %}
+<bold>{{ result.name }} </bold><success>shared with the community</success> <dim>ID: {{ result.id }}</dim>
+{%- else %}
+<bold>{{ result.name }} </bold><fail>unshared with the community</fail> <dim>ID: {{ result.id }}</dim>
+{%- endif %}
+{%- endfor %}
