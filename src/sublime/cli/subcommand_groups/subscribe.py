@@ -91,11 +91,11 @@ def detections(
                 created_by_org_id=created_by_org_id,
                 created_by_sublime_user_id=created_by_sublime_user_id)
 
-        if not detections:
+        if not detections.get("detections"):
             LOGGER.error("No detections matched the given criteria")
             context.exit(-1)
 
-        count = len(detections)
+        count = len(detections["detections"])
         if unsubscribe:
             message = f"Are you sure you want to unsubscribe from all {count} detections?" 
         else:
