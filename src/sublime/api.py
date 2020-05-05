@@ -42,6 +42,8 @@ class Sublime(object):
     EP_COMMUNITY_DETECTION_BY_NAME = "community/detections/name/{}"
     EP_SUBSCRIBE_DETECTION_BY_ID = "community/detections/{}/subscribe"
     EP_SUBSCRIBE_DETECTION_BY_NAME = "community/detections/name/{}/subscribe"
+    EP_UNSUBSCRIBE_DETECTION_BY_ID = "community/detections/{}/unsubscribe"
+    EP_UNSUBSCRIBE_DETECTION_BY_NAME = "community/detections/name/{}/unsubscribe"
     EP_ORG_DETECTIONS = "org/detections"
     EP_ORG_DETECTION_BY_ID = "org/detections/{}"
     EP_ORG_DETECTION_BY_NAME = "org/detections/name/{}"
@@ -381,6 +383,20 @@ class Sublime(object):
 
         endpoint = self.EP_SUBSCRIBE_DETECTION_BY_NAME.format(detection_name)
         response = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def unsubscribe_community_detection(self, detection_id):
+        """Unsubscribe from a community detection."""
+
+        endpoint = self.EP_UNSUBSCRIBE_DETECTION_BY_ID.format(detection_id)
+        response = self._request(endpoint, request_type='POST')
+        return response
+
+    def unsubscribe_community_detection_by_name(self, detection_name):
+        """Unsubscribe from a community detection by name."""
+
+        endpoint = self.EP_UNSUBSCRIBE_DETECTION_BY_NAME.format(detection_name)
+        response = self._request(endpoint, request_type='POST')
         return response
 
     def get_me(self, verbose):

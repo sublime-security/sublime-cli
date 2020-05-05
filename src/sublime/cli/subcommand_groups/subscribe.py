@@ -35,6 +35,8 @@ def subscribe():
     type=click.Choice(['true', 'false'], case_sensitive=False),
     help="State of the detection after subscribing"
 )
+@click.option("-u", "--unsubscribe", "unsubscribe", is_flag=True,
+        help="Unsubscribe from the detection")
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
@@ -60,21 +62,30 @@ def detections(
     created_by_org_id,
     created_by_sublime_user_id,
     active,
+    unsubscribe,
     output_file,
     output_format,
     verbose,
 ):
-    """Subscribe to detections."""
+    """Subscribe or unsubscribe from detections."""
 
     results = {"success": [], "fail": []}
     if detection_id:
-        results["success"] = [api_client.subscribe_community_detection(
-                detection_id=detection_id,
-                active=active)]
+        if unsubscribe:
+            results["success"] = [api_client.unsubscribe_community_detection(
+                    detection_id=detection_id)]
+        else:
+            results["success"] = [api_client.subscribe_community_detection(
+                    detection_id=detection_id,
+                    active=active)]
     elif detection_name:
-        results["success"] = [api_client.subscribe_community_detection_by_name(
-                detection_name=detection_name,
-                active=active)]
+        if unsubscribe:
+            results["success"] = [api_client.unsubscribe_community_detection_by_name(
+                    detection_name=detection_name)]
+        else:
+            results["success"] = [api_client.subscribe_community_detection_by_name(
+                    detection_name=detection_name,
+                    active=active)]
     elif created_by_org_id or created_by_sublime_user_id:
         detections = api_client.get_community_detections(
                 created_by_org_id=created_by_org_id,
@@ -85,14 +96,22 @@ def detections(
             context.exit(-1)
 
         count = len(detections)
-        message = f"Are you sure you want to subscribe to all {count} detections?" 
+        if unsubscribe:
+            message = f"Are you sure you want to unsubscribe from all {count} detections?" 
+        else:
+            message = f"Are you sure you want to subscribe to all {count} detections?" 
         if click.confirm(message, abort=False):
             for detection in detections["detections"]:
                 try:
-                    results["success"].append(
-                            api_client.subscribe_community_detection(
-                                detection_id=detection["id"],
-                                active=active))
+                    if unsubscribe:
+                        results["success"].append(
+                                api_client.unsubscribe_community_detection(
+                                    detection_id=detection["id"]))
+                    else:
+                        results["success"].append(
+                                api_client.subscribe_community_detection(
+                                    detection_id=detection["id"],
+                                    active=active))
                 except Exception as e:
                     results["fail"].append(e)
         else:

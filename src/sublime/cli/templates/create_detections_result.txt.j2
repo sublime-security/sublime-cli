@@ -4,7 +4,7 @@
 
 {%- for result in success_results %}
 {%- if result.name %}
-Detection <bold>{{ result.name }}</bold> <success>created</success>. Detection ID: {{ result.detection_id }}
+<bold>{{ result.name }}</bold> <success>created</success> <dim>ID: {{ result.detection_id }}</dim>
 {%- if verbose %}
 <dim>Detection: {{ result.detection }}</dim>
 {%- endif %}
@@ -17,5 +17,5 @@ Detection <success>created</success>. Detection ID: {{ result.detection_id }}
 {%- endfor %}
 
 {%- for result in fail_results %}
-Detection <fail>failed: </fail><bold>{{ result.message }}</bold>
+<fail>Failed: </fail><bold>{{ result.message }}</bold>
 {%- endfor %}
