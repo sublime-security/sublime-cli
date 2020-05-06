@@ -30,6 +30,7 @@ ANSI_MARKUP = ansimarkup.AnsiMarkup(
         "detected": ansimarkup.parse("<light-green>"),
         "enrichment": ansimarkup.parse("<light-yellow>"),
         "warning": ansimarkup.parse("<light-yellow>"),
+        "detection": ansimarkup.parse("<white>"),
     }
 )
 
