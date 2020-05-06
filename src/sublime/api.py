@@ -51,6 +51,8 @@ class Sublime(object):
     EP_SHARE_ORG_DETECTION_BY_NAME = "org/detections/name/{}/share"
     EP_UNSHARE_ORG_DETECTION_BY_ID = "org/detections/{}/unshare"
     EP_UNSHARE_ORG_DETECTION_BY_NAME = "org/detections/name/{}/unshare"
+    EP_ORG_DETECTION_STATS_BY_ID = "org/detections/{}/stats"
+    EP_ORG_DETECTION_STATS_BY_NAME = "org/detections/name/{}/stats"
     EP_ADMIN_ACTION_REVIEW = "actions/admin/review/{}"
     EP_ADMIN_ACTION_REVIEW_ALL = "actions/admin/review/multi/all"
     EP_ADMIN_ACTION_DELETE = "actions/admin/delete/{}"
@@ -443,6 +445,20 @@ class Sublime(object):
     def get_org_detection_by_name(self, detection_name, verbose):
         """Get an org detection by name."""
         endpoint = self.EP_ORG_DETECTION_BY_NAME.format(detection_name)
+        response = self._request(endpoint, request_type='GET')
+        return response
+
+    def get_org_detection_stats(self, detection_id):
+        """Get stats on a detection owned by the org by ID."""
+
+        endpoint = self.EP_ORG_DETECTION_STATS_BY_ID.format(detection_id)
+        response = self._request(endpoint, request_type='GET')
+        return response
+
+    def get_org_detection_stats_by_name(self, detection_name):
+        """Get stats on a detection owned by the org by name."""
+
+        endpoint = self.EP_ORG_DETECTION_STATS_BY_NAME.format(detection_name)
         response = self._request(endpoint, request_type='GET')
         return response
 

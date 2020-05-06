@@ -68,13 +68,49 @@ def detections(
 
     if detection_id:
         if unshare:
-            results = [api_client.unshare_org_detection(detection_id)]
+            result = api_client.get_org_detection_stats(detection_id)
+
+            if result["subscribers"] > 0:
+                if result["subscribers"] > 1:
+                    message = (
+                            "There are currently {} organizations subscribed "
+                            "to this detection. Are you sure you want to unshare it?" 
+                            .format(result["subscribers"])
+                    )
+                else:
+                    message = (
+                            "There is currently 1 organization subscribed "
+                            "to this detection. Are you sure you want to unshare it?" 
+                    )
+                if click.confirm(message, abort=False):
+                    results = [api_client.unshare_org_detection(detection_id)]
+                else:
+                    click.echo("Aborted!")
+                    context.exit(-1)
         else:
             results = [api_client.share_org_detection(detection_id, 
                     share_sublime_user, share_org)]
     elif detection_name:
         if unshare:
-            results = [api_client.unshare_org_detection_by_name(detection_name)]
+            result = api_client.get_org_detection_stats_by_name(detection_name)
+
+            if result["subscribers"] > 0:
+                if result["subscribers"] > 1:
+                    message = (
+                            "There are currently {} organizations subscribed "
+                            "to this detection. Are you sure you want to unshare it?" 
+                            .format(result["subscribers"])
+                    )
+                else:
+                    message = (
+                            "There is currently 1 organization subscribed "
+                            "to this detection. Are you sure you want to unshare it?" 
+                    )
+                if click.confirm(message, abort=False):
+                    results = [api_client.unshare_org_detection_by_name(detection_name)]
+                else:
+                    click.echo("Aborted!")
+                    context.exit(-1)
         else:
             results = [api_client.share_org_detection_by_name(detection_name, 
                     share_sublime_user, share_org)]
