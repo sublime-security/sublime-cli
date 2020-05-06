@@ -10,10 +10,12 @@
   <header>DETECTIONS BACKTESTED</header>
 ----------------------------
 {%- for detection in detections %}
-{%- if detection.name %}
+{%- if detection.name and detection.id %}
+<key>Name: </key><light-yellow>{{ detection.name }}</light-yellow> <dim>ID: {{ detection.id }}</dim>
+{%- elif detection.name %}
 <key>Name: </key><light-yellow>{{ detection.name }}</light-yellow>
-{%- elif detection.detection_id %}
-<key>Detection ID: </key><dim>{{ detection.detection_id }}</dim>
+{%- elif detection.id %}
+<key>Detection ID: </key><dim>{{ detection.id }}</dim>
 {%- elif detection.detection %}
 <key>Raw Detection:</key> <bold>{{ detection.detection }}</bold>
 {{ "" }}
@@ -34,8 +36,8 @@
 <key>Mailbox:</key> <bold>{{ result.mailbox_email_address }}</bold>
 <key>MDM ID: </key><dim>{{ result.message_data_model_id }}</dim>
 <key>Created: </key><dim>{{ result.created_at }}</dim>
-<key>Detections flagged:</key><bold>{% for detection in result.detections_flagged %}{% if detection.name %} {{ detection.name }}{% elif detection.detection_id %} {{ detection.detection_id }}{% else %} <detection name not set>{% endif %}{% endfor %}</bold>
-<key>Prior detections flagged: </key><bold>{% for detection in result.prior_detections_flagged %}{% if detection.name %} {{ detection.name }}{% elif detection.detection_id %} {{ detection.detection_id }}{% else %} <detection name not set>{% endif %}{% endfor %}</bold>
+<key>Detections flagged:</key><bold>{% for detection in result.detections_flagged %}{% if detection.name %} {{ detection.name }}{% elif detection.id %} {{ detection.id }}{% else %} <detection name not set>{% endif %}{% endfor %}</bold>
+<key>Prior detections flagged: </key><bold>{% for detection in result.prior_detections_flagged %}{% if detection.name %} {{ detection.name }}{% elif detection.id %} {{ detection.id }}{% else %} <detection name not set>{% endif %}{% endfor %}</bold>
 {{ "" }}
 {%- endfor %}
 {%- else -%}

@@ -260,6 +260,8 @@ class Sublime(object):
         body["detection"] = detection
         body["mailbox_email_address"] = mailbox_email_address
         body["route_type"] = route_type
+        if verbose:
+            body["response_type"] = "full"
 
         endpoint = self.EP_MESSAGE_ANALYZE
         response = self._request(endpoint, request_type='POST', json=body)
@@ -293,9 +295,6 @@ class Sublime(object):
 
         if detection.get("name"):
             body["name"] = detection["name"]
-
-        if verbose:
-            body["response_type"] = "full"
 
         endpoint = self.EP_ORG_DETECTIONS
         response = self._request(endpoint, request_type='POST', json=body)

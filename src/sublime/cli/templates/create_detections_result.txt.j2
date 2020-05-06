@@ -4,12 +4,12 @@
 
 {%- for result in success_results %}
 {%- if result.name %}
-<bold>{{ result.name }}</bold> <success>created</success> <dim>ID: {{ result.detection_id }}</dim>
+<bold>{{ result.name }}</bold> <success>created</success> <dim>ID: {{ result.id }}</dim>
 {%- if verbose %}
 <dim>Detection: {{ result.detection }}</dim>
 {%- endif %}
 {%- else %}
-Detection <success>created</success>. Detection ID: {{ result.detection_id }}
+Detection <success>created</success>. Detection ID: {{ result.id }}
 {%- if verbose %}
 <dim>Detection: {{ result.detection }}</dim>
 {%- endif %}
