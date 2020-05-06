@@ -1,0 +1,15 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+
+{%- for result in success_results %}
+{%- if result.org_detection.subscribed %}
+<success>Subscribed to </success><bold>{{ result.name }}</bold> <light-yellow>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</light-yellow> <dim>ID: {{ result.id }}</dim>
+{%- else %}
+<light-red>Unsubscribed from </light-red><bold>{{ result.name }}</bold> <light-yellow>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</light-yellow> <dim>ID: {{ result.id }}</dim>
+{%- endif %}
+{%- endfor %}
+
+{%- for result in fail_results %}
+<fail>Failed: </fail><bold>{{ result.message }}</bold>
+{%- endfor %}

@@ -99,20 +99,18 @@ def detections(
 
         if detection_name or detection_id:
             message = (
-                    "Detection names and IDs cannot be used with a PQL file yet.\n"
-                    "Use the -d option to pass the detection in as a string, or "
-                    "specify the detection name inside the PQL file."
+                    "Specify one of either a PQL file, detection ID, or detection name."
             )
-            click.echo(message)
+            LOGGER.error(message)
             context.exit(-1)
 
         for d in detections:
 
             try:
-                results["success"].append(api_client.update_detection_by_name(
+                results["success"].append(
+                        api_client.update_org_detection_by_name(
                     d.get("name"), d.get("detection"), active, verbose))
             except Exception as e:
-                breakpoint()
                 results["fail"].append(e)
 
     else:
@@ -127,10 +125,10 @@ def detections(
         detections = [create_detection(detection_str, detection_name)]
 
         if detection_id:
-            results["success"] = [api_client.update_detection_by_id(
+            results["success"] = [api_client.update_org_detection(
                 detection_id, d, active, verbose) for d in detections]
         else:
-            results["success"] = [api_client.update_detection_by_name(
+            results["success"] = [api_client.update_org_detection_by_name(
                 d.get("name"), d.get("detection"), active, verbose) for d in detections]
 
     results["success"] = sorted(results["success"], 

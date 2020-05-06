@@ -4,12 +4,12 @@
 
 {%- for result in success_results %}
 {%- if result.updated %}
-Detection <bold>{{ result.original_name }}</bold> <success>updated</success>. Detection ID: {{ result.detection_id }}
+<bold>{{ result.original_name }}</bold> <success>updated</success> <dim>ID: {{ result.detection_id }}</dim>
 {%- else %}
-Detection <bold>{{ result.original_name }}</bold> <warning>unchanged</warning>. Detection ID: {{ result.detection_id }}
+<bold>{{ result.original_name }}</bold> <warning>unchanged</warning> <dim>ID: {{ result.detection_id }}</dim>
 {%- endif %}
 {%- endfor %}
 
 {%- for result in fail_results %}
-Detection <fail>failed: </fail><bold>{{ result.message }}</bold>
+<fail>Failed: </fail><bold>{{ result.message }}</bold>
 {%- endfor %}

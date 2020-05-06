@@ -5,17 +5,28 @@
 {%- if verbose %}
 {%- for result in results %}
 <bold>DETECTION {{ loop.index }}</bold>
-{%- if result.active %}
-<key>Status: </key><green>Active</green>
+{%- if result.org_detection.active %}
+<key>Status: </key><green>active</green>
 {%- else %}
-<key>Status: </key><light-red>Inactive</light-red>
+<key>Status: </key><light-red>inactive</light-red>
 {%- endif %}
 {%- if result.name %}
 <key>Name: </key><light-yellow>{{ result.name }}</light-yellow>
 {%- endif %}
-<key>ID: </key><dim>{{ result.detection_id }}</dim>
+{%- if result.org_detection.shared %}
+<key>Community status: </key><green>[shared]</green>
+{%- elif result.org_detection.subscribed %}
+<key>Community status: </key><green>[subscribed]</green>
+{%- else %}
+<key>Community status: </key><light-red>[not shared]</light-red>
+{%- endif %}
+<key>Org name: </key><dim>{{ result.created_by_org_name }}</dim>
+<key>Sublime user name: </key><dim>{{ result.created_by_sublime_user_full_name }}</dim>
 <key>Created: </key><dim>{{ result.created_at }}</dim>
 <key>Updated: </key><dim>{{ result.updated_at }}</dim>
+<key>ID: </key><dim>{{ result.id }}</dim>
+<key>Org ID: </key><dim>{{ result.created_by_org_id }}</dim>
+<key>Sublime user ID: </key><dim>{{ result.created_by_sublime_user_id }}</dim>
 <key>Detection:</key> 
 <bold>{{ result.detection }}</bold>
 {{ "" }}
@@ -23,10 +34,46 @@
 
 {%- else %}
 {%- for result in results %}
-{%- if result.active %}
-Detection <bold>{{ result.name }}</bold> <green>active</green>. Detection ID: {{ result.detection_id }}
+{%- if result.org_detection.active %}
+{%- if result.org_detection.shared %}
+{%- if result.org_detection.owned %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <green>{{ "{:8}".format("active") }}</green> <cyan>{{ "{:13}".format("[shared]") }}</cyan> <key>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</key> <dim>ID: {{ result.id }}</dim>
 {%- else %}
-Detection <bold>{{ result.name }}</bold> <light-red>inactive</light-red>. Detection ID: {{ result.detection_id }}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <green>{{ "{:8}".format("active") }}</green> <cyan>{{ "{:13}".format("[shared]") }}</cyan> <light-yellow>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</light-yellow> <dim>ID: {{ result.id }}</dim>
+{%- endif %}
+{%- elif result.org_detection.subscribed %}
+{%- if result.org_detection.owned %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <green>{{ "{:8}".format("active") }}</green> <cyan>{{ "{:13}".format("[subscribed]") }}</cyan> <key>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</key> <dim>ID: {{ result.id }}</dim>
+{%- else %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <green>{{ "{:8}".format("active") }}</green> <cyan>{{ "{:13}".format("[subscribed]") }}</cyan> <light-yellow>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</light-yellow> <dim>ID: {{ result.id }}</dim>
+{%- endif %}
+{%- else %}
+{%- if result.org_detection.owned %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <green>{{ "{:8}".format("active") }}</green> {{ "{:13}".format("") }} <key>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</key> <dim>ID: {{ result.id }}</dim>
+{%- else %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <green>{{ "{:8}".format("active") }}</green> {{ "{:13}".format("") }} <light-yellow>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</light-yellow> <dim>ID: {{ result.id }}</dim>
+{%- endif %}
+{%- endif %}
+{%- else %}
+{%- if result.org_detection.shared %}
+{%- if result.org_detection.owned %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <light-red>{{ "{:8}".format("inactive") }}</light-red> <cyan>{{ "{:13}".format("[shared]") }}</cyan> <key>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</key> <dim>ID: {{ result.id }}</dim>
+{%- else %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <light-red>{{ "{:8}".format("inactive") }}</light-red> <cyan>{{ "{:13}".format("[shared]") }}</cyan> <light-yellow>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</light-yellow> <dim>ID: {{ result.id }}</dim>
+{%- endif %}
+{%- elif result.org_detection.subscribed %}
+{%- if result.org_detection.owned %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <light-red>{{ "{:8}".format("inactive") }}</light-red> <cyan>{{ "{:13}".format("[subscribed]") }}</cyan> <key>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</key> <dim>ID: {{ result.id }}</dim>
+{%- else %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <light-red>{{ "{:8}".format("inactive") }}</light-red> <cyan>{{ "{:13}".format("[subscribed]") }}</cyan> <light-yellow>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</light-yellow> <dim>ID: {{ result.id }}</dim>
+{%- endif %}
+{%- else %}
+{%- if result.org_detection.owned %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <light-red>{{ "{:8}".format("inactive") }}</light-red> {{ "{:13}".format("") }} <key>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</key> <dim>ID: {{ result.id }}</dim>
+{%- else %}
+<bold>{{ "{:{name_width}}".format(result.name, name_width=name_width) }}</bold> <light-red>{{ "{:8}".format("inactive") }}</light-red> {{ "{:13}".format("") }} <light-yellow>({{ result.created_by_sublime_user_full_name }}, {{ result.created_by_org_name }})</light-yellow> <dim>ID: {{ result.id }}</dim>
+{%- endif %}
+{%- endif %}
 {%- endif %}
 {%- endfor %}
 {%- endif %}
