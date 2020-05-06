@@ -87,6 +87,8 @@ def detections(
                 else:
                     click.echo("Aborted!")
                     context.exit(-1)
+            else:
+                results = [api_client.unshare_org_detection(detection_id)]
         else:
             results = [api_client.share_org_detection(detection_id, 
                     share_sublime_user, share_org)]
@@ -111,6 +113,8 @@ def detections(
                 else:
                     click.echo("Aborted!")
                     context.exit(-1)
+            else:
+                results = [api_client.unshare_org_detection_by_name(detection_name)]
         else:
             results = [api_client.share_org_detection_by_name(detection_name, 
                     share_sublime_user, share_org)]

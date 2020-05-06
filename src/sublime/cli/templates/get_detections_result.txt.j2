@@ -13,12 +13,19 @@
 {%- if result.name %}
 <key>Name: </key><light-yellow>{{ result.name }}</light-yellow>
 {%- endif %}
-<key>ID: </key><dim>{{ result.id }}</dim>
+{%- if result.org_detection.shared %}
+<key>Community status: </key><green>[shared]</green>
+{%- elif result.org_detection.subscribed %}
+<key>Community status: </key><green>[subscribed]</green>
+{%- else %}
+<key>Community status: </key><light-red>[not shared]</light-red>
+{%- endif %}
+<key>Org name: </key><dim>{{ result.created_by_org_name }}</dim>
+<key>Sublime user name: </key><dim>{{ result.created_by_sublime_user_full_name }}</dim>
 <key>Created: </key><dim>{{ result.created_at }}</dim>
 <key>Updated: </key><dim>{{ result.updated_at }}</dim>
-<key>Org name: </key><dim>{{ result.created_by_org_name }}</dim>
+<key>ID: </key><dim>{{ result.id }}</dim>
 <key>Org ID: </key><dim>{{ result.created_by_org_id }}</dim>
-<key>Sublime user name: </key><dim>{{ result.created_by_sublime_user_full_name }}</dim>
 <key>Sublime user ID: </key><dim>{{ result.created_by_sublime_user_id }}</dim>
 <key>Detection:</key> 
 <bold>{{ result.detection }}</bold>
