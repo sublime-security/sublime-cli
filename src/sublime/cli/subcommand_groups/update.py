@@ -99,11 +99,9 @@ def detections(
 
         if detection_name or detection_id:
             message = (
-                    "Detection names and IDs cannot be used with a PQL file yet.\n"
-                    "Use the -d option to pass the detection in as a string, or "
-                    "specify the detection name inside the PQL file."
+                    "Specify one of either a PQL file, detection ID, or detection name."
             )
-            click.echo(message)
+            LOGGER.error(message)
             context.exit(-1)
 
         for d in detections:
