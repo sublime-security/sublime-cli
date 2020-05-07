@@ -131,29 +131,32 @@ def get_detections_formatter(results, verbose):
     """Convert get detections output into human-readable text."""
     template = JINJA2_ENV.get_template("get_detections_result.txt.j2")
 
+    # calculate the max widths of various columns to align them in output
     max_name_width = 0
     max_user_org_width = 0
     for result in results["detections"]:
+        cur_name_width = 0
+        cur_user_org_width = 0
+
         if result["name"]:
-            name_width = len(result["name"])
-            if name_width > max_name_width:
-                max_name_width = name_width
+            cur_name_width = len(result["name"])
+            if cur_name_width > max_name_width:
+                max_name_width = cur_name_width
 
         if result["detection"]:
             result["detection"] = format_detection(result["detection"])
 
-        if result.get("created_by_org_name"):
-            cur_user_org_width = len(result["created_by_org_name"])
+        result["created_by_author"] = "({}, {})".format(
+                result.get("created_by_sublime_user_full_name"),
+                result.get("created_by_org_name"))
 
-        if result.get("created_by_sublime_user_full_name"):
-            cur_user_org_width += len(result["created_by_sublime_user_full_name"])
-
+        cur_user_org_width = len(result["created_by_author"])
         if cur_user_org_width > max_user_org_width:
             max_user_org_width = cur_user_org_width
 
     return template.render(results=results["detections"],
             name_width=max_name_width,
-            max_user_org_width=max_user_org_width,
+            user_org_width=max_user_org_width,
             verbose=verbose)
 
 @colored_output
