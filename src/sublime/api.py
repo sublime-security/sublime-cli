@@ -62,7 +62,8 @@ class Sublime(object):
     EP_FLAGGED_MESSAGES = "org/flagged-messages"
     EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{}/detail"
     EP_SEND_MOCK_TUTORIAL_ONE = "org/sublime-users/mock-tutorial-one"
-    EP_UPDATE_USER_LICENSE = "org/users/email/{}/license"
+    EP_ACTIVATE_USER = "org/users/email/{}/activate"
+    EP_DEACTIVATE_USER = "org/users/email/{}/deactivate"
     EP_BACKTEST_DETECTIONS = "org/detections/backtest/multi"
     EP_GET_JOB_STATUS = "jobs/{}/status"
     EP_GET_JOB_OUTPUT = "jobs/{}/output"
@@ -564,21 +565,24 @@ class Sublime(object):
         response = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def update_user_license(self, email_address, license_active, verbose):
-        body = {}
-        body["license_active"] = license_active
-
-        endpoint = self.EP_UPDATE_USER_LICENSE.format(email_address)
-        response = self._request(endpoint, request_type='PATCH', json=body)
-
-        return response
-
     def get_users(self, license_active, verbose):
         params = {}
         params["license_active"] = license_active
 
         endpoint = self.EP_GET_USERS
         response = self._request(endpoint, request_type='GET', params=params)
+
+        return response
+
+    def activate_user(self, email_address):
+        endpoint = self.EP_ACTIVATE_USER.format(email_address)
+        response = self._request(endpoint, request_type='POST')
+
+        return response
+
+    def deactivate_user(self, email_address):
+        endpoint = self.EP_DEACTIVATE_USER.format(email_address)
+        response = self._request(endpoint, request_type='POST')
 
         return response
 

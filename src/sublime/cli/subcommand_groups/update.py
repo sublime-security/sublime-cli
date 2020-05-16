@@ -316,10 +316,12 @@ def users(
         message = f"Are you sure you want to update all {count} users?" 
         if click.confirm(message, abort=False):
             for user in all_users["users"]:
-                result = api_client.update_user_license(
-                    email_address=user["email_address"],
-                    license_active=license_active,
-                    verbose=verbose)
+                if license_active:
+                    result = api_client.activate_user(
+                        email_address=user["email_address"])
+                else:
+                    result = api_client.deactivate_user(
+                        email_address=user["email_address"])
 
                 results.append(result)
 
@@ -328,9 +330,13 @@ def users(
             context.exit(-1)
 
     else:
-        results = [api_client.update_user_license(
-            email_address=email_address,
-            license_active=license_active,
-            verbose=verbose)]
+        if license_active:
+            result = api_client.activate_user(
+                email_address=email_address)
+        else:
+            result = api_client.deactivate_user(
+                email_address=email_address)
+
+        results = [result]
 
     return results
