@@ -160,11 +160,11 @@ def get_detections_formatter(results, verbose):
             verbose=verbose)
 
 @colored_output
-def get_flagged_messages_formatter(results, verbose):
-    """Convert get flagged-messages output into human-readable text."""
+def get_messages_formatter(results, verbose):
+    """Convert get messages output into human-readable text."""
 
-    if results.get("enrichment_results"): # /flagged-messages/{id}/detail
-        template = JINJA2_ENV.get_template("get_flagged_messages_detail.txt.j2")
+    if results.get("enrichment_results"): # /messages/{id}/details
+        template = JINJA2_ENV.get_template("get_messages_detail.txt.j2")
 
         total_enrichments = len(results["enrichment_results"]["details"])
         total_successful_enrichments = len([True for detail in
@@ -174,14 +174,19 @@ def get_flagged_messages_formatter(results, verbose):
             result["detection"] = format_detection(result["detection"])
 
         return template.render(
-            message_data_model_result=results["message_data_model_result"],
+            created_at=results["created_at"],
+            detection_results=results["detection_results"],
             enrichment_details=results["enrichment_results"]["details"],
+            id=results["id"],
+            mailbox_email_address=results["mailbox_email_address"],
+            sender_display_name=results["sender_display_name"],
+            sender_email_address=results["sender_email_address"],
+            subject=results["subject"],
             total_enrichments=total_enrichments,
             total_successful_enrichments=total_successful_enrichments,
-            detection_results=results["detection_results"],
             verbose=verbose)
-    else: # /flagged-messages
-        template = JINJA2_ENV.get_template("get_flagged_messages_result.txt.j2")
+    else: # /messages
+        template = JINJA2_ENV.get_template("get_messages_result.txt.j2")
 
         return template.render(results=results["results"], verbose=verbose)
 
@@ -293,7 +298,7 @@ FORMATTERS = {
         "query": query_formatter,
         "create_detections": create_detections_formatter,
         "get_detections": get_detections_formatter,
-        "get_messages": get_flagged_messages_formatter,
+        "get_messages": get_messages_formatter,
         "update_detections": update_detections_formatter,
         "get_me": get_me_formatter,
         "get_org": get_org_formatter,

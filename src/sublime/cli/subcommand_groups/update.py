@@ -215,7 +215,7 @@ def messages(
         context.exit(-1)
 
     if review_all:
-        results_test = api_client.get_flagged_messages(
+        results_test = api_client.get_messages(
                 result=True,
                 after=after,
                 before=before,

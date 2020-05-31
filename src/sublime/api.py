@@ -53,14 +53,14 @@ class Sublime(object):
     EP_UNSHARE_ORG_DETECTION_BY_NAME = "org/detections/name/{}/unshare"
     EP_ORG_DETECTION_STATS_BY_ID = "org/detections/{}/stats"
     EP_ORG_DETECTION_STATS_BY_NAME = "org/detections/name/{}/stats"
-    EP_ADMIN_ACTION_REVIEW = "actions/admin/review/{}"
-    EP_ADMIN_ACTION_REVIEW_ALL = "actions/admin/review/multi/all"
-    EP_ADMIN_ACTION_DELETE = "actions/admin/delete/{}"
     EP_GET_ME = "org/sublime-users/me"
     EP_GET_ORG = "org"
     EP_GET_USERS = "org/users"
-    EP_FLAGGED_MESSAGES = "org/flagged-messages"
-    EP_FLAGGED_MESSAGES_DETAIL = "org/flagged-messages/{}/detail"
+    EP_FLAGGED_MESSAGES = "org/messages"
+    EP_FLAGGED_MESSAGES_DETAIL = "org/messages/{}"
+    EP_ADMIN_ACTION_REVIEW = "org/messages/{}/review"
+    EP_ADMIN_ACTION_REVIEW_ALL = "org/messages/review/all"
+    EP_ADMIN_ACTION_DELETE = "org/messages/{}/delete"
     EP_SEND_MOCK_TUTORIAL_ONE = "org/sublime-users/mock-tutorial-one"
     EP_ACTIVATE_USER = "org/users/email/{}/activate"
     EP_DEACTIVATE_USER = "org/users/email/{}/deactivate"
@@ -492,9 +492,9 @@ class Sublime(object):
         response = self._request(endpoint, request_type='GET')
         return response
 
-    def get_flagged_messages(self, result=True, after=None, before=None, 
+    def get_messages(self, result=True, after=None, before=None, 
             reviewed=False, safe=None):
-        """Get flagged messages."""
+        """Get messages."""
         params = {}
         params["result"] = result
         params["start_time"] = after
@@ -509,7 +509,7 @@ class Sublime(object):
         response = self._request(endpoint, request_type='GET', params=params)
         return response
 
-    def get_flagged_message_detail(self, message_data_model_id):
+    def get_message_details(self, message_data_model_id):
         """Get detail view of a message."""
 
         endpoint = self.EP_FLAGGED_MESSAGES_DETAIL.format(
@@ -604,7 +604,7 @@ class Sublime(object):
             params["permanent"] = permanent
 
         endpoint = self.EP_ADMIN_ACTION_DELETE.format(message_data_model_id)
-        response = self._request(endpoint, request_type='DELETE', params=params)
+        response = self._request(endpoint, request_type='POST', params=params)
 
         return response
 

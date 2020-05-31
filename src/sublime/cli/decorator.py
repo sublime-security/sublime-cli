@@ -109,10 +109,9 @@ def echo_result(function):
                 params.get("verbose", False):
 
             mdm_formatter = FORMATTERS["json"]
-            mdm_result = result["message_data_model_result"]
-            output_file_name = mdm_result.get("message_data_model_id")
+            output_file_name = result["id"]
             output_file_name += ".mdm"
-            mdm = mdm_result.get("message_data_model")
+            mdm = result["message_data_model"]
 
             output = mdm_formatter(mdm, 
                     params.get("verbose", False)).strip("\n")

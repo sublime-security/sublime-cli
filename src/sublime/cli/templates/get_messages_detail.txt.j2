@@ -4,12 +4,12 @@
 
           <header>OVERVIEW</header>
 ----------------------------
-<key>Subject: </key><bold>{{ message_data_model_result.subject }}</bold>
-<key>Sender:</key> <bold>{{ message_data_model_result.sender_display_name }} <{{message_data_model_result.sender_email_address}}></bold>
-<key>Mailbox:</key> <bold>{{ message_data_model_result.mailbox_email_address }}</bold>
+<key>Subject: </key><bold>{{ subject }}</bold>
+<key>Sender:</key> <bold>{{ sender_display_name }} <{{ sender_email_address }}></bold>
+<key>Mailbox:</key> <bold>{{ mailbox_email_address }}</bold>
 {%- if verbose %}
-<key>MDM ID: </key><dim>{{ message_data_model_result.message_data_model_id }}</dim>
-<key>Created: </key><dim>{{ message_data_model_result.created_at }}</dim>
+<key>MDM ID: </key><dim>{{ id }}</dim>
+<key>Created: </key><dim>{{ created_at }}</dim>
 {%- endif %}
 
 {{ "" }}
