@@ -85,10 +85,15 @@ def echo_result(function):
 
 
         # query subcommand formatter needs one extra argument passed to it
+        # unless the output format is json
         if context.command.name == "query":
-            output = formatter(result, 
-                    params.get("verbose", False),
-                    params.get("show_all", False)).strip("\n")
+            if output_format == "json":
+                output = formatter(result, 
+                        params.get("verbose", False)).strip("\n")
+            else:
+                output = formatter(result, 
+                        params.get("verbose", False),
+                        params.get("show_all", False)).strip("\n")
         else:
             output = formatter(result, 
                     params.get("verbose", False)).strip("\n")
