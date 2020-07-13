@@ -305,8 +305,8 @@ def users(
         context.exit(-1)
 
 
+    results = {"success": [], "fail": []}
     if update_all:
-        results = []
         all_users = api_client.get_users(license_active=None, verbose=False)
         count = len(all_users["users"])
         if not count:
@@ -316,19 +316,22 @@ def users(
         message = f"Are you sure you want to update all {count} users?" 
         if click.confirm(message, abort=False):
             for user in all_users["users"]:
-                result = api_client.update_user_license(
-                    email_address=user["email_address"],
-                    license_active=license_active,
-                    verbose=verbose)
+                try:
+                    result = api_client.update_user_license(
+                        email_address=user["email_address"],
+                        license_active=license_active,
+                        verbose=verbose)
 
-                results.append(result)
+                    results["success"].append(result)
+                except Exception as e:
+                    results["fail"].append(e)
 
         else:
             click.echo("Aborted!")
             context.exit(-1)
 
     else:
-        results = [api_client.update_user_license(
+        results["success"] = [api_client.update_user_license(
             email_address=email_address,
             license_active=license_active,
             verbose=verbose)]
