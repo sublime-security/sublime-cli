@@ -35,6 +35,7 @@ def echo_result(function):
         params = context.params
         output_format = params["output_format"]
         formatter = FORMATTERS[output_format]
+        config = load_config()
         if isinstance(formatter, dict):
             # For the text formatter, there's a separate formatter for each 
             if isinstance(context.parent.command, click.Group) and \
@@ -64,6 +65,11 @@ def echo_result(function):
                     output_file_name += ".mdm"
                 elif output_format == "txt":
                     output_file_name += ".txt"
+
+                # if the user has a default save directory configured,
+                # store the MDM there
+                if config["save_dir"]:
+                    output_file_name = os.path.join(config["save_dir"], output_file_name)
 
                 params["output_file"] = click.open_file(output_file_name, 
                         mode="w")
@@ -117,6 +123,12 @@ def echo_result(function):
             mdm_result = result["message_data_model_result"]
             output_file_name = mdm_result.get("message_data_model_id")
             output_file_name += ".mdm"
+
+            # if the user has a default save directory configured,
+            # store the MDM there
+            if config["save_dir"]:
+                output_file_name = os.path.join(config["save_dir"], output_file_name)
+
             mdm = mdm_result.get("message_data_model")
 
             output = mdm_formatter(mdm, 
