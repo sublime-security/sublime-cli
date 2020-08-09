@@ -3,7 +3,7 @@
 ╚═══════════════════════════╝
 
 {%- for result in success_results %}
-{%- if result.updated %}
+{%- if result.changed %}
 <bold>{{ result.name }}</bold> <success>updated</success> <dim>ID: {{ result.id }}</dim>
 {%- else %}
 <bold>{{ result.name }}</bold> <warning>unchanged</warning> <dim>ID: {{ result.id }}</dim>
