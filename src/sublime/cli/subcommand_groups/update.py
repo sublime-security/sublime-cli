@@ -215,7 +215,7 @@ def messages(
         context.exit(-1)
 
     if review_all:
-        results_test = api_client.get_flagged_messages(
+        results_test = api_client.get_messages(
                 result=True,
                 after=after,
                 before=before,
@@ -304,7 +304,6 @@ def users(
         LOGGER.error("You must specify a user or --all")
         context.exit(-1)
 
-
     results = {"success": [], "fail": []}
     if update_all:
         all_users = api_client.get_users(license_active=None, verbose=False)
@@ -317,11 +316,13 @@ def users(
         if click.confirm(message, abort=False):
             for user in all_users["users"]:
                 try:
-                    result = api_client.update_user_license(
-                        email_address=user["email_address"],
-                        license_active=license_active,
-                        verbose=verbose)
-
+                    if license_active:
+                        result = api_client.activate_user(
+                            email_address=user["email_address"])
+                    else:
+                        result = api_client.deactivate_user(
+                            email_address=user["email_address"])
+                    
                     results["success"].append(result)
                 except Exception as e:
                     results["fail"].append(e)
@@ -331,9 +332,11 @@ def users(
             context.exit(-1)
 
     else:
-        results["success"] = [api_client.update_user_license(
-            email_address=email_address,
-            license_active=license_active,
-            verbose=verbose)]
+        if license_active:
+            results["success"] = [api_client.activate_user(
+                email_address=email_address)]
+        else:
+            results["success"] = [api_client.deactivate_user(
+                email_address=email_address)]
 
     return results

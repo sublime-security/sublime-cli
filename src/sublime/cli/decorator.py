@@ -120,8 +120,7 @@ def echo_result(function):
                 params.get("verbose", False):
 
             mdm_formatter = FORMATTERS["json"]
-            mdm_result = result["message_data_model_result"]
-            output_file_name = mdm_result.get("message_data_model_id")
+            output_file_name = result["id"]
             output_file_name += ".mdm"
 
             # if the user has a default save directory configured,

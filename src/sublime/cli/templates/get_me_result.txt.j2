@@ -2,10 +2,9 @@
 ║ <header>{{ "{:^25}".format("Authenticated User") }}</header> ║
 ╚═══════════════════════════╝
 
-<key>Email address: </key><value> {{ result.email_address }}</value>
 <key>Full Name: </key><value>{{ result.full_name }}</value>
+<key>Organization: </key><value>{{ result.org_name }}</value>
+<key>Email address: </key><value>{{ result.email_address }}</value>
 {%- if verbose %}
-<key>First Name: </key><value>{{ result.first_name }}</value>
-<key>Last Name: </key><value>{{ result.last_name }}</value>
 <key>Role: </key><value>{{ result.role }}</value>
 {%- endif %}

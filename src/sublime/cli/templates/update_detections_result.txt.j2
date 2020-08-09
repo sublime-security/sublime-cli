@@ -3,10 +3,10 @@
 ╚═══════════════════════════╝
 
 {%- for result in success_results %}
-{%- if result.updated %}
-<bold>{{ result.original_name }}</bold> <success>updated</success> <dim>ID: {{ result.id }}</dim>
+{%- if result.changed %}
+<bold>{{ result.name }}</bold> <success>updated</success> <dim>ID: {{ result.id }}</dim>
 {%- else %}
-<bold>{{ result.original_name }}</bold> <warning>unchanged</warning> <dim>ID: {{ result.id }}</dim>
+<bold>{{ result.name }}</bold> <warning>unchanged</warning> <dim>ID: {{ result.id }}</dim>
 {%- endif %}
 {%- endfor %}
 

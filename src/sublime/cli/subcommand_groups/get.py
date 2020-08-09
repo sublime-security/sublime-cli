@@ -194,14 +194,14 @@ def messages(
             # we use the user's values and don't set anything explicitly
             pass
 
-        results = api_client.get_flagged_messages(
+        results = api_client.get_messages(
                 result, 
                 after, 
                 before,
                 reviewed,
                 safe)
     else:
-        results = api_client.get_flagged_message_detail(message_data_model_id)
+        results = api_client.get_message_details(message_data_model_id)
 
     return results
 
