@@ -5,6 +5,7 @@ import platform
 
 import click
 import structlog
+from halo import Halo
 
 from sublime.__version__ import __version__
 from sublime.cli.decorator import (
@@ -314,18 +315,19 @@ def users(
 
         message = f"Are you sure you want to update all {count} users?" 
         if click.confirm(message, abort=False):
-            for user in all_users["users"]:
-                try:
-                    if license_active:
-                        result = api_client.activate_user(
-                            email_address=user["email_address"])
-                    else:
-                        result = api_client.deactivate_user(
-                            email_address=user["email_address"])
-                    
-                    results["success"].append(result)
-                except Exception as e:
-                    results["fail"].append(e)
+            with Halo(text='This may take a moment', spinner='dots'):
+                for user in all_users["users"]:
+                    try:
+                        if license_active:
+                            result = api_client.activate_user(
+                                email_address=user["email_address"])
+                        else:
+                            result = api_client.deactivate_user(
+                                email_address=user["email_address"])
+                        
+                        results["success"].append(result)
+                    except Exception as e:
+                        results["fail"].append(e)
 
         else:
             click.echo("Aborted!")

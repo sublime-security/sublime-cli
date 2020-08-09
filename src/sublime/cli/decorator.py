@@ -128,7 +128,7 @@ def echo_result(function):
             if config["save_dir"]:
                 output_file_name = os.path.join(config["save_dir"], output_file_name)
 
-            mdm = mdm_result.get("message_data_model")
+            mdm = result.get("message_data_model")
 
             output = mdm_formatter(mdm, 
                     params.get("verbose", False)).strip("\n")

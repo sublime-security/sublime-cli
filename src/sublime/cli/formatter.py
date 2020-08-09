@@ -181,6 +181,7 @@ def get_messages_formatter(results, verbose):
             mailbox_email_address=results["mailbox_email_address"],
             sender_display_name=results["sender_display_name"],
             sender_email_address=results["sender_email_address"],
+            spam_folder=results["spam_folder"],
             subject=results["subject"],
             total_enrichments=total_enrichments,
             total_successful_enrichments=total_successful_enrichments,
