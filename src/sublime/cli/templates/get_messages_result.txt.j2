@@ -12,6 +12,7 @@
 <key>Sender: </key><bold>{{ result.sender_display_name }} <{{result.sender_email_address}}></bold>
 <key>Mailbox: </key><bold>{{ result.mailbox_email_address }}</bold>
 <key>Detections flagged:</key><bold>{% for detection in result.detections_flagged %}{% if detection.name %} {{ detection.name }}{% elif detection.id %} {{ detection.id }}{% else %} <detection name not set>{% endif %}{% endfor %}</bold>
+<key>Spam folder: </key><dim>{{ result.spam_folder }}</dim>
 <key>MDM ID: </key><dim>{{ result.id }}</dim>
 <key>Created: </key><dim>{{ result.created_at }}</dim>
 {{ "" }}
