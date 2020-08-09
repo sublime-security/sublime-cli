@@ -163,12 +163,18 @@ def get_detections_formatter(results, verbose):
 def get_messages_formatter(results, verbose):
     """Convert get messages output into human-readable text."""
 
-    if results.get("enrichment_results"): # /messages/{id}/details
+    if results.get("message_data_model"): # /messages/{id}/details
         template = JINJA2_ENV.get_template("get_messages_detail.txt.j2")
 
-        total_enrichments = len(results["enrichment_results"]["details"])
-        total_successful_enrichments = len([True for detail in
-            results["enrichment_results"]["details"] if detail["success"]])
+        if results.get("enrichment_results"):
+            total_enrichments = len(results["enrichment_results"]["details"])
+            total_successful_enrichments = len([True for detail in
+                results["enrichment_results"]["details"] if detail["success"]])
+            enrichment_details = results["enrichment_results"]["details"]
+        else:
+            total_enrichments = 0
+            total_successful_enrichments = 0
+            enrichment_details = []
 
         for result in results["detection_results"]:
             result["detection"] = format_detection(result["detection"])
@@ -176,7 +182,7 @@ def get_messages_formatter(results, verbose):
         return template.render(
             created_at=results["created_at"],
             detection_results=results["detection_results"],
-            enrichment_details=results["enrichment_results"]["details"],
+            enrichment_details=enrichment_details,
             id=results["id"],
             mailbox_email_address=results["mailbox_email_address"],
             sender_display_name=results["sender_display_name"],
