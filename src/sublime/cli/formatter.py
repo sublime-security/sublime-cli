@@ -241,7 +241,10 @@ def update_users_formatter(results, verbose):
     """Convert update users output into human-readable text."""
     template = JINJA2_ENV.get_template("update_users_result.txt.j2")
 
-    return template.render(results=results, verbose=verbose)
+    return template.render(
+            success_results=results["success"],
+            fail_results=results["fail"],
+            verbose=verbose)
 
 @colored_output
 def get_users_formatter(results, verbose):

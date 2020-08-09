@@ -304,9 +304,8 @@ def users(
         LOGGER.error("You must specify a user or --all")
         context.exit(-1)
 
-
+    results = {"success": [], "fail": []}
     if update_all:
-        results = []
         all_users = api_client.get_users(license_active=None, verbose=False)
         count = len(all_users["users"])
         if not count:
@@ -316,14 +315,17 @@ def users(
         message = f"Are you sure you want to update all {count} users?" 
         if click.confirm(message, abort=False):
             for user in all_users["users"]:
-                if license_active:
-                    result = api_client.activate_user(
-                        email_address=user["email_address"])
-                else:
-                    result = api_client.deactivate_user(
-                        email_address=user["email_address"])
-
-                results.append(result)
+                try:
+                    if license_active:
+                        result = api_client.activate_user(
+                            email_address=user["email_address"])
+                    else:
+                        result = api_client.deactivate_user(
+                            email_address=user["email_address"])
+                    
+                    results["success"].append(result)
+                except Exception as e:
+                    results["fail"].append(e)
 
         else:
             click.echo("Aborted!")
@@ -331,12 +333,10 @@ def users(
 
     else:
         if license_active:
-            result = api_client.activate_user(
-                email_address=email_address)
+            results["success"] = [api_client.activate_user(
+                email_address=email_address)]
         else:
-            result = api_client.deactivate_user(
-                email_address=email_address)
-
-        results = [result]
+            results["success"] = [api_client.deactivate_user(
+                email_address=email_address)]
 
     return results

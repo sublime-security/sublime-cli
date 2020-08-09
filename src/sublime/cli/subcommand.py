@@ -316,11 +316,14 @@ def query(
 
 
 @click.command()
-@click.option("-k", "--api-key", required=True, 
+@click.option("-k", "--api-key", required=False, 
         help="Key to include in API requests")
-def setup(api_key):
-    """Configure API key."""
-    config = {"api_key": api_key}
+@click.option("-s", "--save-dir", required=False,
+        type=click.Path(resolve_path=True),
+        help="Default save directory for items retrieved from your Sublime environment")
+def setup(api_key="", save_dir=""):
+    """Configure defaults."""
+    config = {"api_key": api_key, "save_dir": save_dir}
     save_config(config)
     click.echo("Configuration saved to {!r}".format(CONFIG_FILE))
 

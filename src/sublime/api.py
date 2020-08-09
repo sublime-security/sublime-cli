@@ -428,7 +428,7 @@ class Sublime(object):
         """Get org detections."""
         params = {}
 
-        if active:
+        if active is not None:
             params["active"] = active
 
         if search:
