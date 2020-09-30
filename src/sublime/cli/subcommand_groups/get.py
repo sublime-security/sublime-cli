@@ -144,6 +144,8 @@ def detections(
 @click.option("--before", "before",
     type=click.DateTime(formats=get_datetime_formats()),
     help="Only retrieve messages before this date. Format: ISO 8601")
+@click.option("-l", "--limit", "limit",
+    type=int, help="Number of messages to return. The default is 50")
 @click.option("-i", "--id", "message_data_model_id", 
     help="Message Data Model ID")
 @click.option(
@@ -171,6 +173,7 @@ def messages(
     safe,
     after,
     before,
+    limit,
     message_data_model_id,
     output_file,
     output_format,
@@ -199,7 +202,8 @@ def messages(
                 after, 
                 before,
                 reviewed,
-                safe)
+                safe,
+                limit)
     else:
         results = api_client.get_message_details(message_data_model_id)
 

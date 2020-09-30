@@ -501,7 +501,7 @@ class Sublime(object):
         return response
 
     def get_messages(self, result=True, after=None, before=None, 
-            reviewed=False, safe=None):
+            reviewed=False, safe=None, limit=None):
         """Get messages."""
         params = {}
         params["result"] = result
@@ -509,6 +509,7 @@ class Sublime(object):
         params["end_time"] = before
         params["inclusive"] = False
         params["reviewed"] = reviewed
+        params["limit"] = limit
 
         if safe is not None:
             params["safe"] = safe
