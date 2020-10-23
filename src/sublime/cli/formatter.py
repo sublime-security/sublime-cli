@@ -163,7 +163,7 @@ def get_detections_formatter(results, verbose):
 def get_messages_formatter(results, verbose):
     """Convert get messages output into human-readable text."""
 
-    if results.get("message_data_model"): # /messages/{id}/details
+    if results.get("message_data_model"): # GET /messages/{id}
         template = JINJA2_ENV.get_template("get_messages_detail.txt.j2")
 
         if results.get("enrichment_results"):
@@ -192,8 +192,12 @@ def get_messages_formatter(results, verbose):
             total_enrichments=total_enrichments,
             total_successful_enrichments=total_successful_enrichments,
             verbose=verbose)
-    else: # /messages
+    else: # GET /messages
         template = JINJA2_ENV.get_template("get_messages_result.txt.j2")
+
+        # reverse results so the most recent message is shown last
+        # (which is the first result the user sees at the end of the list)
+        results["results"].reverse()
 
         return template.render(results=results["results"], verbose=verbose)
 

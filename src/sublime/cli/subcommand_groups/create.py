@@ -106,7 +106,7 @@ def detections(
     for d in detections:
         try:
             results["success"].append(
-                    api_client.create_org_detection(d, active, verbose))
+                    api_client.create_detection(d, active, verbose))
         except Exception as e:
             results["fail"].append(e)
 

@@ -88,10 +88,10 @@ def detections(
 
     if community:
         if detection_id:
-            results["detections"] = [api_client.get_community_detection(
+            results["detections"] = [api_client.get_detection(
                     detection_id, verbose)]
         elif detection_name:
-            results["detections"] = [api_client.get_community_detection_by_name(
+            results["detections"] = [api_client.get_detection_by_name(
                     detection_name, verbose)]
         else:
             results = api_client.get_community_detections(
@@ -99,10 +99,10 @@ def detections(
                     created_by_org_id=created_by_org_id,
                     created_by_sublime_user_id=created_by_sublime_user_id)
     elif detection_id:
-        results["detections"] = [api_client.get_org_detection(
+        results["detections"] = [api_client.get_detection(
             detection_id, verbose)]
     elif detection_name:
-        results["detections"] = [api_client.get_org_detection_by_name(
+        results["detections"] = [api_client.get_detection_by_name(
             detection_name, verbose)]
     else:
         results = api_client.get_org_detections(
@@ -180,7 +180,7 @@ def messages(
     verbose,
 ):
     """
-    Get messages. By default, only flagged messages are returned.
+    Get messages. By default, only unreviewed flagged messages are returned.
     """
 
     if not message_data_model_id:

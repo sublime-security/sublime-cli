@@ -37,22 +37,17 @@ class Sublime(object):
     EP_MODEL_ANALYZE_MULTI = "model/analyze/multi"
     EP_MODEL_QUERY = "model/query"
     EP_MODEL_QUERY_MULTI = "model/query/multi"
-    EP_COMMUNITY_DETECTIONS = "community/detections"
-    EP_COMMUNITY_DETECTION_BY_ID = "community/detections/{}"
-    EP_COMMUNITY_DETECTION_BY_NAME = "community/detections/name/{}"
-    EP_SUBSCRIBE_DETECTION_BY_ID = "community/detections/{}/subscribe"
-    EP_SUBSCRIBE_DETECTION_BY_NAME = "community/detections/name/{}/subscribe"
-    EP_UNSUBSCRIBE_DETECTION_BY_ID = "community/detections/{}/unsubscribe"
-    EP_UNSUBSCRIBE_DETECTION_BY_NAME = "community/detections/name/{}/unsubscribe"
-    EP_ORG_DETECTIONS = "org/detections"
-    EP_ORG_DETECTION_BY_ID = "org/detections/{}"
-    EP_ORG_DETECTION_BY_NAME = "org/detections/name/{}"
-    EP_SHARE_ORG_DETECTION_BY_ID = "org/detections/{}/share"
-    EP_SHARE_ORG_DETECTION_BY_NAME = "org/detections/name/{}/share"
-    EP_UNSHARE_ORG_DETECTION_BY_ID = "org/detections/{}/unshare"
-    EP_UNSHARE_ORG_DETECTION_BY_NAME = "org/detections/name/{}/unshare"
-    EP_ORG_DETECTION_STATS_BY_ID = "org/detections/{}/stats"
-    EP_ORG_DETECTION_STATS_BY_NAME = "org/detections/name/{}/stats"
+    EP_DETECTIONS = "detections"
+    EP_ORG_DETECTIONS = "detections/org"
+    EP_COMMUNITY_DETECTIONS = "detections/community"
+    EP_DETECTION_BY_ID = "detections/{}"
+    EP_DETECTION_BY_NAME = "detections/name/{}"
+    EP_SUBSCRIBE_DETECTION_BY_ID = "detections/{}/subscribe"
+    EP_UNSUBSCRIBE_DETECTION_BY_ID = "detections/{}/unsubscribe"
+    EP_SHARE_DETECTION_BY_ID = "detections/{}/share"
+    EP_UNSHARE_DETECTION_BY_ID = "detections/{}/unshare"
+    EP_DETECTION_STATS_BY_ID = "detections/{}/stats"
+    EP_BACKTEST_DETECTIONS = "detections/backtest/multi"
     EP_GET_ME = "org/sublime-users/me"
     EP_GET_ORG = "org"
     EP_GET_USERS = "org/users"
@@ -64,7 +59,6 @@ class Sublime(object):
     EP_SEND_MOCK_TUTORIAL_ONE = "org/sublime-users/mock-tutorial-one"
     EP_ACTIVATE_USER = "org/users/email/{}/activate"
     EP_DEACTIVATE_USER = "org/users/email/{}/deactivate"
-    EP_BACKTEST_DETECTIONS = "org/detections/backtest/multi"
     EP_GET_JOB_STATUS = "jobs/{}/status"
     EP_GET_JOB_OUTPUT = "jobs/{}/output"
     EP_NOT_IMPLEMENTED = "request/{subcommand}"
@@ -286,7 +280,7 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def create_org_detection(self, detection, active, verbose):
+    def create_detection(self, detection, active, verbose):
         """Create a detection."""
         body = {}
         body["active"] = active
@@ -297,12 +291,12 @@ class Sublime(object):
         if detection.get("name"):
             body["name"] = detection["name"]
 
-        endpoint = self.EP_ORG_DETECTIONS
+        endpoint = self.EP_DETECTIONS
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
     # be careful what values are set in the request - they'll force an update
-    def update_org_detection(self, detection_id, detection, active, verbose):
+    def update_detection(self, detection_id, detection, active, verbose):
         """Update an org detection by ID."""
         body = {}
 
@@ -315,7 +309,7 @@ class Sublime(object):
         if detection.get("name"):
             body["name"] = detection["name"]
 
-        endpoint = self.EP_ORG_DETECTION_BY_ID.format(detection_id)
+        endpoint = self.EP_DETECTION_BY_ID.format(detection_id)
         response, headers = self._request(endpoint, request_type='PATCH', json=body)
 
         # yeah, this is not great, but it's the best we got right now
@@ -323,8 +317,14 @@ class Sublime(object):
 
         return response
 
+    def get_detection_by_name(self, detection_name, verbose):
+        """Get a detection by name."""
+        endpoint = self.EP_DETECTION_BY_NAME.format(detection_name)
+        response, _ = self._request(endpoint, request_type='GET')
+        return response
+
     # be careful what values are set in the request - they'll force an update
-    def update_org_detection_by_name(self, name, detection, active, verbose):
+    def update_detection_by_name(self, name, detection, active, verbose):
         """Update an org detection by name."""
         body = {}
 
@@ -334,7 +334,7 @@ class Sublime(object):
         if detection:
             body["detection"] = detection
 
-        endpoint = self.EP_ORG_DETECTION_BY_NAME.format(name)
+        endpoint = self.EP_DETECTION_BY_NAME.format(name)
         response, headers = self._request(endpoint, request_type='PATCH', json=body)
 
         # yeah, this is not great, but it's the best we got right now
@@ -342,42 +342,24 @@ class Sublime(object):
 
         return response
 
-    def share_org_detection(self, detection_id, share_sublime_user=False, share_org=False):
+    def share_detection(self, detection_id, share_sublime_user=False, share_org=False):
         """Share a detection by ID."""
         body = {}
         body["share_sublime_user"] = share_sublime_user
         body["share_org"] = share_org
 
-        endpoint = self.EP_SHARE_ORG_DETECTION_BY_ID.format(detection_id)
+        endpoint = self.EP_SHARE_DETECTION_BY_ID.format(detection_id)
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def share_org_detection_by_name(self, detection_name, share_sublime_user=False, 
-            share_org=False):
-        """Share a detection by name."""
-        body = {}
-        body["share_sublime_user"] = share_sublime_user
-        body["share_org"] = share_org
-
-        endpoint = self.EP_SHARE_ORG_DETECTION_BY_NAME.format(detection_name)
-        response, _ = self._request(endpoint, request_type='POST', json=body)
-        return response
-
-    def unshare_org_detection(self, detection_id):
+    def unshare_detection(self, detection_id):
         """Unshare a detection by ID."""
 
-        endpoint = self.EP_UNSHARE_ORG_DETECTION_BY_ID.format(detection_id)
+        endpoint = self.EP_UNSHARE_DETECTION_BY_ID.format(detection_id)
         response, _ = self._request(endpoint, request_type='POST')
         return response
 
-    def unshare_org_detection_by_name(self, detection_name):
-        """Unshare a detection by name."""
-
-        endpoint = self.EP_UNSHARE_ORG_DETECTION_BY_NAME.format(detection_name)
-        response, _ = self._request(endpoint, request_type='POST')
-        return response
-
-    def subscribe_community_detection(self, detection_id, active=False):
+    def subscribe_detection(self, detection_id, active=False):
         """Subscribe to a community detection."""
         body = {}
         body["active"] = active
@@ -386,26 +368,10 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def subscribe_community_detection_by_name(self, detection_name, active=False):
-        """Subscribe to a community detection by name."""
-        body = {}
-        body["active"] = active
-
-        endpoint = self.EP_SUBSCRIBE_DETECTION_BY_NAME.format(detection_name)
-        response, _ = self._request(endpoint, request_type='POST', json=body)
-        return response
-
-    def unsubscribe_community_detection(self, detection_id):
+    def unsubscribe_detection(self, detection_id):
         """Unsubscribe from a community detection."""
 
         endpoint = self.EP_UNSUBSCRIBE_DETECTION_BY_ID.format(detection_id)
-        response, _ = self._request(endpoint, request_type='POST')
-        return response
-
-    def unsubscribe_community_detection_by_name(self, detection_name):
-        """Unsubscribe from a community detection by name."""
-
-        endpoint = self.EP_UNSUBSCRIBE_DETECTION_BY_NAME.format(detection_name)
         response, _ = self._request(endpoint, request_type='POST')
         return response
 
@@ -444,29 +410,16 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='GET', params=params)
         return response
 
-    def get_org_detection(self, detection_id, verbose):
-        """Get an org detection by ID."""
-        endpoint = self.EP_ORG_DETECTION_BY_ID.format(detection_id)
+    def get_detection(self, detection_id, verbose):
+        """Get a detection by ID."""
+        endpoint = self.EP_DETECTION_BY_ID.format(detection_id)
         response, _ = self._request(endpoint, request_type='GET')
         return response
 
-    def get_org_detection_by_name(self, detection_name, verbose):
-        """Get an org detection by name."""
-        endpoint = self.EP_ORG_DETECTION_BY_NAME.format(detection_name)
-        response, _ = self._request(endpoint, request_type='GET')
-        return response
+    def get_detection_stats(self, detection_id):
+        """Get stats on a detection owned."""
 
-    def get_org_detection_stats(self, detection_id):
-        """Get stats on a detection owned by the org by ID."""
-
-        endpoint = self.EP_ORG_DETECTION_STATS_BY_ID.format(detection_id)
-        response, _ = self._request(endpoint, request_type='GET')
-        return response
-
-    def get_org_detection_stats_by_name(self, detection_name):
-        """Get stats on a detection owned by the org by name."""
-
-        endpoint = self.EP_ORG_DETECTION_STATS_BY_NAME.format(detection_name)
+        endpoint = self.EP_DETECTION_STATS_BY_ID.format(detection_id)
         response, _ = self._request(endpoint, request_type='GET')
         return response
 
@@ -488,28 +441,18 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='GET', params=params)
         return response
 
-    def get_community_detection(self, detection_id, verbose):
-        """Get a community detection by ID."""
-        endpoint = self.EP_COMMUNITY_DETECTION_BY_ID.format(detection_id)
-        response, _ = self._request(endpoint, request_type='GET')
-        return response
-
-    def get_community_detection_by_name(self, detection_name, verbose):
-        """Get a community detection by name."""
-        endpoint = self.EP_COMMUNITY_DETECTION_BY_NAME.format(detection_name)
-        response, _ = self._request(endpoint, request_type='GET')
-        return response
-
     def get_messages(self, result=True, after=None, before=None, 
-            reviewed=False, safe=None, limit=None):
+            reviewed=None, safe=None, limit=None):
         """Get messages."""
         params = {}
         params["result"] = result
         params["start_time"] = after
         params["end_time"] = before
         params["inclusive"] = False
-        params["reviewed"] = reviewed
         params["limit"] = limit
+
+        if reviewed is not None:
+            params["reviewed"] = reviewed
 
         if safe is not None:
             params["safe"] = safe

@@ -25,8 +25,6 @@ def subscribe():
 @click.option("-k", "--api-key", help="Key to include in API requests")
 @click.option("-i", "--id", "detection_id", 
         help="Detection ID")
-@click.option("-n", "--name", "detection_name", 
-        help="Detection name")
 @click.option("--org-id", "created_by_org_id", 
         help="All detections authored by a specific org ID")
 @click.option("--sublime-user-id", "created_by_sublime_user_id", 
@@ -58,7 +56,6 @@ def detections(
     api_client,
     api_key,
     detection_id,
-    detection_name,
     created_by_org_id,
     created_by_sublime_user_id,
     active,
@@ -72,19 +69,11 @@ def detections(
     results = {"success": [], "fail": []}
     if detection_id:
         if unsubscribe:
-            results["success"] = [api_client.unsubscribe_community_detection(
+            results["success"] = [api_client.unsubscribe_detection(
                     detection_id=detection_id)]
         else:
-            results["success"] = [api_client.subscribe_community_detection(
+            results["success"] = [api_client.subscribe_detection(
                     detection_id=detection_id,
-                    active=active)]
-    elif detection_name:
-        if unsubscribe:
-            results["success"] = [api_client.unsubscribe_community_detection_by_name(
-                    detection_name=detection_name)]
-        else:
-            results["success"] = [api_client.subscribe_community_detection_by_name(
-                    detection_name=detection_name,
                     active=active)]
     elif created_by_org_id or created_by_sublime_user_id:
         detections = api_client.get_community_detections(
@@ -105,11 +94,11 @@ def detections(
                 try:
                     if unsubscribe:
                         results["success"].append(
-                                api_client.unsubscribe_community_detection(
+                                api_client.unsubscribe_detection(
                                     detection_id=detection["id"]))
                     else:
                         results["success"].append(
-                                api_client.subscribe_community_detection(
+                                api_client.subscribe_detection(
                                     detection_id=detection["id"],
                                     active=active))
                 except Exception as e:
