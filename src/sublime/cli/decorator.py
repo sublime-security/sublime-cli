@@ -362,7 +362,11 @@ def analyze_command(function):
     @click.option("-k", "--api-key", help="Key to include in API requests")
     @click.option(
         "-i", "--input", "input_file", type=click.File(), 
-        help="Input EML or enriched MDM file", required=True
+        help="Input EML or enriched MDM file"
+    )
+    @click.option(
+        "-m", "message_data_model_id", 
+        help="Message Data Model ID"
     )
     @click.option(
         "-D", "--detections", "detections_path", 
@@ -377,6 +381,8 @@ def analyze_command(function):
             "by single quotes"
         )
     )
+    @click.option("--detection-id", "detection_id", 
+            help="Detection ID")
     @click.option("-t", "--type", "route_type",
         type=click.Choice(['inbound', 'internal', 'outbound'], 
             case_sensitive=False),
@@ -468,8 +474,7 @@ class MissingDetectionInput(click.ClickException):
 
     def __init__(self):
         message = (
-                "You must specify either a .pql detections file/directory (-D) "
-                "or a raw detection (-d)"
+                "You must specify a detection to run"
                 )
         super(MissingDetectionInput, self).__init__(message)
 

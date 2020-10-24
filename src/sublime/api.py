@@ -158,25 +158,39 @@ class Sublime(object):
 
         raise err
 
-    def analyze_mdm_multi(self, message_data_model, detections, verbose):
+    def analyze_mdm_multi(self, detections, message_data_model=None,
+            message_data_model_id=None, verbose=True):
         """Analyze an enriched Message Data Model against a list of detections"""
 
         body = {}
-        body["message_data_model"] = message_data_model
         body["detections"] = detections
+
+        if message_data_model_id:
+            body["message_data_model_id"] = message_data_model_id
+        elif message_data_model:
+            body["message_data_model"] = message_data_model
+
         if verbose:
             body["response_type"] = "full"
+
         endpoint = self.EP_MODEL_ANALYZE_MULTI
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_mdm(self, message_data_model, detection, verbose):
+    def analyze_mdm(self, detection, message_data_model=None,
+            message_data_model_id=None, verbose=True):
         """Analyze an enriched Message Data Model against a detection"""
         body = {}
-        body["message_data_model"] = message_data_model
         body["detection"] = detection
+
+        if message_data_model_id:
+            body["message_data_model_id"] = message_data_model_id
+        elif message_data_model:
+            body["message_data_model"] = message_data_model
+
         if verbose:
             body["response_type"] = "full"
+
         endpoint = self.EP_MODEL_ANALYZE
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response

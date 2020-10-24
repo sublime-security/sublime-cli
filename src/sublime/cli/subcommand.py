@@ -202,8 +202,10 @@ def analyze(
     api_client,
     api_key,
     input_file,
+    message_data_model_id,
     detections_path,
     detection_str,
+    detection_id,
     route_type,
     output_file,
     output_format,
@@ -211,8 +213,12 @@ def analyze(
     verbose,
 ):
     """Analyze an enriched MDM or raw EML."""
-    if not detections_path and not detection_str:
+    if not detections_path and not detection_str and not detection_id:
         raise MissingDetectionInput
+
+    if not message_data_model_id and not input_file:
+        LOGGER.error("Input file (-i) or Message Data Model ID (-m) is required")
+        context.exit(-1)
 
     if detections_path:
         if os.path.isfile(detections_path):
@@ -223,24 +229,38 @@ def analyze(
         elif os.path.isdir(detections_path):
             detections = load_detections_path(detections_path)
             multi = True
+    elif detection_id:
+        detection = create_simple_detection(detection_id=detection_id)
+        multi = False
     else:
-        detection = create_detection(detection_str)
+        detection = create_simple_detection(detection_str=detection_str)
         multi = False
 
+    if message_data_model_id:
+        if multi:
+            results = api_client.analyze_mdm_multi(
+                    detections=detections, 
+                    message_data_model_id=message_data_model_id, 
+                    verbose=verbose)
+        else:
+            results = api_client.analyze_mdm(
+                    detection=detection, 
+                    message_data_model_id=message_data_model_id,
+                    verbose=verbose)
     # assume it's an EML if it doesn't end with .mdm
-    if input_file.name.endswith(".mdm"):
+    elif input_file.name.endswith(".mdm"):
         message_data_model = load_message_data_model(input_file)
 
         if multi:
             results = api_client.analyze_mdm_multi(
-                    message_data_model, 
-                    detections, 
-                    verbose)
+                    detections=detections, 
+                    message_data_model=message_data_model, 
+                    verbose=verbose)
         else:
             results = api_client.analyze_mdm(
-                    message_data_model, 
-                    detection, 
-                    verbose)
+                    detection=detection, 
+                    message_data_model=message_data_model, 
+                    verbose=verbose)
     else:
         eml = load_eml(input_file)
 
