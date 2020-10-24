@@ -46,7 +46,6 @@ class Sublime(object):
     EP_UNSUBSCRIBE_DETECTION_BY_ID = "detections/{}/unsubscribe"
     EP_SHARE_DETECTION_BY_ID = "detections/{}/share"
     EP_UNSHARE_DETECTION_BY_ID = "detections/{}/unshare"
-    EP_DETECTION_STATS_BY_ID = "detections/{}/stats"
     EP_BACKTEST_DETECTIONS = "detections/backtest/multi"
     EP_GET_ME = "org/sublime-users/me"
     EP_GET_ORG = "org"
@@ -280,7 +279,19 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def create_detection(self, detection, active, verbose):
+    def get_detection(self, detection_id):
+        """Get a detection by ID."""
+        endpoint = self.EP_DETECTION_BY_ID.format(detection_id)
+        response, _ = self._request(endpoint, request_type='GET')
+        return response
+
+    def get_detection_by_name(self, detection_name):
+        """Get a detection by name."""
+        endpoint = self.EP_DETECTION_BY_NAME.format(detection_name)
+        response, _ = self._request(endpoint, request_type='GET')
+        return response
+
+    def create_detection(self, detection, active):
         """Create a detection."""
         body = {}
         body["active"] = active
@@ -296,7 +307,7 @@ class Sublime(object):
         return response
 
     # be careful what values are set in the request - they'll force an update
-    def update_detection(self, detection_id, detection, active, verbose):
+    def update_detection(self, detection_id, detection, active):
         """Update an org detection by ID."""
         body = {}
 
@@ -317,14 +328,8 @@ class Sublime(object):
 
         return response
 
-    def get_detection_by_name(self, detection_name, verbose):
-        """Get a detection by name."""
-        endpoint = self.EP_DETECTION_BY_NAME.format(detection_name)
-        response, _ = self._request(endpoint, request_type='GET')
-        return response
-
     # be careful what values are set in the request - they'll force an update
-    def update_detection_by_name(self, name, detection, active, verbose):
+    def update_detection_by_name(self, name, detection, active):
         """Update an org detection by name."""
         body = {}
 
@@ -375,14 +380,14 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST')
         return response
 
-    def get_me(self, verbose):
+    def get_me(self):
         """Get information about the currently authenticated Sublime user."""
 
         endpoint = self.EP_GET_ME
         response, _ = self._request(endpoint, request_type='GET')
         return response
 
-    def get_org(self, verbose):
+    def get_org(self):
         """Get information about the currently authenticated organization."""
 
         endpoint = self.EP_GET_ORG
@@ -408,19 +413,6 @@ class Sublime(object):
 
         endpoint = self.EP_ORG_DETECTIONS
         response, _ = self._request(endpoint, request_type='GET', params=params)
-        return response
-
-    def get_detection(self, detection_id, verbose):
-        """Get a detection by ID."""
-        endpoint = self.EP_DETECTION_BY_ID.format(detection_id)
-        response, _ = self._request(endpoint, request_type='GET')
-        return response
-
-    def get_detection_stats(self, detection_id):
-        """Get stats on a detection owned."""
-
-        endpoint = self.EP_DETECTION_STATS_BY_ID.format(detection_id)
-        response, _ = self._request(endpoint, request_type='GET')
         return response
 
     def get_community_detections(self, search=None, created_by_org_id=None,
@@ -469,7 +461,7 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='GET')
         return response
 
-    def review_message(self, message_data_model_id, reviewed, safe, verbose):
+    def review_message(self, message_data_model_id, reviewed, safe):
         """Update review status of a message."""
         body = {}
         body["reviewed"] = reviewed
@@ -479,7 +471,7 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def review_all_messages(self, after, before, reviewed, safe, verbose):
+    def review_all_messages(self, after, before, reviewed, safe):
         """Update review status of all messages that meet the criteria."""
         body = {}
         body["start_time"] = after
@@ -497,7 +489,7 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def send_mock_tutorial_one(self, verbose):
+    def send_mock_tutorial_one(self):
         endpoint = self.EP_SEND_MOCK_TUTORIAL_ONE
         response, _ = self._request(endpoint, request_type='POST')
 
@@ -517,7 +509,7 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def get_users(self, license_active, verbose):
+    def get_users(self, license_active):
         params = {}
         params["license_active"] = license_active
 

@@ -110,7 +110,7 @@ def detections(
             try:
                 results["success"].append(
                         api_client.update_detection_by_name(
-                    d.get("name"), d.get("detection"), active, verbose))
+                    d.get("name"), d.get("detection"), active))
             except Exception as e:
                 results["fail"].append(e)
 
@@ -127,10 +127,10 @@ def detections(
 
         if detection_id:
             results["success"] = [api_client.update_detection(
-                detection_id, d, active, verbose) for d in detections]
+                detection_id, d, active) for d in detections]
         else:
             results["success"] = [api_client.update_detection_by_name(
-                d.get("name"), d.get("detection"), active, verbose) for d in detections]
+                d.get("name"), d.get("detection"), active) for d in detections]
 
     results["success"] = sorted(results["success"], 
             key=lambda i: i["original_name"] if i.get("original_name") else "")
@@ -232,8 +232,7 @@ def messages(
                     after=after,
                     before=before,
                     reviewed=reviewed,
-                    safe=safe,
-                    verbose=verbose)
+                    safe=safe)
 
         else:
             click.echo("Aborted!")
@@ -245,8 +244,7 @@ def messages(
         results = api_client.review_message(
             message_data_model_id=message_data_model_id,
             reviewed=reviewed,
-            safe=safe,
-            verbose=verbose)
+            safe=safe)
 
     return results
 
@@ -307,7 +305,7 @@ def users(
 
     results = {"success": [], "fail": []}
     if update_all:
-        all_users = api_client.get_users(license_active=None, verbose=False)
+        all_users = api_client.get_users(license_active=None)
         count = len(all_users["users"])
         if not count:
             click.echo("No users to update!")

@@ -58,7 +58,7 @@ def mock(
     """
 
     if command == "tutorial-one":
-        result = api_client.send_mock_tutorial_one(verbose)
+        result = api_client.send_mock_tutorial_one()
     else:
         LOGGER.error("Invalid command")
         context.exit(-1)

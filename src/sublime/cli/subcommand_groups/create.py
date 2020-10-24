@@ -105,8 +105,7 @@ def detections(
     results = {"success": [], "fail": []}
     for d in detections:
         try:
-            results["success"].append(
-                    api_client.create_detection(d, active, verbose))
+            results["success"].append(api_client.create_detection(d, active))
         except Exception as e:
             results["fail"].append(e)
 

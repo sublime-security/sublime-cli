@@ -88,22 +88,18 @@ def detections(
 
     if community:
         if detection_id:
-            results["detections"] = [api_client.get_detection(
-                    detection_id, verbose)]
+            results["detections"] = [api_client.get_detection(detection_id)]
         elif detection_name:
-            results["detections"] = [api_client.get_detection_by_name(
-                    detection_name, verbose)]
+            results["detections"] = [api_client.get_detection_by_name(detection_name)]
         else:
             results = api_client.get_community_detections(
                     search=search,
                     created_by_org_id=created_by_org_id,
                     created_by_sublime_user_id=created_by_sublime_user_id)
     elif detection_id:
-        results["detections"] = [api_client.get_detection(
-            detection_id, verbose)]
+        results["detections"] = [api_client.get_detection(detection_id)]
     elif detection_name:
-        results["detections"] = [api_client.get_detection_by_name(
-            detection_name, verbose)]
+        results["detections"] = [api_client.get_detection_by_name(detection_name)]
     else:
         results = api_client.get_org_detections(
                 active=active,
@@ -238,7 +234,7 @@ def me(
 ):
     """Get information about the currently authenticated Sublime user."""
 
-    result = api_client.get_me(verbose)
+    result = api_client.get_me()
 
     return result
     
@@ -271,7 +267,7 @@ def org(
 ):
     """Get information about the currently authenticated organization."""
 
-    result = api_client.get_org(verbose)
+    result = api_client.get_org()
 
     return result
     
@@ -314,6 +310,6 @@ def users(
     else:
         license_active = None
 
-    results = api_client.get_users(license_active, verbose)
+    results = api_client.get_users(license_active)
 
     return results
