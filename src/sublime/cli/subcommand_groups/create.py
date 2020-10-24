@@ -93,7 +93,8 @@ def detections(
         elif os.path.isdir(detections_path):
             detections = load_detections_path(detections_path)
     else:
-        detections = [create_detection(detection_str, detection_name)]
+        detections = [create_simple_detection(
+            detection_str=detection_str, detection_name=detection_name)]
 
     # detection names are required on the backend, but they're not required
     # to just run in the CLI. so here we ensure each detection has a name

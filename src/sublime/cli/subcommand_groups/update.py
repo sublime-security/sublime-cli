@@ -123,7 +123,8 @@ def detections(
         detection_str = detection_str if detection_str else ""
         detection_name = detection_name if detection_name else ""
 
-        detections = [create_detection(detection_str, detection_name)]
+        detections = [create_simple_detection(
+            detection_str=detection_str, detection_name=detection_name)]
 
         if detection_id:
             results["success"] = [api_client.update_detection(

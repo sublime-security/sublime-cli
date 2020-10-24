@@ -135,7 +135,9 @@ def load_detections(detections_file, query=False, ignore_errors=False):
                 if query:
                     detection = create_query(detection_str, detection_name)
                 else:
-                    detection = create_detection(detection_str, detection_name)
+                    detection = create_simple_detection(
+                            detection_str=detection_str,
+                            detection_name=detection_name)
                 detections.append(detection)
             elif detection_name:
                 # reached a detection with just a name, no raw detection
@@ -173,7 +175,9 @@ def load_detections(detections_file, query=False, ignore_errors=False):
     # true if there's no newline at the end of the last detection
     if detection_str:
         if not query:
-            detection = create_detection(detection_str, detection_name)
+            detection = create_simple_detection(
+                    detection_str=detection_str,
+                    detection_name=detection_name)
         else:
             detection = create_query(detection_str, detection_name)
         detections.append(detection)
@@ -223,13 +227,21 @@ def load_detections(detections_file, query=False, ignore_errors=False):
 
     return detections
 
-def create_detection(detection_str, detection_name=None):
+def create_simple_detection(
+        detection_str=None,
+        detection_name=None,
+        detection_id=None):
     detection_str = detection_str.strip() if detection_str else None
     detection_name = detection_name.strip() if detection_name else None
 
+    if not detection_str and not detection_name and not detection_id:
+        LOGGER.error("Invalid detection")
+        sys.exit(-1)
+
     detection = { 
             "detection": detection_str,
-            "name": detection_name
+            "name": detection_name,
+            "id": detection_id
     }
 
     return detection

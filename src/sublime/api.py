@@ -495,12 +495,15 @@ class Sublime(object):
 
         return response
 
-    def backtest_detections(self, detections, after, before):
+    def backtest_detections(self, detections, after, before, limit):
         body = {}
         body["start_time"] = after
         body["end_time"] = before
         body["inclusive"] = False
         body["detections"] = detections
+
+        if limit:
+            body["limit"] = limit
 
         body = json.dumps(body, cls=JSONEncoder)
         body = json.loads(body)

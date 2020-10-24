@@ -30,6 +30,8 @@ def backtest():
     type=click.Path(exists=True), 
     help="Detections file or directory"
 )
+@click.option("-i", "--id", "detection_id", 
+        help="Detection ID")
 @click.option(
     "-d", "--detection", "detection_str", type=str,
     help=(
@@ -55,6 +57,8 @@ def backtest():
     type=click.DateTime(formats=get_datetime_formats()),
     help="Only analyze messages before this date. Format: ISO 8601"
 )
+@click.option("-l", "--limit", "limit", type=int, help="Message limit"
+)
 @click.option(
     "-o", "--output", "output_file", type=click.File(mode="w"), 
     help="Output file"
@@ -76,17 +80,19 @@ def detections(
     api_client,
     api_key,
     detections_path,
+    detection_id,
     detection_str,
     detection_name,
     after,
     before,
+    limit,
     output_file,
     output_format,
     verbose,
 ):
     """Backtest a detection(s)."""
 
-    if not detections_path and not detection_str:
+    if not detections_path and not detection_str and not detection_id:
         raise MissingDetectionInput
 
     if detections_path:
@@ -96,10 +102,12 @@ def detections(
 
         elif os.path.isdir(detections_path):
             detections = load_detections_path(detections_path)
+    elif detection_id:
+        detections = [create_simple_detection(detection_id=detection_id)]
     else:
-        detections = [create_detection(detection_str)]
+        detections = [create_simple_detection(detection_str=detection_str)]
 
-    job_response = api_client.backtest_detections(detections, after, before)
+    job_response = api_client.backtest_detections(detections, after, before, limit)
     job_id = job_response["job_id"]
     print(f"Job with ID {job_id} submitted")
 
