@@ -75,7 +75,7 @@ def detections(
                 message = (
                         "There are currently {} organizations subscribed "
                         "to this detection. Are you sure you want to unshare it?" 
-                        .format(result["subscribers"])
+                        .format(result["stats"]["subscriber_count"])
                 )
             else:
                 message = (

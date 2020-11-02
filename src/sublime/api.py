@@ -451,11 +451,13 @@ class Sublime(object):
             reviewed=None, safe=None, limit=None):
         """Get messages."""
         params = {}
-        params["result"] = result
         params["start_time"] = after
         params["end_time"] = before
         params["inclusive"] = False
         params["limit"] = limit
+
+        if result:
+            params["result"] = result
 
         if reviewed is not None:
             params["reviewed"] = reviewed
