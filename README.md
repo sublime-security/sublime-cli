@@ -21,3 +21,13 @@ Sublime CLI is available for Windows, macOS, and Linux. Refer to the [Getting St
 ## Documentation
 
 For a full reference, see the [CLI reference docs](https://docs.sublimesecurity.com/using-the-cli).
+
+## Development
+
+For development using a local API server, set the following env variables:
+
+```sh
+export ENV='local'
+export BASE_WEBSOCKET=ws://localhost:8000
+export BASE_URL=http://localhost:8000
+```
