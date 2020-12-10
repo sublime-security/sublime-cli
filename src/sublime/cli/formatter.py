@@ -177,7 +177,8 @@ def get_messages_formatter(results, verbose):
             enrichment_details = []
 
         for result in results["detection_results"]:
-            result["detection"] = format_detection(result["detection"])
+            result["detection"]["detection"] = format_detection(
+                    result["detection"]["detection"])
 
         return template.render(
             created_at=results["created_at"],

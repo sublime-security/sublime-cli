@@ -32,13 +32,13 @@
 ----------------------------
 {% for result in detection_results -%}
 <bold>RESULT {{ loop.index }}</bold>
-{%- if result.name %}
-<key>Name: </key><light-yellow>{{ result.name }}</light-yellow>
+{%- if result.detection.name %}
+<key>Name: </key><light-yellow>{{ result.detection.name }}</light-yellow>
 {%- endif %}
-<key>Detection ID: </key><dim>{{ result.detection_id }}</dim>
+<key>Detection ID: </key><dim>{{ result.detection.id }}</dim>
 {%- if verbose %}
-<key>Created: </key><dim>{{ result.created_at }}</dim>
-<key>Detection:</key> <bold>{{ result.detection }}</bold>
+<key>Created: </key><dim>{{ result.detection.created_at }}</dim>
+<key>Detection:</key> <bold>{{ result.detection.detection }}</bold>
 {%- endif %}
 {{ "" }}
 {% endfor %}
