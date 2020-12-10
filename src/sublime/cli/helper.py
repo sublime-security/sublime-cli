@@ -1,7 +1,6 @@
 """Helper functions to reduce subcommand duplication."""
 
 import sys
-import email
 import base64
 import json
 from pathlib import Path
@@ -17,7 +16,7 @@ def load_eml(input_file):
     """Load EML file.
 
     :param input_file: File handle.
-    :type input_file: _io.TextIOWrapper
+    :type input_file: _io.BufferedReader
     :returns: Base64-encoded EML
     :rtype: string
     :raises: LoadEMLError
@@ -27,12 +26,8 @@ def load_eml(input_file):
         raise LoadEMLError("Missing EML file")
 
     try:
-        message = email.message_from_file(input_file)
-        decoded = base64.urlsafe_b64encode(
-                message.as_string().encode('utf-8')).decode('ascii')
-
-        # fails for utf-8 messages:
-        # decoded = base64.b64encode(message.as_bytes()).decode('ascii') 
+        input_file_bytes = input_file.read()
+        decoded = base64.urlsafe_b64encode(input_file_bytes).decode('ascii')
     except Exception as exception:
         error_message = "{}".format(exception)
         raise LoadEMLError(error_message)

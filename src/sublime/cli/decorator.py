@@ -270,7 +270,7 @@ def enrich_command(function):
     @click.command()
     @click.option("-k", "--api-key", help="Key to include in API requests")
     @click.option(
-        "-i", "--input", "input_file", type=click.File(), 
+        "-i", "--input", "input_file", type=click.File('rb'), 
         help="Input EML file", required=True
     )
     @click.option(
@@ -319,7 +319,7 @@ def generate_command(function):
     @click.command(hidden=True)
     @click.option("-k", "--api-key", help="Key to include in API requests")
     @click.option(
-        "-i", "--input", "input_file", type=click.File(), 
+        "-i", "--input", "input_file", type=click.File('rb'), 
         help="Input EML file", required=True
     )
     @click.option(
@@ -361,7 +361,7 @@ def analyze_command(function):
     @click.command()
     @click.option("-k", "--api-key", help="Key to include in API requests")
     @click.option(
-        "-i", "--input", "input_file", type=click.File(), 
+        "-i", "--input", "input_file", type=click.File('rb'), 
         help="Input EML or enriched MDM file"
     )
     @click.option(
