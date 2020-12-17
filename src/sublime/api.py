@@ -47,6 +47,7 @@ class Sublime(object):
     EP_SHARE_DETECTION_BY_ID = "detections/{}/share"
     EP_UNSHARE_DETECTION_BY_ID = "detections/{}/unshare"
     EP_BACKTEST_DETECTIONS = "detections/backtest/multi"
+    EP_DETECTION_STATS = "detections/{}/stats"
     EP_GET_ME = "org/sublime-users/me"
     EP_GET_ORG = "org"
     EP_GET_USERS = "org/users"
@@ -392,6 +393,12 @@ class Sublime(object):
 
         endpoint = self.EP_UNSUBSCRIBE_DETECTION_BY_ID.format(detection_id)
         response, _ = self._request(endpoint, request_type='POST')
+        return response
+
+    def get_detection_stats(self, detection_id):
+        """Get detection stats."""
+        endpoint = self.EP_DETECTION_STATS.format(detection_id)
+        response, _ = self._request(endpoint, request_type='GET')
         return response
 
     def get_me(self):

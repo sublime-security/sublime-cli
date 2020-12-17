@@ -68,14 +68,14 @@ def detections(
         context.exit(-1)
 
     if unshare:
-        result = api_client.get_detection(detection_id)
+        result = api_client.get_detection_stats(detection_id)
 
-        if result["stats"]["subscriber_count"] > 0:
-            if result["stats"]["subscriber_count"] > 1:
+        if result["subscriber_count"] > 0:
+            if result["subscriber_count"] > 1:
                 message = (
                         "There are currently {} organizations subscribed "
                         "to this detection. Are you sure you want to unshare it?" 
-                        .format(result["stats"]["subscriber_count"])
+                        .format(result["subscriber_count"])
                 )
             else:
                 message = (
