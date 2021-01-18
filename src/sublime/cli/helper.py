@@ -8,27 +8,30 @@ from pathlib import Path
 
 import click
 import structlog
+import yaml
+import msg_parser
+
 from sublime.error import *
 
 LOGGER = structlog.get_logger()
 
 
 def load_eml(input_file):
-    """Load EML file.
+    """Load .EML file.
 
     :param input_file: File handle.
     :type input_file: _io.TextIOWrapper
-    :returns: Base64-encoded EML
+    :returns: Base64-encoded raw content
     :rtype: string
     :raises: LoadEMLError
 
     """
     if input_file is None:
-        raise LoadEMLError("Missing EML file")
+        raise LoadEMLError("Missing .eml file")
 
     try:
         message = email.message_from_file(input_file)
-        decoded = base64.urlsafe_b64encode(
+        raw_message_base64 = base64.b64encode(
                 message.as_string().encode('utf-8')).decode('ascii')
 
         # fails for utf-8 messages:
@@ -37,8 +40,33 @@ def load_eml(input_file):
         error_message = "{}".format(exception)
         raise LoadEMLError(error_message)
 
-    return decoded
+    return raw_message_base64
 
+def load_msg(input_file):
+    """Load .MSG file.
+
+    :param input_file: File handle.
+    :type input_file: _io.TextIOWrapper
+    :returns: Base64-encoded raw content
+    :rtype: string
+    :raises: LoadMSGError
+
+    """
+    if input_file is None:
+        raise LoadMSGError("Missing .msg file")
+
+    try:
+        msg_obj = msg_parser.MsOxMessage(input_file.name)
+        email_formatter = msg_parser.email_builder.EmailFormatter(msg_obj)
+        message_str = email_formatter.build_email()
+
+        raw_message_base64 = base64.b64encode(
+                message_str.encode('utf-8')).decode('ascii')
+    except Exception as exception:
+        error_message = "{}".format(exception)
+        raise LoadMSGError(error_message)
+
+    return raw_message_base64
 
 def load_message_data_model(input_file):
     """Load Message Data Model file.
@@ -61,26 +89,28 @@ def load_message_data_model(input_file):
 
     return message_data_model
 
-def load_detections_path(detections_path, query=False, ignore_errors=True):
-    """Load detections or queries from a path.
+def load_yml_path(files_path, ignore_errors=True):
+    """Load rules and queries from a path.
 
-    :param detections_path: Path to detections
-    :type detections_path: string
-    :param query: Whether the files contain queries opposed to detections
-    :type query: boolean
-    :param ignore_errors: Ignore detection loading errors
-    :type query: boolean
-    :returns: A list of detections or queries
-    :rtype: list
-    :raises: LoadDetectionError
+    :param files_path: Path to YML files
+    :type files_path: string
+    :param ignore_errors: Ignore file loading errors
+    :type ignore_errors: boolean
+    :returns: A list of rules and a list of queries
+    :rtype: list, list
+    :raises: LoadRuleError
 
     """
-    detections = []
-    for detections_file in Path(detections_path).rglob("*.pql"):
-        with detections_file.open(encoding='utf-8') as f:
+    rules, queries = [], []
+    for rules_file in Path(files_path).rglob("*.yml"):
+        with rules_file.open(encoding='utf-8') as f:
             try:
-                detections.extend(load_detections(f, query, ignore_errors))
-            except LoadDetectionError as error:
+                rules_tmp, queries_tmp = load_yml_file(f)
+                if rules_tmp:
+                    rules.extend(rules_tmp)
+                if queries_tmp:
+                    queries.extend(queries_tmp)
+            except LoadRuleError as error:
                 # We want to ignore errors and continue reading the rest 
                 # of the files. 
                 if ignore_errors:
@@ -88,162 +118,88 @@ def load_detections_path(detections_path, query=False, ignore_errors=True):
                 else:
                     raise
 
-    return detections
+    if len(rules) == 0 and len(queries) == 0:
+        LOGGER.warning("No valid YML files found in {}".format(files_path))
 
-def load_detections(detections_file, query=False, ignore_errors=False):
-    """Load detections or queries from a file.
+    return rules, queries
 
-    :param detections_file: Detections file
-    :type detections_file: _io.TextIOWrapper
-    :param query: Whether the file contains queries opposed to detections
-    :type query: boolean
-    :param ignore_errors: Ignore detection loading errors
-    :type query: boolean
-    :returns: A list of detections or queries
-    :rtype: list
-    :raises: LoadDetectionError
+
+def load_yml_file(yml_file, ignore_errors=True):
+    """Load rules and queries from a file.
+
+    :param yml_file: YML file
+    :type yml_file: _io.TextIOWrapper
+    :param ignore_errors: Ignore loading errors
+    :type ignore_errors: boolean
+    :returns: A list of rules and a list of queries
+    :rtype: list, list
+    :raises: LoadRuleError
 
     """
-    if detections_file is None:
-        raise LoadDetectionError("Missing PQL file")
-
-    # detections can span multiple lines, separated by an extra \n
-    detections = []
-    detection_str = ""
-    detection_name = ""
-    comment_exists = False
-    line = detections_file.readline()
-    while line:
-        line = line.strip("\n") # remove trailing newline
-        line = line.strip() # remove leading/trailing whitespace
-
-        if line.startswith("#"): # remove comments
-            line = detections_file.readline()
-            comment_exists = True
-            continue
-
-        if line.startswith(";"): # detection names
-            line = line.strip(";")
-            line = line.strip() # remove leading/trailing whitespace
-            detection_name = line
-            line = detections_file.readline()
-            continue
-
-        # empty lines signify the end of a detection
-        if not line:
-            if detection_str:
-                if query:
-                    detection = create_query(detection_str, detection_name)
-                else:
-                    detection = create_detection(detection_str, detection_name)
-                detections.append(detection)
-            elif detection_name:
-                # reached a detection with just a name, no raw detection
-                if comment_exists:
-                    error = (
-                            "This rule is commented out and may require "
-                            "customization: '{}' in {}".format(
-                                detection_name, detections_file.name)
-                            )
-                    if ignore_errors:
-                        LOGGER.warning(error)
-                    else:
-                        raise LoadDetectionError(error)
-                else:
-                    error = (
-                            "Missing detection: '{}' in {}'".format(
-                                detection_name, detections_file.name)
-                            )
-                    if ignore_errors:
-                        LOGGER.warning(error)
-                    else:
-                        raise LoadDetectionError(error)
-
-            # reset variables
-            detection_str = ""
-            detection_name = ""
-            comment_exists = False
+    if yml_file is None:
+        if ignore_errors:
+            LOGGER.warning("Missing YML file")
+            return [], []
         else:
-            # append multi-line detections
-            detection_str += " " + line + " "
+            raise LoadRuleError("Missing YML file")
 
-        # advance to the next line
-        line = detections_file.readline()
+    try:
+        rules_and_queries_yaml = yaml.load(yml_file, Loader=yaml.SafeLoader)
+        if not rules_and_queries_yaml or not isinstance(rules_and_queries_yaml, dict):
+            if ignore_errors:
+                LOGGER.warning("Invalid YML file")
+                return [], []
+            else:
+                raise LoadRuleError("Invalid YML file")
+    except yaml.scanner.ScannerError as e:
+        error = """File '{}' contains invalid characters: {}""".format(yml_file.name, e)
+        raise LoadRuleError(error)
+    except Exception as e:
+        raise LoadRuleError(e)
 
-    # true if there's no newline at the end of the last detection
-    if detection_str:
-        if not query:
-            detection = create_detection(detection_str, detection_name)
+    rules_yaml, queries_yaml = rules_and_queries_yaml.get("rules", []), rules_and_queries_yaml.get("queries", [])
+    rules, queries = [], []
+
+    if not rules_yaml and not queries_yaml:
+        rule_or_query_yaml = rules_and_queries_yaml
+        if rule_or_query_yaml.get("type") not in ["rule", "query"]:
+            error_str = f'Invalid type in {yml_file.name}'
+            if ignore_errors:
+                LOGGER.warning(error_str)
+                return [], []
+            raise LoadRuleError(error_str)
+
+        if rule_or_query_yaml.get("type") == "rule":
+            rules_yaml.append(rule_or_query_yaml)
         else:
-            detection = create_query(detection_str, detection_name)
-        detections.append(detection)
-    elif detection_name:
-        # reached a detection with just a name, no raw detection
-        if comment_exists:
-            error = (
-                    "This rule is commented out and may require "
-                    "customization: '{}' in {}".format(
-                        detection_name, detections_file.name)
-                    )
+            queries_yaml.append(rule_or_query_yaml)
+
+    def safe_yaml_filter(yaml_dict):
+        if not yaml_dict.get("source"):
+            error_str = f"Missing source in {yml_file.name}'"
             if ignore_errors:
-                LOGGER.warning(error)
-            else:
-                raise LoadDetectionError(error)
+                LOGGER.warning(error_str)
+                return None
+            raise LoadRuleError(error_str)
+        return {
+                "source": yaml_dict.get("source"),
+                "name": yaml_dict.get("name"),
+        }
 
-        else:
-            error = (
-                    "Missing detection: '{}' in {}'".format(
-                        detection_name, detections_file.name)
-                    )
-            if ignore_errors:
-                LOGGER.warning(error)
-            else:
-                raise LoadDetectionError(error)
+    for rule_yaml in rules_yaml:
+        rule = safe_yaml_filter(rule_yaml)
 
-    # did we load any valid detections?
-    if not detections:
-        if detection_name:
-            error = (
-                    "Missing detection: '{}' in {}'".format(
-                        detection_name, detections_file.name)
-                    )
-            if ignore_errors:
-                LOGGER.warning(error)
-            else:
-                raise LoadDetectionError(error)
-        else:
-            error = (
-                    "No detections or queries found in '{}'".format(
-                        detections_file.name)
-                    )
-            if ignore_errors:
-                LOGGER.warning(error)
-            else:
-                raise LoadDetectionError(error)
+        if rule:
+            rules.append(rule)
 
-    return detections
+    for query_yaml in queries_yaml:
+        query = safe_yaml_filter(query_yaml)
 
-def create_detection(detection_str, detection_name=None):
-    detection_str = detection_str.strip() if detection_str else None
-    detection_name = detection_name.strip() if detection_name else None
+        if query:
+            queries.append(query)
 
-    detection = { 
-            "detection": detection_str,
-            "name": detection_name
-    }
+    return rules, queries
 
-    return detection
-
-def create_query(query_str, query_name=None):
-    query_str = query_str.strip() if query_str else None
-    query_name = query_name.strip() if query_name else None
-
-    query = {
-            "query": query_str,
-            "name": query_name
-    }
-
-    return query
 
 def get_datetime_formats():
     formats=[

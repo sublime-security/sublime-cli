@@ -5,13 +5,14 @@ Decorators used to add common functionality to subcommands.
 """
 import os
 import functools
+import base64
 
 import click
 import structlog
 from requests.exceptions import RequestException
 
 from sublime.api import Sublime
-from sublime.cli.formatter import FORMATTERS
+from sublime.cli.formatter import FORMATTERS, ANSI_MARKUP
 from sublime.error import *
 from sublime.util import load_config
 
@@ -33,7 +34,10 @@ def echo_result(function):
         result = function(*args, **kwargs)
         context = click.get_current_context()
         params = context.params
-        output_format = params["output_format"]
+        if params.get("output_format"):
+            output_format = params["output_format"]
+        else:
+            output_format = "txt"
         formatter = FORMATTERS[output_format]
         config = load_config()
         if isinstance(formatter, dict):
@@ -49,8 +53,7 @@ def echo_result(function):
                 # regular subcommand
                 formatter = formatter[context.command.name]
 
-        if context.command.name == "enrich" or \
-                context.command.name == "generate":
+        if context.command.name == "create":
             # default behavior is to always save the MDM
             # even if no output file is specified
             if not params.get("output_file"):
@@ -74,35 +77,11 @@ def echo_result(function):
                 params["output_file"] = click.open_file(output_file_name, 
                         mode="w")
 
-            if context.command.name == "enrich":
-                # we always want to print the details to the console
-                details_formatter = FORMATTERS["txt"]["enrich_details"]
-                output = details_formatter(result, 
-                        params.get("verbose", False)).strip("\n")
-                click.echo(
-                    output, file=click.open_file("-", mode="w")
-                )
+            # strip the extra info and just save the unenriched MDM
+            result = result["data_model"]
 
-                # strip the extra info and just save the MDM
-                result = result["message_data_model"]
-            else:
-                # strip the extra info and just save the unenriched MDM
-                result = result["unenriched_message_data_model"]
-
-
-        # query subcommand formatter needs one extra argument passed to it
-        # unless the output format is json
-        if context.command.name == "query":
-            if output_format == "json":
-                output = formatter(result, 
-                        params.get("verbose", False)).strip("\n")
-            else:
-                output = formatter(result, 
-                        params.get("verbose", False),
-                        params.get("show_all", False)).strip("\n")
-        else:
-            output = formatter(result, 
-                    params.get("verbose", False)).strip("\n")
+        output = formatter(result, 
+                params.get("verbose", False)).strip("\n")
 
         click.echo(
             output, 
@@ -111,36 +90,7 @@ def echo_result(function):
 
         file_name = params.get("output_file")
         if file_name:
-            click.echo(f"Output saved to {file_name.name}")
-
-        # if the user asks for the message details, we save the MDM to a file
-        # we do this after the regular console output, otherwise won't see it
-        if context.command.name == "messages" and \
-                params.get('message_data_model_id') and \
-                params.get("verbose", False):
-
-            mdm_formatter = FORMATTERS["json"]
-            output_file_name = result["id"]
-            output_file_name += ".mdm"
-
-            # if the user has a default save directory configured,
-            # store the MDM there
-            if config["save_dir"]:
-                output_file_name = os.path.join(config["save_dir"], output_file_name)
-
-            mdm = result.get("message_data_model")
-
-            output = mdm_formatter(mdm, 
-                    params.get("verbose", False)).strip("\n")
-            click.echo(
-                output, 
-                file=click.open_file(output_file_name, mode="w")
-            )
-            # add an extra newline for readability
-            if not params.get("output_file"):
-                click.echo("\n")
-
-            click.echo(f"Raw Message Data Model saved to {output_file_name}")
+            click.echo(ANSI_MARKUP(f"Output saved to <bold>{file_name.name}</bold>"))
 
     return wrapper
 
@@ -171,21 +121,16 @@ def handle_exceptions(function):
             error_message = "API error: {}".format(error.message)
             LOGGER.error(error_message)
             click.get_current_context().exit(-1)
-        except WebSocketError as error:
-            error_message = "API error: {}".format(error.message)
-            LOGGER.error(error_message)
-            click.get_current_context().exit(-1)
-        except JobError as error:
-            error_message = "Job error: {}".format(error.message)
-            LOGGER.error(error_message)
-            # click.echo(error_message)
-            click.get_current_context().exit(-1)
-        except LoadDetectionError as error:
-            error_message = "Load detection error: {}".format(error.message)
+        except LoadRuleError as error:
+            error_message = "Load rule error: {}".format(error.message)
             LOGGER.error(error_message)
             click.get_current_context().exit(-1)
         except LoadEMLError as error:
             error_message = "Load EML error: {}".format(error.message)
+            LOGGER.error(error_message)
+            click.get_current_context().exit(-1)
+        except LoadMSGError as error:
+            error_message = "Load MSG error: {}".format(error.message)
             LOGGER.error(error_message)
             click.get_current_context().exit(-1)
         except LoadMessageDataModelError as error:
@@ -195,6 +140,28 @@ def handle_exceptions(function):
         except RequestException as error:
             error_message = "Request error: {}".format(error)
             LOGGER.error(error_message)
+            click.get_current_context().exit(-1)
+        except AuthenticationError as error:
+            error_message = "API error: {}".format(error)
+            LOGGER.error(error_message)
+
+            # check to see if an API key is present, if not 
+            # print a helpful message
+            context = click.get_current_context()
+            api_key = context.params.get("api_key")
+            config = load_config()
+
+            if api_key is None:
+                if not config["api_key"]:
+                    prog_name = context.parent.info_name
+                    click.echo(
+                        "\nError: API key not found.\n\n"
+                        "To fix this problem, please use any of the following methods "
+                        "(in order of precedence):\n"
+                        "- Pass it using the -k/--api-key option.\n"
+                        "- Set it in the SUBLIME_API_KEY environment variable.\n"
+                        "- Run 'setup -k' to save it to the configuration file.\n"
+                    )
             click.get_current_context().exit(-1)
 
     return wrapper
@@ -218,6 +185,8 @@ def pass_api_client(function):
 
         if api_key is None:
             if not config["api_key"]:
+                pass
+                '''
                 prog_name = context.parent.info_name
                 click.echo(
                     "\nError: API key not found.\n\n"
@@ -225,12 +194,12 @@ def pass_api_client(function):
                     "(in order of precedence):\n"
                     "- Pass it using the -k/--api-key option.\n"
                     "- Set it in the SUBLIME_API_KEY environment variable.\n"
-                    "- Run {!r} to save it to the configuration file.\n".format(
-                        "{} setup".format(prog_name)
-                    )
+                    "- Run 'setup -k' to save it to the configuration file.\n"
                 )
                 context.exit(-1)
-            api_key = config["api_key"]
+                '''
+            else:
+                api_key = config["api_key"]
 
         api_client = Sublime(api_key=api_key)
         return function(api_client, *args, **kwargs)
@@ -238,34 +207,8 @@ def pass_api_client(function):
     return wrapper
 
 
-# TODO: fix -o and -f
-def listen_command(function):
-    """Decorator that groups decorators common to listen subcommand."""
-
-    @click.command()
-    @click.option("-k", "--api-key", help="Key to include in API requests")
-    @click.argument("event_name")
-    @click.option(
-        "-f",
-        "--format",
-        "output_format",
-        type=click.Choice(["json", "txt"]),
-        default="txt",
-        help="Output format",
-        hidden=True
-    )
-    @pass_api_client
-    @click.pass_context
-    @handle_exceptions
-    @functools.wraps(function)
-    def wrapper(*args, **kwargs):
-        return function(*args, **kwargs)
-
-    return wrapper
-
-
-def enrich_command(function):
-    """Decorator that groups decorators common to enrich subcommand."""
+def create_command(function):
+    """Decorator that groups decorators common to create subcommand."""
 
     @click.command()
     @click.option("-k", "--api-key", help="Key to include in API requests")
@@ -273,55 +216,12 @@ def enrich_command(function):
         "-i", "--input", "input_file", type=click.File(), 
         help="Input EML file", required=True
     )
-    @click.option(
-        "-o", "--output", "output_file", type=click.File(mode="w"), 
-        help=(
-            "Output file. Defaults to the input_file name in the current "
-            "directory with a .mdm extension if none is specified"
-        )
-    )
-    @click.option(
-        "-f",
-        "--format",
-        "output_format",
-        type=click.Choice(["json", "txt"]),
-        default="json",
-        show_default=True,
-        help="Output format",
-    )
-    @click.option("-u", "--user", "mailbox_email_address",
-            help=(
-            "User's mailbox email address (used for live flow in Sublime "
-            "environments)"
-            )
-    )
-    @click.option("-t", "--type", "route_type",
-        type=click.Choice(['inbound', 'internal', 'outbound'], 
-            case_sensitive=False),
+    @click.option("-t", "--type", "message_type",
+        type=click.Choice(['inbound', 'internal', 'outbound'], case_sensitive=False),
         default="inbound",
         show_default=True,
         help="Set the message type"
     )
-    @pass_api_client
-    @click.pass_context
-    @echo_result
-    @handle_exceptions
-    @functools.wraps(function)
-    def wrapper(*args, **kwargs):
-        return function(*args, **kwargs)
-
-    return wrapper
-
-
-def generate_command(function):
-    """Decorator that groups decorators common to generate subcommand."""
-
-    @click.command(hidden=True)
-    @click.option("-k", "--api-key", help="Key to include in API requests")
-    @click.option(
-        "-i", "--input", "input_file", type=click.File(), 
-        help="Input EML file", required=True
-    )
     @click.option(
         "-o", "--output", "output_file", type=click.File(mode="w"), 
         help=(
@@ -338,11 +238,8 @@ def generate_command(function):
         show_default=True,
         help="Output format",
     )
-    @click.option("-u", "--user", "mailbox_email_address",
-            help=(
-            "User's mailbox email address (used for live flow in Sublime "
-            "environments)"
-            )
+    @click.option("-m", "--mailbox", "mailbox_email_address",
+            help="Mailbox email address that received the message"
     )
     @pass_api_client
     @click.pass_context
@@ -362,27 +259,32 @@ def analyze_command(function):
     @click.option("-k", "--api-key", help="Key to include in API requests")
     @click.option(
         "-i", "--input", "input_file", type=click.File(), 
-        help="Input EML or enriched MDM file", required=True
+        help="Input EML, MSG, or MDM file", required=True
     )
     @click.option(
-        "-D", "--detections", "detections_path", 
+        "-r", "--run", "run_path",
         type=click.Path(exists=True), 
-        help="Detections file or directory"
+        help="YML file or directory"
     )
     @click.option(
-        "-d", "--detection", "detection_str", type=str,
+        "-q", "--query", "query", type=str,
         help=(
-            "Raw detection. Instead of using a detections file, "
-            "specify a single detection to be run directly surrounded "
+            "Raw MQL. Instead of using a rules file, "
+            "provide raw MQL, surrounded "
             "by single quotes"
         )
     )
-    @click.option("-t", "--type", "route_type",
-        type=click.Choice(['inbound', 'internal', 'outbound'], 
-            case_sensitive=False),
+    @click.option("-t", "--type", "message_type",
+        type=click.Choice(['inbound', 'internal', 'outbound'], case_sensitive=False),
         default="inbound",
         show_default=True,
-        help="Set the message type"
+        help="Set the message type (EML and MSG files only)"
+    )
+    @click.option("-m", "--mailbox", "mailbox_email_address",
+            help=(
+                "Mailbox email address that received the message "
+                "(EML and MSG files only)"
+            )
     )
     @click.option(
         "-o", "--output", "output_file", type=click.File(mode="w"), 
@@ -396,12 +298,6 @@ def analyze_command(function):
         default="txt",
         help="Output format",
     )
-    @click.option("-u", "--user", "mailbox_email_address",
-            help=(
-            "User's mailbox email address (valid for EMLs only, used for "
-            "live flow in Sublime environments)"
-            )
-    )
     @pass_api_client
     @click.pass_context
     @echo_result
@@ -413,33 +309,12 @@ def analyze_command(function):
     return wrapper
 
 
-def query_command(function):
-    """Decorator that groups decorators common to query subcommand."""
+def me_command(function):
+    """Decorator that groups decorators common to me subcommand."""
 
     @click.command()
     @click.option("-k", "--api-key", help="Key to include in API requests")
     @click.option(
-        "-i", "--input", "input_file", type=click.File(), 
-        help="Enriched MDM file", required=True
-    )
-    @click.option("-a", "--all", "show_all", is_flag=True, default=False,
-        help=(
-            "For -Q queries, show all query ouput, even the ones with no result. "
-            "By default, only queries with a result will be shown."
-        )
-    )
-    @click.option(
-        "-Q", "--queries", "query_path", 
-        type=click.Path(exists=True), 
-        help="Query file or directory"
-    )
-    @click.option(
-        "-q", "--query", "query_str", type=str,
-        help=(
-            "Raw query, surrounded by single quotes"
-        )
-    )
-    @click.option(
         "-o", "--output", "output_file", type=click.File(mode="w"), 
         help="Output file"
     )
@@ -462,16 +337,32 @@ def query_command(function):
     return wrapper
 
 
-class MissingDetectionInput(click.ClickException):
-    """Exception used for analyze commands missing a detection file or raw query
+def feedback_command(function):
+    """Decorator that groups decorators common to me subcommand."""
+
+    @click.command()
+    @click.argument("feedback", type=str)
+    @pass_api_client
+    @click.pass_context
+    @echo_result
+    @handle_exceptions
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        return function(*args, **kwargs)
+
+    return wrapper
+
+
+class MissingRuleInput(click.ClickException):
+    """Exception used for analyze commands missing a rules file or MQL
     """
 
     def __init__(self):
         message = (
-                "You must specify either a .pql detections file/directory (-D) "
-                "or a raw detection (-d)"
+                "You must specify either a rules file/directory (-R) "
+                "or a raw rule (-r)"
                 )
-        super(MissingDetectionInput, self).__init__(message)
+        super(MissingRuleInput, self).__init__(message)
 
 
 class SubcommandNotImplemented(click.ClickException):
@@ -496,7 +387,7 @@ def not_implemented_command(function):
     def wrapper(api_client, *args, **kwargs):
         command_name = function.__name__
         try:
-            api_client.not_implemented(command_name)
+            api_client._not_implemented(command_name)
         except Exception:
             raise SubcommandNotImplemented(command_name)
 

@@ -47,16 +47,12 @@ class APIError(SublimeError):
     """All other failed requests."""
 
 
-class WebSocketError(SublimeError):
-    """Websocket Error."""
+class AuthenticationError(SublimeError):
+    """Invalid or missing authentiction."""
 
 
-class JobError(SublimeError):
-    """Error during job execution."""
-
-
-class LoadDetectionError(SublimeError):
-    """Error loading detections file."""
+class LoadRuleError(SublimeError):
+    """Error loading rules file."""
 
 
 class LoadMessageDataModelError(SublimeError):
@@ -64,4 +60,8 @@ class LoadMessageDataModelError(SublimeError):
 
 
 class LoadEMLError(SublimeError):
-    """Error loading EML."""
+    """Error loading .EML."""
+
+
+class LoadMSGError(SublimeError):
+    """Error loading .MSG."""

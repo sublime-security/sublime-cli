@@ -1,60 +1,118 @@
 ╔═══════════════════════════╗
 ║ <header>{{ "{:^25}".format("Results") }}</header> ║
 ╚═══════════════════════════╝
-{% for detection in results %}
-{%- if detection.detection %}
+
+{%- if rules|length > 0 %}
+{# new line #}
+<bold>RULES</bold>
+------------------
+{# new line #}
 {%- endif %}
-{%- if detection.success %}
-{%- if detection.result %}
-{%- if detection.name %}
-{%- if detection.detection_id %}
-<detected>Detection</detected> <bold>{{ detection.name }}</bold> <detected>flagged this message.</detected> Detection ID: {{ detection.detection_id }}
+{%- for rule in rules %}
+{%- if rule.success %}
+{%- if rule.result %}
+{%- if rule.name %}
+{%- if rule.id %}
+<detected></detected><bold>{{ rule.name }}</bold> <detected>flagged this message.</detected> ID: {{ rule.id }}
 {%- else %}
-<detected>Detection</detected> <bold>{{ detection.name }}</bold> <detected>flagged this message.</detected>
+<detected></detected><bold>{{ rule.name }}</bold> <detected>flagged this message.</detected>
 {%- endif %}
 {%- else %}
-{%- if detection.detection_id %}
-<detected>Detection</detected> <bold>#{{ loop.index }}</bold> <detected>flagged this message.</detected> Detection ID: {{ detection.detection_id }}
+{%- if rule.id %}
+<detected>Rule</detected> <bold>#{{ loop.index }}</bold> <detected>flagged this message.</detected> ID: {{ rule.id }}
 {%- else %}
-<detected>Detection</detected> <bold>#{{ loop.index }}</bold> <detected>flagged this message.</detected> 
+<detected>Rule</detected> <bold>#{{ loop.index }}</bold> <detected>flagged this message.</detected> 
 {%- endif %}
 {%- endif %}
 {%- else %}
 
-{%- if detection.name %}
-{%- if detection.detection_id %}
-<not-detected>Detection</not-detected> <bold>{{ detection.name }}</bold> <not-detected>did not flag this message.</not-detected> Detection ID: {{ detection.detection_id }}
+{%- if rule.name %}
+{%- if rule.id %}
+<not-detected></not-detected><bold>{{ rule.name }}</bold> <not-detected>did not flag this message.</not-detected> ID: {{ rule.id }}
 {%- else %}
-<not-detected>Detection</not-detected> <bold>{{ detection.name }}</bold> <not-detected>did not flag this message.</not-detected>
+<not-detected></not-detected><bold>{{ rule.name }}</bold> <not-detected>did not flag this message.</not-detected>
 {%- endif %}
 {%- else %}
-{%- if detection.detection_id %}
-<not-detected>Detection</not-detected> <bold>#{{ loop.index }}</bold> <not-detected>did not flag this message.</not-detected> Detection ID: {{ detection.detection_id }}
+{%- if rule.id %}
+<not-detected>Rule</not-detected> <bold>#{{ loop.index }}</bold> <not-detected>did not flag this message.</not-detected> ID: {{ rule.id }}
 {%- else %}
-<not-detected>Detection</not-detected> <bold>#{{ loop.index }}</bold> <not-detected>did not flag this message.</not-detected> 
+<not-detected>Rule</not-detected> <bold>#{{ loop.index }}</bold> <not-detected>did not flag this message.</not-detected> 
 {%- endif %}
 {%- endif %}
 
 {%- endif %}
 {%- else %}
 
-{%- if detection.name %}
-{%- if detection.detection_id %}
-<fail>Detection</fail> <bold>{{ detection.name }}</bold> <fail>failed.</fail> Detection ID: {{ detection.detection_id }}. Error: {{ detection.error }}
+{%- if rule.name %}
+{%- if rule.id %}
+<fail></fail><bold>{{ rule.name }}</bold> <fail>failed.</fail> ID: {{ rule.id }}. Error: {{ rule.error }}
 {%- else %}
-<fail>Detection</fail> <bold>{{ detection.name }}</bold> <fail>failed.</fail> Error: {{ detection.error }}
+<fail></fail><bold>{{ rule.name }}</bold> <fail>failed.</fail> Error: {{ rule.error }}
 {%- endif %}
 {%- else %}
-{%- if detection.detection_id %}
-<fail>Detection</fail> <bold>#{{ loop.index }}</bold> <fail>failed.</fail> Detection ID: {{ detection.detection_id }}. Error: {{ detection.error }}
+{%- if rule.id %}
+<fail>Rule</fail> <bold>#{{ loop.index }}</bold> <fail>failed.</fail> ID: {{ rule.id }}. Error: {{ rule.error }}
 {%- else %}
-<fail>Detection</fail> <bold>#{{ loop.index }}</bold> <fail>failed.</fail> Error: {{ detection.error }}
+<fail>Rule</fail> <bold>#{{ loop.index }}</bold> <fail>failed.</fail> Error: {{ rule.error }}
 {%- endif %}
 {%- endif %}
 {%- endif %}
 
 {%- if verbose %}
-<key>Raw Detection</key>: <bold>{{ detection.detection }}</bold>
+<key>Source:</key> {{ rule.source }}
+{{ "" }}
+{%- endif %}
+
+{%- endfor %}
+
+{%- if queries|length > 0 %}
+{# new line #}
+<bold>QUERIES</bold>
+------------------
+{# new line #}
+{%- endif %}
+{%- for query in queries %}
+{%- if query.success %}
+{%- if not show_all and (not query.source or query.result == "None" or query.result == "[]") %}
+{%- continue -%}
+{%- endif %}
+{%- if query.name %}
+{%- if query.id %}
+<key></key><bold>{{ query.name }}</bold> (query ID: {{ query.id }})
+<key>Result:</key> {{ query.result }}
+{%- else %}
+<key></key><bold>{{ query.name }}</bold>
+<key>Result:</key> {{ query.result }}
+{%- endif %}
+{%- else %}
+{%- if query.id %}
+<key>Query</key> <bold>#{{ loop.index }}</bold> (query ID: {{ query.id }})
+<key>Result:</key> {{ query.result }}
+{%- else %}
+<key>Query</key> <bold>#{{ loop.index }}</bold>
+<key>Result:</key> {{ query.result }}
+{%- endif %}
+{%- endif %}
+{%- else %}
+{%- if query.name %}
+{%- if query.id %}
+<fail></fail><bold>{{ query.name }}</bold> <fail>failed.</fail> ID: {{ query.id }}. Error: {{ query.error }}
+{%- else %}
+<fail></fail><bold>{{ query.name }}</bold> <fail>failed.</fail> Error: {{ query.error }}
+{%- endif %}
+{%- else %}
+{%- if query.id %}
+<fail>Query</fail> <bold>#{{ loop.index }}</bold> <fail>failed.</fail> ID: {{ query.id }}. Error: {{ query.error }}
+{%- else %}
+<fail>Query</fail> <bold>#{{ loop.index }}</bold> <fail>failed.</fail> Error: {{ query.error }}
+{%- endif %}
+{%- endif %}
+{%- endif %}
+
+{%- if verbose %}
+<key>Source:</key> {{ query.source }}
+{{ "" }}
+{%- else %}
 {{ "" }}
 {%- endif %}
 

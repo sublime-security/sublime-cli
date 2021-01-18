@@ -2,22 +2,19 @@
 
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Python version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/release/python-376/)
 
-The Sublime CLI lets you interact with the Sublime email security platform right from the terminal.
+The Sublime CLI lets you interact with the Sublime Community API right from the terminal. The CLI can also be used as a Python module for programmatic implementations.
 
-**With the CLI, you can:**
+**With the CLI/Python module, you can:**
 
-- Create, retrieve, or update rules
-- Retrieve, review, and delete flagged messages
-- Activate and deactivate user mailboxes
-- Analyze, enrich, and query raw messages (EMLs) and Message Data Models (MDMs) for easy testing
-- Listen for events in real-time
-
-![demo](docs/demo.gif)
+- Analyze and query raw messages (EMLs and MSGs) and [Message Data Models (MDMs)](https://dev.docs.sublimesecurity.com/docs/mdm)
+- Write your own detection rules and queries
+- Detect many different types of phishing attacks like executive impersonation and lookalike domains
+- Triage reported phish
 
 ## Installation
 
-Sublime CLI is available for Windows, macOS, and Linux. Refer to the [Getting Started](https://docs.sublimesecurity.com/getting-started) documentation for platform specific installation instructions.
+Sublime CLI is available for Windows, macOS, and Linux. Refer to the [Quickstart](https://dev.docs.sublimesecurity.com/docs/quickstart) documentation for installation instructions.
 
 ## Documentation
 
-For a full reference, see the [CLI reference docs](https://docs.sublimesecurity.com/using-the-cli).
+For a full reference, see the [CLI reference docs](https://dev.docs.sublimesecurity.com/docs/sublime-cli).

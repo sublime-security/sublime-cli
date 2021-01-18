@@ -9,13 +9,12 @@ from halo import Halo
 
 from sublime.__version__ import __version__
 from sublime.cli.decorator import (
-    enrich_command,
+    me_command,
+    feedback_command,
     analyze_command,
-    query_command,
-    generate_command,
-    listen_command,
+    create_command,
     not_implemented_command,
-    MissingDetectionInput
+    MissingRuleInput
 )
 from sublime.cli.helper import *
 from sublime.util import CONFIG_FILE, DEFAULT_CONFIG, save_config
@@ -23,28 +22,10 @@ from sublime.util import CONFIG_FILE, DEFAULT_CONFIG, save_config
 # for the listen subcommand
 import ssl
 import asyncio
-import websockets
 from functools import wraps
 from sublime.cli.formatter import FORMATTERS 
-from websockets.exceptions import InvalidStatusCode
-from sublime.error import WebSocketError
 
 LOGGER = structlog.get_logger()
-
-'''
-@not_implemented_command
-def feedback():
-    """Send feedback directly to the Sublime team."""
-'''
-
-
-# unused, not necessary
-def asyncio_wrapper(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        return asyncio.run(f(*args, **kwargs))
-
-    return wrapper
 
 
 @click.command(name="help")
@@ -58,139 +39,30 @@ def clear():
     # check and make call for appropriate operating system
     os.system('clear' if os.name =='posix' else 'cls')
 
-@listen_command
+
+@create_command
 @click.option("-v", "--verbose", count=True, help="Verbose output")
-def listen(
-    context,
-    api_client,
-    api_key,
-    event_name,
-    output_format,
-    verbose,
-):
-    """Listen for real-time events occuring in your Sublime environment.
-
-    Events: "flagged-messages"
-
-    """
-
-    # this is used for keeping track of all events still in the queue
-
-    message_queue = []
-    # we have to do the formatting here due to the nature of websockets
-    formatter = FORMATTERS[output_format]
-    formatter_name = "listen"
-    if isinstance(formatter, dict):
-        formatter = formatter[formatter_name]
-
-    async def wsrun(uri):
-        # if not in dev mode, force SSL over websocket
-        if os.getenv('ENV') != 'local':
-            ctx = ssl.create_default_context()
-            ctx.verify_mode = ssl.CERT_REQUIRED
-        else:
-            ctx = None
-
-        try:
-            async with websockets.connect(uri, ssl=ctx) as websocket:
-                await websocket.send('test')
-                while True:
-                    data = await websocket.recv()
-                    try:
-                        data = json.loads(data)
-                        if "success" in data and not data["success"]:
-                            raise WebSocketError(data["error"])
-                    except ValueError:
-                        pass
-
-                    if isinstance(data, dict):
-                        if data.get("event_name") == "flagged-messages-reviewed":
-                            reviewed_id = data.get("message_data_model_id")
-
-                            # loop through the queue and find/delete the MDM id
-                            for i, message in enumerate(message_queue):
-                                # ensure we're looking at a valid event
-                                if isinstance(message, dict):
-                                    cur_id = message.get("message_data_model_id")
-
-                                    if cur_id == reviewed_id:
-                                        del message_queue[i]
-                        else:
-                            message_queue.append(data)
-                    else:
-                        message_queue.append(data)
-
-                    clear()
-
-                    for item in message_queue:
-                        output = formatter(item, verbose).strip("\n")
-
-                        # file output doesn't work yet
-                        click.echo(output, click.open_file("-", mode="w"))
-
-        except InvalidStatusCode as e:
-            # err = "Failed to establish connection."
-            # raise WebSocketError(err)
-            raise WebSocketError(e)
-        except WebSocketError as e:
-            raise
-        except Exception as e:
-            err = str(e)
-            if "Connect call failed" in err:
-                raise WebSocketError("Failed to establish connection")
-
-            raise WebSocketError(e)
-
-    api_key = api_client.api_key
-    BASE_WEBSOCKET = os.environ.get('BASE_WEBSOCKET')
-    BASE_WEBSOCKET = BASE_WEBSOCKET if BASE_WEBSOCKET else "wss://api.sublimesecurity.com"
-    ws = f"{BASE_WEBSOCKET}/v1/org/listen/ws?api_key={api_key}&event_name={event_name}"
-
-    asyncio.get_event_loop().run_until_complete(wsrun(ws))
-
-    if output_file:
-        click.echo(f"Output saved to {output_file}")
-
-
-@enrich_command
-@click.option("-v", "--verbose", count=True, help="Verbose output")
-def enrich(
+def create(
     context,
     api_client,
     api_key,
     input_file,
-    output_file,
-    output_format,
-    mailbox_email_address,
-    route_type,
-    verbose,
-):
-    """Enrich an EML."""
-    # emls = load emls from input directory
-    # results = [api_client.enrich(eml=input_file) for ip_address in ip_addresses]
-    eml = load_eml(input_file)
-    with Halo(text='Enriching', spinner='dots'):
-        results = api_client.enrich_eml(eml, mailbox_email_address, route_type)
-
-    return results
-
-
-@generate_command
-@click.option("-v", "--verbose", count=True, help="Verbose output")
-def generate(
-    context,
-    api_client,
-    api_key,
-    input_file,
+    message_type,
     output_file,
     output_format,
     mailbox_email_address,
     verbose,
 ):
-    """Generate an unenriched MDM from an EML."""
-    # emls = load emls from input directory
-    eml = load_eml(input_file)
-    results = api_client.create_mdm(eml, mailbox_email_address)
+    """Generate a Message Data Model from an EML or MSG."""
+    if input_file.name.endswith(".msg"):
+        raw_message = load_msg(input_file)
+    else:
+        raw_message = load_eml(input_file)
+
+    results = api_client.create_message(
+            raw_message,
+            mailbox_email_address,
+            message_type)
 
     return results
 
@@ -202,117 +74,108 @@ def analyze(
     api_client,
     api_key,
     input_file,
-    detections_path,
-    detection_str,
-    route_type,
+    run_path,
+    query,
+    message_type,
+    mailbox_email_address,
     output_file,
     output_format,
-    mailbox_email_address,
     verbose,
 ):
-    """Analyze an enriched MDM or raw EML."""
-    if not detections_path and not detection_str:
-        raise MissingDetectionInput
+    """Analyze a Message Data Model, EML, or MSG."""
+    if not run_path and not query:
+        raise MissingRuleInput
 
-    if detections_path:
-        if os.path.isfile(detections_path):
-            with open(detections_path, encoding='utf-8') as f:
-                detections = load_detections(f)
-                multi = True
+    rules, queries = [], []
+    if run_path:
+        if os.path.isfile(run_path):
+            with open(run_path, encoding='utf-8') as f:
+                try:
+                    rules, queries = load_yml_file(f)
+                except LoadRuleError as error:
+                    LOGGER.warning(error.message)
 
-        elif os.path.isdir(detections_path):
-            detections = load_detections_path(detections_path)
-            multi = True
-    else:
-        detection = create_detection(detection_str)
-        multi = False
+        elif os.path.isdir(run_path):
+            rules, queries = load_yml_path(run_path)
 
-    # assume it's an EML if it doesn't end with .mdm
+    elif query:
+        queries = [{
+                "source": query,
+                "name": None,
+        }]
+
+    if not rules and not queries:
+        LOGGER.error("YML file or raw MQL required")
+        context.exit(-1)
+
     if input_file.name.endswith(".mdm"):
         message_data_model = load_message_data_model(input_file)
 
-        if multi:
-            results = api_client.analyze_mdm_multi(
-                    message_data_model, 
-                    detections, 
-                    verbose)
+        if output_format != "json":
+            with Halo(text='Analyzing...', spinner='dots'):
+                results = api_client.analyze_message_multi(
+                        message_data_model, rules, queries)
         else:
-            results = api_client.analyze_mdm(
-                    message_data_model, 
-                    detection, 
-                    verbose)
+            results = api_client.analyze_message_multi(
+                    message_data_model, rules, queries)
     else:
-        eml = load_eml(input_file)
+        if input_file.name.endswith(".msg"):
+            raw_message = load_msg(input_file)
+        else:
+            raw_message = load_eml(input_file)
 
-        with Halo(text='Enriching and analyzing', spinner='dots'):
-            if multi:
-                results = api_client.analyze_eml_multi(
-                        eml, 
-                        detections, 
+        if output_format != "json":
+            with Halo(text='Analyzing...', spinner='dots'):
+                results = api_client.analyze_raw_message_multi(
+                        raw_message, 
+                        rules,
+                        queries,
                         mailbox_email_address,
-                        route_type,
-                        verbose)
-            else:
-                results = api_client.analyze_eml(
-                        eml, 
-                        detection, 
-                        mailbox_email_address,
-                        route_type,
-                        verbose)
+                        message_type)
+        else:
+            results = api_client.analyze_raw_message_multi(
+                    raw_message, 
+                    rules,
+                    queries,
+                    mailbox_email_address,
+                    message_type)
 
-    if results.get("results"):
-        results["results"] = sorted(results["results"], 
-                key=lambda i: i["name"] if i.get("name") else "")
+    for result_key in ["rule_results", "query_results"]:
+        results_list = results.get(result_key) if results.get(result_key) else []
+        results[result_key] = sorted(results_list,
+                                     key=lambda i: i["name"].lower() if i.get("name") else "")
 
     return results
 
 
-@query_command
+@me_command
 @click.option("-v", "--verbose", count=True, help="Verbose output")
-def query(
+def me(
     context,
     api_client,
     api_key,
-    input_file,
-    show_all,
-    query_path,
-    query_str,
     output_file,
     output_format,
     verbose,
 ):
-    """Query an enriched MDM and get the output."""
-    if query_path:
-        if os.path.isfile(query_path):
-            with open(query_path, encoding='utf-8') as f:
-                queries = load_detections(f, query=True)
-                multi = True
+    """Get information about the currently authenticated Sublime user."""
 
-        elif os.path.isdir(query_path):
-            queries = load_detections_path(query_path, query=True)
-            multi = True
-    else:
-        if not query_str:
-            LOGGER.error("Query or PQL file(s) is required")
-            context.exit(-1)
+    result = api_client.me()
 
-        query = create_query(query_str)
-        multi = False
+    return result
 
-    message_data_model = load_message_data_model(input_file)
 
-    if multi:
-        results = api_client.query_mdm_multi(message_data_model, queries, verbose)
-    else:
-        results = api_client.query_mdm(message_data_model, query, verbose)
+@feedback_command
+def feedback(
+    context,
+    api_client,
+    feedback
+):
+    """Send feedback directly to the Sublime team."""
 
-    '''
-    if results.get("results"):
-        results["results"] = sorted(results["results"], 
-                key=lambda i: i["name"] if i.get("name") else "")
-    '''
+    result = api_client.feedback(feedback)
 
-    return results
+    return result
 
 
 @click.command()

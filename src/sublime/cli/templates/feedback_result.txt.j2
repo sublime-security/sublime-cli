@@ -1,0 +1,5 @@
+{%- if result.first_name and result.first_name != 'Unauthenticated' %}
+Thank you, <bold>{{ result.first_name }}</bold>! We received your feedback.
+{%- else %}
+Thank you! We received your feedback.
+{%- endif %}
