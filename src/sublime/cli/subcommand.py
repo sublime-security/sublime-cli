@@ -133,7 +133,6 @@ def analyze(
                         message_type)
         else:
             results = api_client.analyze_raw_message(
-                    ad
                     raw_message, 
                     rules,
                     queries,
