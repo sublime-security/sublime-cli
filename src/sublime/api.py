@@ -33,9 +33,7 @@ class Sublime(object):
     _EP_FEEDBACK = "feedback"
     _EP_MESSAGES_CREATE = "messages"
     _EP_MESSAGES_ANALYZE = "messages/analyze"
-    _EP_MESSAGES_ANALYZE_MULTI = "messages/analyze"
     _EP_RAW_MESSAGES_ANALYZE = "raw-messages/analyze"
-    _EP_RAW_MESSAGES_ANALYZE_MULTI = "raw-messages/analyze"
     _EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None):
@@ -43,7 +41,7 @@ class Sublime(object):
             config = load_config()
             api_key = config.get("api_key")
 
-        self.api_key = api_key
+        self._api_key = api_key
         self.session = requests.Session()
 
     def _request(self, endpoint, request_type='GET', params=None, json=None):
@@ -67,8 +65,8 @@ class Sublime(object):
         headers = {
             "User-Agent": "sublime-cli/{}".format(__version__)
         }
-        if self.api_key:
-            headers["Key"] = self.api_key
+        if self._api_key:
+            headers["Key"] = self._api_key
         url = "/".join([self._BASE_URL, self._API_VERSION, endpoint])
         LOGGER.debug("Sending API request...", url=url, params=params, json=json)
 
@@ -150,7 +148,7 @@ class Sublime(object):
     def create_message(self, raw_message, mailbox_email_address, message_type):
         """Create a Message Data Model from a raw message."""
 
-        LOGGER.debug("Creating a message (MDM)...")
+        LOGGER.debug("Creating a message data model...")
 
         body = {}
         body["raw_message"] = raw_message
@@ -162,38 +160,22 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_message(self, message_data_model, rule):
-        """Analyze a Message Data Model against a rule."""
-
-        LOGGER.debug("Analyzing message...")
+    def analyze_message(self, message_data_model, rules, queries):
+        """Analyze a Message Data Model against a list of rules or queries."""
+        
+        LOGGER.debug("Analyzing message data model...")
 
         body = {}
         body["data_model"] = message_data_model
-
-        body["query"] = rule.get("query")
-        body["name"] = rule.get("name")
-        body["type"] = rule.get("type")
+        body["rules"] = rules
+        body["queries"] = queries
 
         endpoint = self._EP_MESSAGES_ANALYZE
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_message_multi(self, message_data_model, rules, queries):
-        """Analyze a Message Data Model against a list of rules."""
-        
-        LOGGER.debug("Analyzing message (multi)...")
-
-        body = {}
-        body["data_model"] = message_data_model
-        body["rules"] = rules
-        body["queries"] = queries
-
-        endpoint = self._EP_MESSAGES_ANALYZE_MULTI
-        response, _ = self._request(endpoint, request_type='POST', json=body)
-        return response
-
-    def analyze_raw_message(self, raw_message, rule, mailbox_email_address=None, message_type=None):
-        """Analyze a raw message against a rule."""
+    def analyze_raw_message(self, raw_message, rules, queries, mailbox_email_address=None, message_type=None):
+        """Analyze a raw message against a list of rules or queries."""
 
         LOGGER.debug("Analyzing raw message...")
 
@@ -205,31 +187,10 @@ class Sublime(object):
         if message_type:
             body["message_type"] = message_type
 
-        body["query"] = rule.get("query")
-        body["name"] = rule.get("name")
-        body["type"] = rule.get("type")
+        body["rules"] = rules
+        body["queries"] = queries
 
         endpoint = self._EP_RAW_MESSAGES_ANALYZE
-        response, _ = self._request(endpoint, request_type='POST', json=body)
-        return response
-
-    def analyze_raw_message_multi(self, raw_message, rules, queries, mailbox_email_address=None, message_type=None):
-        """Analyze a raw message against a list of rules."""
-
-        LOGGER.debug("Analyzing raw message...")
-
-        body = {}
-        body["raw_message"] = raw_message
-
-        if mailbox_email_address:
-            body["mailbox_email_address"] = mailbox_email_address
-        if message_type:
-            body["message_type"] = message_type
-
-        body["rules"] = rules
-        body["queries"] = queries
-
-        endpoint = self._EP_RAW_MESSAGES_ANALYZE_MULTI
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 

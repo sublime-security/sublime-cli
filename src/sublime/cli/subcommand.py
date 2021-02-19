@@ -112,10 +112,10 @@ def analyze(
 
         if output_format != "json":
             with Halo(text='Analyzing...', spinner='dots'):
-                results = api_client.analyze_message_multi(
+                results = api_client.analyze_message(
                         message_data_model, rules, queries)
         else:
-            results = api_client.analyze_message_multi(
+            results = api_client.analyze_message(
                     message_data_model, rules, queries)
     else:
         if input_file.name.endswith(".msg"):
@@ -125,14 +125,15 @@ def analyze(
 
         if output_format != "json":
             with Halo(text='Analyzing...', spinner='dots'):
-                results = api_client.analyze_raw_message_multi(
+                results = api_client.analyze_raw_message(
                         raw_message, 
                         rules,
                         queries,
                         mailbox_email_address,
                         message_type)
         else:
-            results = api_client.analyze_raw_message_multi(
+            results = api_client.analyze_raw_message(
+                    ad
                     raw_message, 
                     rules,
                     queries,
