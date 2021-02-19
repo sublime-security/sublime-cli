@@ -54,9 +54,9 @@ def create(
 ):
     """Generate a Message Data Model from an EML or MSG."""
     if input_file.name.endswith(".msg"):
-        raw_message = load_msg(input_file)
+        raw_message = load_msg_file_handle(input_file)
     else:
-        raw_message = load_eml(input_file)
+        raw_message = load_eml_file_handle(input_file)
 
     results = api_client.create_message(
             raw_message,
@@ -90,7 +90,7 @@ def analyze(
         if os.path.isfile(run_path):
             with open(run_path, encoding='utf-8') as f:
                 try:
-                    rules, queries = load_yml_file(f)
+                    rules, queries = load_yml(f)
                 except LoadRuleError as error:
                     LOGGER.warning(error.message)
 
@@ -108,7 +108,7 @@ def analyze(
         context.exit(-1)
 
     if input_file.name.endswith(".mdm"):
-        message_data_model = load_message_data_model(input_file)
+        message_data_model = load_message_data_model_file_handle(input_file)
 
         if output_format != "json":
             with Halo(text='Analyzing...', spinner='dots'):
@@ -119,9 +119,9 @@ def analyze(
                     message_data_model, rules, queries)
     else:
         if input_file.name.endswith(".msg"):
-            raw_message = load_msg(input_file)
+            raw_message = load_msg_file_handle(input_file)
         else:
-            raw_message = load_eml(input_file)
+            raw_message = load_eml_file_handle(input_file)
 
         if output_format != "json":
             with Halo(text='Analyzing...', spinner='dots'):

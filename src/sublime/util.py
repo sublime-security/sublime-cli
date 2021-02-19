@@ -120,6 +120,20 @@ def save_config(config):
 def load_eml(input_file):
     """Load .EML file.
 
+    :param input_file: Path to file.
+    :type input_file: str
+    :returns: Base64-encoded raw content
+    :rtype: string
+    :raises: LoadEMLError
+
+    """
+    with open(input_file) as f:
+        return load_eml_file_handle(f)
+
+
+def load_eml_file_handle(input_file):
+    """Load .EML file.
+
     :param input_file: File handle.
     :type input_file: _io.TextIOWrapper
     :returns: Base64-encoded raw content
@@ -147,6 +161,21 @@ def load_eml(input_file):
 def load_msg(input_file):
     """Load .MSG file.
 
+    :param input_file: Path to file.
+    :type input_file: str
+    :returns: Base64-encoded raw content
+    :rtype: string
+    :raises: LoadMSGError
+
+    """
+
+    with open(input_file) as f:
+        return load_msg_file_handle(f)
+
+
+def load_msg_file_handle(input_file):
+    """Load .MSG file.
+
     :param input_file: File handle.
     :type input_file: _io.TextIOWrapper
     :returns: Base64-encoded raw content
@@ -172,6 +201,20 @@ def load_msg(input_file):
 
 
 def load_message_data_model(input_file):
+    """Load Message Data Model file.
+
+    :param input_file: Path to file.
+    :type input_file: str
+    :returns: Message Data Model JSON object
+    :rtype: dict
+    :raises: LoadMessageDataModelError
+
+    """
+    with open(input_file) as f:
+        return load_message_data_model_file_handle(f)
+
+
+def load_message_data_model_file_handle(input_file):
     """Load Message Data Model file.
 
     :param input_file: File handle.
@@ -209,7 +252,7 @@ def load_yml_path(files_path, ignore_errors=True):
     for rules_file in Path(files_path).rglob("*.yml"):
         with rules_file.open(encoding='utf-8') as f:
             try:
-                rules_tmp, queries_tmp = load_yml_file(f)
+                rules_tmp, queries_tmp = load_yml(f)
                 if rules_tmp:
                     rules.extend(rules_tmp)
                 if queries_tmp:
@@ -228,7 +271,7 @@ def load_yml_path(files_path, ignore_errors=True):
     return rules, queries
 
 
-def load_yml_file(yml_file, ignore_errors=True):
+def load_yml(yml_file, ignore_errors=True):
     """Load rules and queries from a file.
 
     :param yml_file: YML file
