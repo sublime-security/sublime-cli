@@ -16,8 +16,7 @@ from sublime.cli.decorator import (
     not_implemented_command,
     MissingRuleInput
 )
-from sublime.cli.helper import *
-from sublime.util import CONFIG_FILE, DEFAULT_CONFIG, save_config
+from sublime.util import *
 
 # for the listen subcommand
 import ssl
