@@ -40,7 +40,7 @@ def load_config():
         with open(CONFIG_FILE) as config_file:
             config_parser.readfp(config_file)
     else:
-        LOGGER.warning("Configuration file not found: %s" % CONFIG_FILE)
+        LOGGER.debug("Configuration file not found: %s" % CONFIG_FILE)
 
     if "SUBLIME_API_KEY" in os.environ:
         api_key = os.environ["SUBLIME_API_KEY"]
