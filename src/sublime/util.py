@@ -36,25 +36,22 @@ def load_config():
     config_parser.add_section("sublime")
 
     if os.path.isfile(CONFIG_FILE):
-        LOGGER.debug("Parsing configuration file: %s..." % CONFIG_FILE)
+        # LOGGER.debug("Parsing configuration file: %s..." % CONFIG_FILE)
         with open(CONFIG_FILE) as config_file:
             config_parser.readfp(config_file)
     else:
-        LOGGER.debug("Configuration file not found: %s" % CONFIG_FILE)
+        # LOGGER.debug("Configuration file not found: %s" % CONFIG_FILE)
+        pass
 
     if "SUBLIME_API_KEY" in os.environ:
         api_key = os.environ["SUBLIME_API_KEY"]
-        LOGGER.debug(
-            "API key found in environment variable: %s", api_key, api_key=api_key
-        )
+        # LOGGER.debug("API key found in environment variable: %s", api_key, api_key=api_key)
         # Environment variable takes precedence over configuration file content
         config_parser.set("sublime", "api_key", api_key)
 
     if "SUBLIME_SAVE_DIR" in os.environ:
         save_dir = os.environ["SUBLIME_SAVE_DIR"]
-        LOGGER.debug(
-            "Save dir found in environment variable: %s", save_dir, save_dir=save_dir
-        )
+        # LOGGER.debug("Save dir found in environment variable: %s", save_dir, save_dir=save_dir)
         # Environment variable takes precedence over configuration file content
         config_parser.set("sublime", "save_dir", save_dir)
 
@@ -96,7 +93,7 @@ def save_config(config):
 
     config_parser_existing = ConfigParser()
     if os.path.isfile(CONFIG_FILE):
-        LOGGER.debug("Reading configuration file: %s...", CONFIG_FILE, path=CONFIG_FILE)
+        # LOGGER.debug("Reading configuration file: %s...", CONFIG_FILE, path=CONFIG_FILE)
         with open(CONFIG_FILE) as config_file:
             config_parser_existing.readfp(config_file)
 
