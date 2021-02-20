@@ -354,13 +354,13 @@ def feedback_command(function):
 
 
 class MissingRuleInput(click.ClickException):
-    """Exception used for analyze commands missing a rules file or MQL
+    """Exception used for analyze commands missing a YAML file or MQL
     """
 
     def __init__(self):
         message = (
-                "You must specify either a rules file/directory (-R) "
-                "or a raw rule (-r)"
+                "You must specify either a YAML file/directory (-r) "
+                "or raw MQL (-q)"
                 )
         super(MissingRuleInput, self).__init__(message)
 
