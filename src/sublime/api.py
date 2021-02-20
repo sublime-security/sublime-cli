@@ -146,23 +146,45 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='GET')
         return response
 
-    def create_message(self, raw_message, mailbox_email_address, message_type):
-        """Create a Message Data Model from a raw message."""
+    def create_message(self, raw_message, mailbox_email_address=None, message_type=None):
+        """Create a Message Data Model from a raw message.
+
+        :param raw_message: Base64 encoded raw message
+        :type raw_message: str
+        :param mailbox_email_address: Email address of the mailbox
+        :type mailbox_email_address: str
+        :param message_type: The type of message from the perspective of your organization (inbound, internal, outbound)
+        :type message_type: str
+        :rtype: dict
+        
+        """
 
         # LOGGER.debug("Creating a message data model...")
 
         body = {}
         body["raw_message"] = raw_message
 
-        body["mailbox_email_address"] = mailbox_email_address
-        body["message_type"] = message_type
+        if mailbox_email_address:
+            body["mailbox_email_address"] = mailbox_email_address
+        if message_type:
+            body["message_type"] = message_type
 
         endpoint = self._EP_MESSAGES_CREATE
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
     def analyze_message(self, message_data_model, rules, queries):
-        """Analyze a Message Data Model against a list of rules or queries."""
+        """Analyze a Message Data Model against a list of rules or queries.
+
+        :param message_data_model: Message Data Model
+        :type message_data_model: dict
+        :param rules: Rules to run
+        :type rules: list
+        :param queries: Queries to run
+        :type queries: list
+        :rtype: dict
+
+        """
         
         # LOGGER.debug("Analyzing message data model...")
 
@@ -176,7 +198,21 @@ class Sublime(object):
         return response
 
     def analyze_raw_message(self, raw_message, rules, queries, mailbox_email_address=None, message_type=None):
-        """Analyze a raw message against a list of rules or queries."""
+        """Analyze a raw message against a list of rules or queries.
+
+        :param raw_message: Base64 encoded raw message
+        :type raw_message: str
+        :param rules: Rules to run
+        :type rules: list
+        :param queries: Queries to run
+        :type queries: list
+        :param mailbox_email_address: Email address of the mailbox
+        :type mailbox_email_address: str
+        :param message_type: The type of message from the perspective of your organization (inbound, internal, outbound)
+        :type message_type: str
+        :rtype: dict
+
+        """
 
         # LOGGER.debug("Analyzing raw message...")
 
@@ -196,7 +232,13 @@ class Sublime(object):
         return response
 
     def feedback(self, feedback):
-        """Send feedback directly to the Sublime team."""
+        """Send feedback directly to the Sublime team.
+
+        :param feedback: Feedback
+        :type feedback: str
+        :rtype: dict
+
+        """
 
         # LOGGER.debug("Sending feedback...")
 

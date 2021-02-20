@@ -52,7 +52,7 @@ def create(
     mailbox_email_address,
     verbose,
 ):
-    """Generate a Message Data Model from an EML or MSG."""
+    """Create a Message Data Model from an EML or MSG."""
     if input_file.name.endswith(".msg"):
         raw_message = load_msg_file_handle(input_file)
     else:
@@ -170,7 +170,10 @@ def feedback(
     api_client,
     feedback
 ):
-    """Send feedback directly to the Sublime team."""
+    """Send feedback directly to the Sublime team.
+
+    Use single quotes for 'FEEDBACK'
+    """
 
     result = api_client.feedback(feedback)
 
