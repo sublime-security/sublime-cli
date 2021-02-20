@@ -35,7 +35,7 @@ INSTALL_REQUIRES = [
 
 setup(
     name="sublime-cli",
-    version="0.0.17",
+    version="0.0.18",
     description="Abstraction to interact with Sublime API.",
     url="https://sublimesecurity.com/",
     author="Sublime Security",
