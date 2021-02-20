@@ -68,7 +68,8 @@ class Sublime(object):
         if self._api_key:
             headers["Key"] = self._api_key
         url = "/".join([self._BASE_URL, self._API_VERSION, endpoint])
-        LOGGER.debug("Sending API request...", url=url, params=params, json=json)
+
+        # LOGGER.debug("Sending API request...", url=url, params=params, json=json)
 
         if request_type == 'GET':
             response = self.session.get(
@@ -148,7 +149,7 @@ class Sublime(object):
     def create_message(self, raw_message, mailbox_email_address, message_type):
         """Create a Message Data Model from a raw message."""
 
-        LOGGER.debug("Creating a message data model...")
+        # LOGGER.debug("Creating a message data model...")
 
         body = {}
         body["raw_message"] = raw_message
@@ -163,7 +164,7 @@ class Sublime(object):
     def analyze_message(self, message_data_model, rules, queries):
         """Analyze a Message Data Model against a list of rules or queries."""
         
-        LOGGER.debug("Analyzing message data model...")
+        # LOGGER.debug("Analyzing message data model...")
 
         body = {}
         body["data_model"] = message_data_model
@@ -177,7 +178,7 @@ class Sublime(object):
     def analyze_raw_message(self, raw_message, rules, queries, mailbox_email_address=None, message_type=None):
         """Analyze a raw message against a list of rules or queries."""
 
-        LOGGER.debug("Analyzing raw message...")
+        # LOGGER.debug("Analyzing raw message...")
 
         body = {}
         body["raw_message"] = raw_message
@@ -197,7 +198,7 @@ class Sublime(object):
     def feedback(self, feedback):
         """Send feedback directly to the Sublime team."""
 
-        LOGGER.debug("Sending feedback...")
+        # LOGGER.debug("Sending feedback...")
 
         body = {}
         body["feedback"] = feedback 
