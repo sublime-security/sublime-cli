@@ -211,7 +211,7 @@ def create_command(function):
     """Decorator that groups decorators common to create subcommand."""
 
     @click.command()
-    @click.option("-k", "--api-key", help="Key to include in API requests")
+    @click.option("-k", "--api-key", help="Key to include in API requests [optional]")
     @click.option(
         "-i", "--input", "input_file", type=click.File(), 
         help="Input EML file", required=True
@@ -220,7 +220,7 @@ def create_command(function):
         type=click.Choice(['inbound', 'internal', 'outbound'], case_sensitive=False),
         default="inbound",
         show_default=True,
-        help="Set the message type"
+        help="Set the message type [optional]"
     )
     @click.option(
         "-o", "--output", "output_file", type=click.File(mode="w"), 
@@ -239,7 +239,7 @@ def create_command(function):
         help="Output format",
     )
     @click.option("-m", "--mailbox", "mailbox_email_address",
-            help="Mailbox email address that received the message"
+            help="Mailbox email address that received the message [optional]"
     )
     @pass_api_client
     @click.pass_context
@@ -256,7 +256,7 @@ def analyze_command(function):
     """Decorator that groups decorators common to analyze subcommand."""
 
     @click.command()
-    @click.option("-k", "--api-key", help="Key to include in API requests")
+    @click.option("-k", "--api-key", help="Key to include in API requests [optional]")
     @click.option(
         "-i", "--input", "input_file", type=click.File(), 
         help="Input EML, MSG, or MDM file", required=True
@@ -278,12 +278,12 @@ def analyze_command(function):
         type=click.Choice(['inbound', 'internal', 'outbound'], case_sensitive=False),
         default="inbound",
         show_default=True,
-        help="Set the message type (EML and MSG files only)"
+        help="Set the message type (EML and MSG files only) [optional]"
     )
     @click.option("-m", "--mailbox", "mailbox_email_address",
             help=(
                 "Mailbox email address that received the message "
-                "(EML and MSG files only)"
+                "(EML and MSG files only) [optional]"
             )
     )
     @click.option(
