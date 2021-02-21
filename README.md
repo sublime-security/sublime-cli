@@ -1,6 +1,6 @@
 # Sublime CLI
 
-[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Python version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/release/python-376/)
+![MIT license](https://img.shields.io/badge/License-MIT-blue.svg) ![Python version](https://img.shields.io/badge/python-3.7+-blue.svg) ![PyPI version](https://badge.fury.io/py/sublime-cli.svg)
 
 The Sublime CLI lets you interact with the Sublime Community API right from the terminal. The CLI can also be used as a Python module for programmatic implementations.
 
