@@ -258,13 +258,19 @@ def analyze_command(function):
     @click.command()
     @click.option("-k", "--api-key", help="Key to include in API requests [optional]")
     @click.option(
-        "-i", "--input", "input_file", type=click.File(), 
-        help="Input EML, MSG, or MDM file", required=True
+        "-i",
+        "--input",
+        "input_path",
+        type=click.Path(exists=True),
+        help="Input EML, MSG, MDM file or directory",
+        required=True,
     )
     @click.option(
-        "-r", "--run", "run_path",
+        "-r",
+        "--run",
+        "run_path",
         type=click.Path(exists=True), 
-        help="YML file or directory"
+        help="YML file or directory",
     )
     @click.option(
         "-q", "--query", "query", type=str,

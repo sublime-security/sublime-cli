@@ -6,6 +6,7 @@ import platform
 import click
 import structlog
 from halo import Halo
+from pathlib import Path
 
 from sublime.__version__ import __version__
 from sublime.cli.decorator import (
@@ -72,7 +73,7 @@ def analyze(
     context,
     api_client,
     api_key,
-    input_file,
+    input_path,
     run_path,
     query,
     message_type,
@@ -85,6 +86,7 @@ def analyze(
     if not run_path and not query:
         raise MissingRuleInput
 
+    # load all rules and queries
     rules, queries = [], []
     if run_path:
         if os.path.isfile(run_path):
@@ -107,43 +109,50 @@ def analyze(
         LOGGER.error("YML file or raw MQL required")
         context.exit(-1)
 
-    if input_file.name.endswith(".mdm"):
-        message_data_model = load_message_data_model_file_handle(input_file)
+    # aggregate all files we need to check 
+    input_files = []
+    if os.path.isfile(input_path):
+        input_files.append(input_path)
 
-        if output_format != "json":
-            with Halo(text='Analyzing...', spinner='dots'):
-                results = api_client.analyze_message(
-                        message_data_model, rules, queries)
-        else:
-            results = api_client.analyze_message(
-                    message_data_model, rules, queries)
-    else:
-        if input_file.name.endswith(".msg"):
-            raw_message = load_msg_file_handle(input_file)
-        else:
-            raw_message = load_eml_file_handle(input_file)
+    # else:
+    #     for rules_file in Path(files_path).rglob("*.yml"):
 
-        if output_format != "json":
-            with Halo(text='Analyzing...', spinner='dots'):
-                results = api_client.analyze_raw_message(
+    # iterate through all input files and aggregate results
+    with Halo(text='Analyzing...', spinner='dots'):
+        for input_file in input_files:
+            if input_file.endswith(".mdm"):
+                message_data_model = load_message_data_model(input_file)
+                response = api_client.analyze_message(
+                        message_data_model,
+                        rules,
+                        queries)
+            elif input_file.endswith(".msg"):
+                raw_message = load_msg(input_file)
+                response = api_client.analyze_raw_message(
                         raw_message, 
                         rules,
                         queries,
                         mailbox_email_address,
                         message_type)
-        else:
-            results = api_client.analyze_raw_message(
-                    raw_message, 
-                    rules,
-                    queries,
-                    mailbox_email_address,
-                    message_type)
+            elif input_file.endswith(".eml"):
+                raw_message = load_eml(input_file)
+                response = api_client.analyze_raw_message(
+                        raw_message, 
+                        rules,
+                        queries,
+                        mailbox_email_address,
+                        message_type)
+            else:
+                LOGGER.error("Input file must have .eml, .msg or .mdm extension")
+                context.exit(-1)
 
+    results = {}
     for result_key in ["rule_results", "query_results"]:
-        results_list = results.get(result_key) if results.get(result_key) else []
-        results[result_key] = sorted(results_list,
-                                     key=lambda i: i["name"].lower() if i.get("name") else "")
-
+        results_list = response.get(result_key) if response.get(result_key) else []
+        results[result_key] = sorted(
+                results_list,
+                key=lambda i: i["name"].lower() if i.get("name") else "")
+    
     return results
 
 
