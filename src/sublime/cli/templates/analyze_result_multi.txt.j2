@@ -19,7 +19,7 @@
 {%- endif %}
 
 {%- for msg in flagged_messages %}
-{# new line #}
+  {# new line #}
   <header>MESSAGE {{loop.index}}</header>
   ------------------
   <key>File Name</key>: <green>{{msg.file_name}}</green>
@@ -27,18 +27,28 @@
     
     {# new line #}
     <header>RULES FLAGGED</header>
-    {%- for rule in msg.rule_results %}
+    {%- for rule in msg.flagged_rule_results %}
       - <detected>{{rule.name}}</detected>
     {%- endfor %}
 
     {# new line #}
+    {%- if msg.unflagged_rule_results|length > 0 %}
+    <header>RULES NOT FLAGGED</header>
+    {%- for rule in msg.unflagged_rule_results %}
+      - <detected>{{rule.name}}</detected>
+    {%- endfor %}
+    {%- endif %}
+
+    {# new line #}
+    {%- if msg.query_results|length > 0 %}
     <header>QUERIES</header>
     {%- for query in msg.query_results %}
       {%- if query.success %}
-      - <key>{{query.name}}</key>
+      - {{query.name}}
         <key>Result:</key> {{ query.result }}
       {%- endif %}
     {%- endfor %}
+    {%- endif %}
     {# new line #}
 {% endfor %}
 
@@ -57,11 +67,13 @@
 
     {# new line #}
     <header>QUERIES</header>
+    {%- if msg.query_results|length > 0 %}
     {%- for query in msg.query_results %}
       {%- if query.success %}
-      - <key>{{query.name}}</key>
+      - {{query.name}}
         <key>Result:</key> {{ query.result }}
       {%- endif %}
     {%- endfor %}
+    {%- endif %}
     {# new line #}
 {% endfor %}

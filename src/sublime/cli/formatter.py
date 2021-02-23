@@ -55,14 +55,15 @@ def colored_output(function):
 
 def json_formatter(result, verbose=False):
     """Format result as json."""
-    return json.dumps(result, indent=4)
+    string = json.dumps(result, indent=4)
+    return string
 
 
 @colored_output
 def analyze_formatter(results, verbose):
     """Convert Analyze output into human-readable text."""
     template = JINJA2_ENV.get_template("analyze_result_multi.txt.j2")
-
+    
     # calculate total stats
     result = next(iter(results.values()))
     summary_stats = {
@@ -77,12 +78,16 @@ def analyze_formatter(results, verbose):
     all_flagged_rules = set()
     for _, result in results.items():
         flagged_rules = []
+        unflagged_rules = []
         for rule in result['rule_results']:
             if rule['result']:
                 flagged_rules.append(rule)
                 all_flagged_rules.add(rule['name']+rule['source']) # no unique identifier
+            else:
+                unflagged_rules.append(rule)
 
-        result['rule_results'] = flagged_rules
+        result['flagged_rule_results'] = flagged_rules
+        result['unflagged_rule_results'] = unflagged_rules
         if len(flagged_rules) > 0:
             flagged_messages.append(result)
         else:
@@ -97,15 +102,10 @@ def analyze_formatter(results, verbose):
     #       flagged_messages,
     #       key=lambda i: i['name'].lower() if i.get('name') else '')
 
-    rule_results, query_results = result["rule_results"], result["query_results"]
-
-
     return template.render(
             stats=summary_stats,
             flagged_messages=flagged_messages,
             unflagged_messages=unflagged_messages,
-            rules=rule_results,
-            queries=query_results,
             verbose=verbose)
 
 
