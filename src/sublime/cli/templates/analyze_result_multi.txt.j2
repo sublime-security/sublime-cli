@@ -1,0 +1,67 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+
+{# new line #}
+<header>SUMMARY</header>
+==================
+<key>Total Rules</key>: <green>{{stats.total_rules}}</green>
+<key>Total Queries</key>: <green>{{stats.total_queries}}</green>
+<key>Total Messages</key>: <green>{{stats.total_messages}}</green>
+
+<key>Flagged Rules</key>: <green>{{stats.flagged_rules}}</green>
+<key>Flagged Messages</key>: <green>{{stats.flagged_messages}}</green>
+
+{# new line #}
+{%- if flagged_messages|length > 0 %}
+<header>FLAGGED MESSAGES</header>
+==================
+{%- endif %}
+
+{%- for msg in flagged_messages %}
+{# new line #}
+  <header>MESSAGE {{loop.index}}</header>
+  ------------------
+  <key>File Name</key>: <green>{{msg.file_name}}</green>
+  <key>Directory</key>: <green>{{msg.directory}}</green>
+    
+    {# new line #}
+    <header>RULES FLAGGED</header>
+    {%- for rule in msg.rule_results %}
+      - <detected>{{rule.name}}</detected>
+    {%- endfor %}
+
+    {# new line #}
+    <header>QUERIES</header>
+    {%- for query in msg.query_results %}
+      {%- if query.success %}
+      - <key>{{query.name}}</key>
+        <key>Result:</key> {{ query.result }}
+      {%- endif %}
+    {%- endfor %}
+    {# new line #}
+{% endfor %}
+
+{# new line #}
+{%- if flagged_messages|length > 0 %}
+<header>UNFLAGGED MESSAGES</header>
+==================
+{%- endif %}
+
+{%- for msg in unflagged_messages %}
+{# new line #}
+  <header>MESSAGE {{loop.index}}</header>
+  ------------------
+  <key>File Name</key>: <green>{{msg.file_name}}</green>
+  <key>Directory</key>: <green>{{msg.directory}}</green>
+
+    {# new line #}
+    <header>QUERIES</header>
+    {%- for query in msg.query_results %}
+      {%- if query.success %}
+      - <key>{{query.name}}</key>
+        <key>Result:</key> {{ query.result }}
+      {%- endif %}
+    {%- endfor %}
+    {# new line #}
+{% endfor %}
