@@ -61,23 +61,52 @@ def json_formatter(result, verbose=False):
 @colored_output
 def analyze_formatter(results, verbose):
     """Convert Analyze output into human-readable text."""
-    template = JINJA2_ENV.get_template("analyze_result.txt.j2")
+    template = JINJA2_ENV.get_template("analyze_result_multi.txt.j2")
 
-    # analyze/multi will return 'results', otherwise 'result'
-    rule_results, query_results = results["rule_results"], results["query_results"]
+    # calculate total stats
+    result = next(iter(results.values()))
+    summary_stats = {
+        'total_messages': len(results),
+        'total_rules': len(result['rule_results']),
+        'total_queries': len(result['query_results']),
+    }
+    
+    # separate matched messages from unmatched ones and clear out unflagged rules
+    flagged_messages = []
+    unflagged_messages = []
+    all_flagged_rules = set()
+    for _, result in results.items():
+        flagged_rules = []
+        for rule in result['rule_results']:
+            if rule['result']:
+                flagged_rules.append(rule)
+                all_flagged_rules.add(rule['name']+rule['source']) # no unique identifier
 
-    for result in rule_results:
-        if result.get("source"):
-            result["source"] = format_mql(result["source"])
+        result['rule_results'] = flagged_rules
+        if len(flagged_rules) > 0:
+            flagged_messages.append(result)
+        else:
+            unflagged_messages.append(result)
 
-    for result in query_results:
-        if result.get("result") and isinstance(result["result"], dict):
-            result["result"] = json_formatter(result["result"])
+    # calculate flagged stats
+    summary_stats['flagged_rules'] = len(all_flagged_rules)
+    summary_stats['flagged_messages'] = len(flagged_messages)
 
-        if result.get("source"):
-            result["source"] = format_mql(result["source"])
+    # sort each list of messages 
+    # flagged_messages = sorted(
+    #       flagged_messages,
+    #       key=lambda i: i['name'].lower() if i.get('name') else '')
 
-    return template.render(rules=rule_results, queries=query_results, verbose=verbose)
+    rule_results, query_results = result["rule_results"], result["query_results"]
+
+
+    return template.render(
+            stats=summary_stats,
+            flagged_messages=flagged_messages,
+            unflagged_messages=unflagged_messages,
+            rules=rule_results,
+            queries=query_results,
+            verbose=verbose)
 
 
 def mdm_formatter(results, verbose):
