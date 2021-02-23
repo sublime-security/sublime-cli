@@ -62,7 +62,10 @@ def json_formatter(result, verbose=False):
 @colored_output
 def analyze_formatter(results, verbose):
     """Convert Analyze output into human-readable text."""
-    template = JINJA2_ENV.get_template("analyze_result_multi.txt.j2")
+    if len(results) > 1:
+        template = JINJA2_ENV.get_template("analyze_result_multi.txt.j2")
+    else:
+        template = JINJA2_ENV.get_template("analyze_result.txt.j2")
     
     # calculate total stats
     result = next(iter(results.values()))
