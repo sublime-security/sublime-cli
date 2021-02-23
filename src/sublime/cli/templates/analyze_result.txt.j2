@@ -10,57 +10,76 @@
 
 <header>SUMMARY</header>
 ==================
-<key>File Name</key>: <green>{{msg.file_name}}</green>
-<key>Directory</key>: <green>{{msg.directory}}</green>
+<key>File Name</key>: <value>{{msg.file_name}}</value>
+<key>Directory</key>: <value>{{msg.directory}}</value>
 
-<key>Total Rules</key>: <green>{{stats.total_rules}}</green>
-<key>Total Queries</key>: <green>{{stats.total_queries}}</green>
-<key>Rules Flagged</key>: <green>{{stats.flagged_rules}}</green>
+<key>Total Rules</key>: <value>{{stats.total_rules}}</value>
+<key>Total Queries</key>: <value>{{stats.total_queries}}</value>
+<key>Rules Flagged</key>: <value>{{stats.flagged_rules}}</value>
+{# new line #}
+{# new line #}
+{# new line #}
 
 {%- if msg.flagged_rule_results|length > 0 %}
 {# new line #}
-<bold>RULES FLAGGED</bold>
+<header>RULES FLAGGED</header>
+{%- if verbose %}
 {%- for rule in msg.flagged_rule_results %}
   - <detected><bold>{{ rule.name }}</bold> flagged this message.</detected>
-    {%- if verbose %}
     <key>Source:</key> {{ rule.source }}
-    {{ "" }}
-  {%- endif %}
-{# new line #}
+  {# new line #}
+{%- endfor %}
+
+{%- else %}
+{%- for rule in msg.flagged_rule_results %}
+  - <detected>{{rule.name}}</detected>
 {%- endfor %}
 {%- endif %}
+{%- endif %}
+
 
 {%- if msg.unflagged_rule_results|length > 0 %}
 {# new line #}
-<bold>RULES NOT FLAGGED</bold>
+<header>RULES NOT FLAGGED</header>
+{%- if verbose %}
 {%- for rule in msg.unflagged_rule_results %}
-  {%- if rule.success %}
-  - <detected><bold>{{ rule.name }}</bold> did not flag.</detected>
-    {%- if verbose %}
+  - <not-detected><bold>{{ rule.name }}</bold> did not flag.</not-detected>
     <key>Source:</key> {{ rule.source }}
-    {{ "" }}
-    {%- endif %}
-  {%- else %}
-  - <fail><bold>{{ rule.name }}</bold> failed to run.</fail>
-  {%- endif %}
-{# new line #}
+  {# new line #}
+{%- endfor %}
+
+{%- else %}
+{%- for rule in msg.unflagged_rule_results %}
+  - <not-detected>{{rule.name}}</not-detected>
 {%- endfor %}
 {%- endif %}
+{%- endif %}
+
 
 {%- if msg.query_results|length > 0 %}
 {# new line #}
-<bold>QUERIES</bold>
+<header>QUERIES</header>
+{%- if verbose %}
 {%- for query in msg.query_results %}
   {%- if query.success %}
   - <detected><bold>{{ query.name }}</bold></detected>
     <key>Result:</key> {{ query.result }}
-    {%- if verbose %}
     <key>Source:</key> {{ query.source }}
-    {{ "" }}
-    {%- endif %}
   {%- else %}
   - <fail><bold>{{ query.name }}</bold> failed to run.</fail>
   {%- endif %}
-{# new line #}
+  {# new line #}
 {%- endfor %}
+    
+{%- else %}
+{%- for query in msg.query_results %}
+  {%- if query.success %}
+  - <detected>{{ query.name }}</detected>
+    <key>Result:</key> {{ query.result }}
+  {%- else %}
+  - <fail>{{ query.name }} failed to run.</fail>
+  {%- endif %}
+  {# new line #}
+{%- endfor %}
+{%- endif %}
 {%- endif %}
