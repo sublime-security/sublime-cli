@@ -53,9 +53,10 @@ def colored_output(function):
     return wrapper
 
 
-def json_formatter(result, verbose=False):
+def json_formatter(result, verbose=False, indent=4, offset=0):
     """Format result as json."""
-    string = json.dumps(result, indent=4)
+    string = json.dumps(result, indent=indent)
+    string = string.replace("\n", "\n" + "  "*offset)
     return string
 
 
@@ -63,8 +64,12 @@ def json_formatter(result, verbose=False):
 def analyze_formatter(results, verbose):
     """Convert Analyze output into human-readable text."""
     if len(results) > 1:
+        mql_offset = 5
+        json_offset = 4
         template = JINJA2_ENV.get_template("analyze_result_multi.txt.j2")
     else:
+        mql_offset = 3
+        json_offset = 2
         template = JINJA2_ENV.get_template("analyze_result.txt.j2")
     
     # calculate total stats
@@ -100,10 +105,19 @@ def analyze_formatter(results, verbose):
     summary_stats['flagged_rules'] = len(all_flagged_rules)
     summary_stats['flagged_messages'] = len(flagged_messages)
 
-    # sort each list of messages 
-    # flagged_messages = sorted(
-    #       flagged_messages,
-    #       key=lambda i: i['name'].lower() if i.get('name') else '')
+    # format mql and json outputs
+    for msg in flagged_messages + unflagged_messages: 
+        for result in msg['rule_results'] + msg['query_results']:
+            if 'source' in result:
+                result['source'] = format_mql(result['source'], offset=mql_offset)
+
+            if 'result' in result and isinstance(result['result'], dict):
+                result['result'] = json_formatter(
+                        result['result'],
+                        offset=json_offset,
+                        indent=2)
+
+    # TO DO: sort each list of messages by extension and file name (or directory?)
 
     return template.render(
             stats=summary_stats,
@@ -124,11 +138,11 @@ def mdm_formatter(results, verbose):
     # return template.render(results=results, verbose=verbose)
 
 
-def format_mql(mql):
+def format_mql(mql, offset=0):
     mql = mql.replace("&&", "\n  &&")
     mql = mql.replace("||", "\n  ||")
     mql = mql.replace("],", "],\n  ")
-
+    mql = mql.replace("\n", "\n" + "  "*offset)
     return mql
 
 @colored_output
