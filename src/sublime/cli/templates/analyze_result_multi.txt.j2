@@ -38,7 +38,7 @@
 
     {%- else %}
     {%- for rule in msg.flagged_rule_results %}
-      - <detected>{{rule.name}}</detected>
+      - <detected><bold>{{rule.name}}</bold></detected>
     {%- endfor %}
     {%- endif %}
 
@@ -60,9 +60,9 @@
     {%- else %}
     {%- for rule in msg.unflagged_rule_results %}
       {%- if rule.success %}
-      - <not-detected>{{rule.name}}</not-detected>
+      - <not-detected><bold>{{rule.name}}</bold></not-detected>
       {%- else %}
-      - <fail>{{ rule.name }} (failed to run)</fail>
+      - <fail><bold>{{ rule.name }}</bold> (failed to run)</fail>
       {%- endif %}
     {%- endfor %}
     {%- endif %}
@@ -75,7 +75,7 @@
     {%- if verbose %}
     {%- for query in msg.query_results %}
       {%- if query.success %}
-      - <detected><bold>{{ query.name }}</bold></detected>
+      - <query><bold>{{ query.name }}</bold></query>
         <key>Result:</key> {{ query.result }}
         <key>Source:</key> {{ query.source }}
       {%- else %}
@@ -87,10 +87,10 @@
     {%- else %}
     {%- for query in msg.query_results %}
       {%- if query.success %}
-      - <detected>{{ query.name }}</detected>
+      - <query><bold>{{ query.name }}</bold></query>
         <key>Result:</key> {{ query.result }}
       {%- else %}
-      - <fail>{{ query.name }} (failed to run)</fail>
+      - <fail><bold>{{ query.name }}</bold> (failed to run)</fail>
       {%- endif %}
       {# new line #}
     {%- endfor %}
@@ -122,7 +122,7 @@
     {%- if verbose %}
     {%- for query in msg.query_results %}
       {%- if query.success %}
-      - <detected><bold>{{ query.name }}</bold></detected>
+      - <query><bold>{{ query.name }}</bold></query>
         <key>Result:</key> {{ query.result }}
         <key>Source:</key> {{ query.source }}
       {%- else %}
@@ -134,10 +134,10 @@
     {%- else %}
     {%- for query in msg.query_results %}
       {%- if query.success %}
-      - <detected>{{ query.name }}</detected>
+      - <query><bold>{{ query.name }}</bold></query>
         <key>Result:</key> {{ query.result }}
       {%- else %}
-      - <fail>{{ query.name }} (failed to run)</fail>
+      - <fail><bold>{{ query.name }}</bold> (failed to run)</fail>
       {%- endif %}
       {# new line #}
     {%- endfor %}
