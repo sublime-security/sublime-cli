@@ -82,7 +82,7 @@ def analyze(
     output_format,
     verbose,
 ):
-    """Analyze a single Message Data Model, EML, or MSG."""
+    """Analyze a file or directory of EMLs, MSGs, or MDMs."""
     if not run_path and not query:
         raise MissingRuleInput
 
