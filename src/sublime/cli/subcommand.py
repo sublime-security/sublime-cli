@@ -119,11 +119,13 @@ def analyze(
     if os.path.isfile(input_path):
         file_paths.append(input_path)
     else:
-        for file_path in Path(input_path).rglob('*.eml'):
+        for file_path in Path(input_path).rglob('*.mdm'):
             file_paths.append(str(file_path))
         for file_path in Path(input_path).rglob('*.msg'):
             file_paths.append(str(file_path))
-        for file_path in Path(input_path).rglob('*.mdm'):
+        for file_path in Path(input_path).rglob('*.eml'):
+            file_paths.append(str(file_path))
+        for file_path in Path(input_path).rglob('*.mbox'):
             file_paths.append(str(file_path))
 
     # analyze each file and aggregate all responses
@@ -135,7 +137,7 @@ def analyze(
         _, _, extension = file_name.rpartition('.')
 
         with Halo(
-            text=f'Analyzing file {i+1} of {num_files} ({file_name})...',
+            text=f'Analyzing file {i+1} of {num_files} ( {file_name} )...',
             spinner='dots'
         ):
             if file_path.endswith('.mdm'):
@@ -144,6 +146,7 @@ def analyze(
                         message_data_model,
                         rules,
                         queries)
+
             elif file_path.endswith('.msg'):
                 raw_message = load_msg(file_path)
                 response = api_client.analyze_raw_message(
@@ -152,6 +155,7 @@ def analyze(
                         queries,
                         mailbox_email_address,
                         message_type)
+
             elif file_path.endswith('.eml'):
                 raw_message = load_eml(file_path)
                 response = api_client.analyze_raw_message(
@@ -160,8 +164,26 @@ def analyze(
                         queries,
                         mailbox_email_address,
                         message_type)
+
+            elif file_path.endswith('.mbox'):
+                # in the mbox case we want to retrieve the response for each message
+                # contained and provide a unique results key for each entry
+                for subject_unique, raw_message in load_mbox(file_path).items():
+                    response = api_client.analyze_raw_message(
+                            raw_message, 
+                            rules,
+                            queries,
+                            mailbox_email_address,
+                            message_type)
+                    response['file_name'] = file_name
+                    response['extension'] = extension
+                    response['directory'] = file_dir
+                    response['subject'] = subject_unique
+                    results[file_path+subject_unique] = response
+                continue
+                    
             else:
-                LOGGER.error("Input file must have .eml, .msg or .mdm extension")
+                LOGGER.error("Input file must have .eml, .msg, .mdm or .mbox extension")
                 context.exit(-1)
             
             response['file_name'] = file_name

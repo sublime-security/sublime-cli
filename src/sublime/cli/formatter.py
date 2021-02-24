@@ -80,7 +80,7 @@ def analyze_formatter(results, verbose):
         'total_queries': len(result['query_results']),
     }
     
-    # separate matched messages from unmatched ones and clear out unflagged rules
+    # separate matched/unmatched messages and distinguish flagged/unflagged rules
     flagged_messages = []
     unflagged_messages = []
     all_flagged_rules = set()
