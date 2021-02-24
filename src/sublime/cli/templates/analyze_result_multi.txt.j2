@@ -48,14 +48,22 @@
     <header>RULES NOT FLAGGED</header>
     {%- if verbose %}
     {%- for rule in msg.unflagged_rule_results %}
+      {%- if rule.success %}
       - <not-detected><bold>{{ rule.name }}</bold> did not flag.</not-detected>
         <key>Source:</key> {{ rule.source }}
       {# new line #}
+      {%- else %}
+      - <fail><bold>{{ rule.name }}</bold> (failed to run)</fail>
+      {%- endif %}
     {%- endfor %}
     
     {%- else %}
     {%- for rule in msg.unflagged_rule_results %}
+      {%- if rule.success %}
       - <not-detected>{{rule.name}}</not-detected>
+      {%- else %}
+      - <fail>{{ rule.name }} (failed to run)</fail>
+      {%- endif %}
     {%- endfor %}
     {%- endif %}
     {%- endif %}
@@ -71,7 +79,7 @@
         <key>Result:</key> {{ query.result }}
         <key>Source:</key> {{ query.source }}
       {%- else %}
-      - <fail><bold>{{ query.name }}</bold> failed to run.</fail>
+      - <fail><bold>{{ query.name }}</bold> (failed to run)</fail>
       {%- endif %}
       {# new line #}
     {%- endfor %}
@@ -82,7 +90,7 @@
       - <detected>{{ query.name }}</detected>
         <key>Result:</key> {{ query.result }}
       {%- else %}
-      - <fail>{{ query.name }} failed to run.</fail>
+      - <fail>{{ query.name }} (failed to run)</fail>
       {%- endif %}
       {# new line #}
     {%- endfor %}
@@ -118,7 +126,7 @@
         <key>Result:</key> {{ query.result }}
         <key>Source:</key> {{ query.source }}
       {%- else %}
-      - <fail><bold>{{ query.name }}</bold> failed to run.</fail>
+      - <fail><bold>{{ query.name }}</bold> (failed to run)</fail>
       {%- endif %}
       {# new line #}
     {%- endfor %}
@@ -129,7 +137,7 @@
       - <detected>{{ query.name }}</detected>
         <key>Result:</key> {{ query.result }}
       {%- else %}
-      - <fail>{{ query.name }} failed to run.</fail>
+      - <fail>{{ query.name }} (failed to run)</fail>
       {%- endif %}
       {# new line #}
     {%- endfor %}
