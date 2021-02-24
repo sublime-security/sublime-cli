@@ -256,54 +256,43 @@ def analyze_command(function):
     """Decorator that groups decorators common to analyze subcommand."""
 
     @click.command()
-    @click.option("-k", "--api-key", help="Key to include in API requests [optional]")
-    @click.option(
-        "-i",
-        "--input",
-        "input_path",
+
+    @click.option("-k", "--api-key", "api_key",
+            help="Key to include in API requests [optional]")
+
+    @click.option("-i", "--input", "input_path",
         type=click.Path(exists=True),
-        help="Input EML, MSG, MDM file or directory",
-        required=True,
-    )
-    @click.option(
-        "-r",
-        "--run",
-        "run_path",
+        help="Input file or directory (.eml, .msg, .mdm and .mbox supported)",
+        required=True)
+
+    @click.option("-r", "--run", "run_path",
         type=click.Path(exists=True), 
-        help="YML file or directory",
-    )
-    @click.option(
-        "-q", "--query", "query", type=str,
-        help=(
-            "Raw MQL. Instead of using a rules file, "
-            "provide raw MQL, surrounded "
-            "by single quotes"
-        )
-    )
+        help="Rule/query file or directory (.yml and .yaml supported)")
+
+    @click.option("-q", "--query", "query",
+        type=str,
+        help=("Raw MQL. Instead of using a rules file, "
+            "provide raw MQL, surrounded by single quotes"))
+
     @click.option("-t", "--type", "message_type",
         type=click.Choice(['inbound', 'internal', 'outbound'], case_sensitive=False),
         default="inbound",
         show_default=True,
-        help="Set the message type (EML and MSG files only) [optional]"
-    )
+        help="Set the message type (EML and MSG files only) [optional]")
+
     @click.option("-m", "--mailbox", "mailbox_email_address",
-            help=(
-                "Mailbox email address that received the message "
-                "(EML and MSG files only) [optional]"
-            )
-    )
-    @click.option(
-        "-o", "--output", "output_file", type=click.File(mode="w"), 
-        help="Output file"
-    )
-    @click.option(
-        "-f",
-        "--format",
-        "output_format",
+        help=("Mailbox email address that received the "
+            "message (EML and MSG files only) [optional]"))
+
+    @click.option("-o", "--output", "output_file",
+        type=click.File(mode="w"), 
+        help="Output file")
+
+    @click.option("-f", "--format", "output_format",
         type=click.Choice(["json", "txt"]),
         default="txt",
-        help="Output format",
-    )
+        help="Output format")
+
     @pass_api_client
     @click.pass_context
     @echo_result
