@@ -1,0 +1,67 @@
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+{%- if flagged_messages | length > 0 %}
+    {% set msg = flagged_messages[0] %}
+{%- else %}
+    {% set msg = unflagged_messages[0] %}
+{%- endif %}
+<key>File Name</key>: <value>{{msg.file_name}}</value>
+<key>Directory</key>: <value>{{msg.directory}}</value>
+
+<key>Total Rules</key>: <value>{{stats.total_rules}}</value>
+<key>Total Queries</key>: <value>{{stats.total_queries}}</value>
+<key>Flagged Rules</key>: <value>{{stats.flagged_rules}}</value>
+
+{% block body %}
+{%- if msg.flagged_rule_results|length > 0 %}
+{# new line #}
+<header>FLAGGED RULES</header>
+{%- for rule in msg.flagged_rule_results %}
+  - <detected><bold>{{rule.name}}</bold></detected>
+{%- endfor %}
+{# new line #}
+{%- endif %}
+
+
+{%- if msg.unflagged_rule_results | length > 0 %}
+{# new line #}
+<header>UNFLAGGED RULES</header>
+{%- for rule in msg.unflagged_rule_results %}
+  - <not-detected><bold>{{rule.name}}</bold></not-detected>
+{%- endfor %}
+{# new line #}
+{%- endif %}
+
+
+{%- if msg.normal_query_results | length > 0 %}
+{# new line #}
+<header>QUERIES</header>
+{%- for query in msg.normal_query_results %}
+  - <query><bold>{{ query.name }}</bold></query>
+    <key>Result:</key> {{ query.result }}
+  {# new line #}
+{%- endfor %}
+{%- endif %}
+
+
+{%- if msg.failed_rule_results | length > 0 %}
+{# new line #}
+<header>FAILED RULES</header>
+{%- for rule in msg.failed_rule_results %}
+  - <fail><bold>{{ rule.name }}</bold></fail>
+{%- endfor %}
+{# new line #}
+{%- endif %}
+
+
+{%- if msg.failed_query_results | length > 0 %}
+{# new line #}
+<header>FAILED QUERIES</header>
+{%- for query in msg.failed_query_results %}
+  - <fail><bold>{{ query.name }}</bold></fail>
+{%- endfor %}
+{# new line #}
+{%- endif %}
+{# new line #}
+{% endblock %}
