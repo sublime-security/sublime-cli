@@ -53,21 +53,40 @@ def echo_result(function):
                 # regular subcommand
                 formatter = formatter[context.command.name]
 
+
         if context.command.name == "create":
-            # default behavior is to always save the MDM
-            # even if no output file is specified
-            if not params.get("output_file"):
-                input_file_relative_name = params.get('input_file').name
+            input_path = params.get('input_path')
+            input_dir, _, input_name = input_path.rpartition('/')
+            input_name, _, extension = input_name.rpartition('.')
+            
+            output_path = params.get('output_path')
+            if output_path:
+                if not os.path.isfile(output_path):
+                    # if the path specified is a file then use that
+                    # otherwise use the input filename and specified directory
+                    output_dir = output_path
+                    print(f'found output dir {output_path}')
+                    input_dir, _, file_name = input_path.rpartition('/')
+                    file_name, _, extension = file_name.rpartition('.')
+                else:
+                    print(f'found output file {output_path}')
+
+            else:
+                # if no path is specified, save the MDM to the default directory
+                # or the input_file's directory if no default is specified
+                output_extension = 'mdm' if output_format == 'json' else 'txt'
+
+                # if a directory is specified, keep the file name
+                
+
+                input_file_relative_name = params.get('input_path').name
                 input_file_relative_no_ext, _ = os.path.splitext(
                         input_file_relative_name)
                 input_file_name_no_ext = os.path.basename(
                         input_file_relative_no_ext)
                 output_file_name = f'{input_file_name_no_ext}'
 
-                if output_format == "json":
-                    output_file_name += ".mdm"
-                elif output_format == "txt":
-                    output_file_name += ".txt"
+
 
                 # if the user has a default save directory configured,
                 # store the MDM there
@@ -211,36 +230,36 @@ def create_command(function):
     """Decorator that groups decorators common to create subcommand."""
 
     @click.command()
-    @click.option("-k", "--api-key", help="Key to include in API requests [optional]")
-    @click.option(
-        "-i", "--input", "input_file", type=click.File(), 
-        help="Input EML file", required=True
-    )
+    @click.option("-k", "--api-key", "api_key",
+        type=str,
+        help="Key to include in API requests [optional]")
+
+    @click.option("-i", "--input", "input_path",
+        type=click.Path(exists=True), 
+        help="Input EML file",
+        required=True)
+
     @click.option("-t", "--type", "message_type",
         type=click.Choice(['inbound', 'internal', 'outbound'], case_sensitive=False),
         default="inbound",
         show_default=True,
-        help="Set the message type [optional]"
-    )
-    @click.option(
-        "-o", "--output", "output_file", type=click.File(mode="w"), 
-        help=(
-            "Output file. Defaults to the input_file name in the current "
-            "directory with a .mdm extension if none is specified"
-        )
-    )
-    @click.option(
-        "-f",
-        "--format",
-        "output_format",
+        help="Set the message type [optional]")
+
+    # cannot enforce the 'exists' requirement here as we may need to create files
+    @click.option("-o", "--output", "output_path",
+        type=click.Path(), 
+        help=("Output file path. Defaults to the directory and name of the "
+            "input file with a .mdm extension if not specified"))
+
+    @click.option("-f", "--format", "output_format",
         type=click.Choice(["json", "txt"]),
         default="json",
         show_default=True,
-        help="Output format",
-    )
+        help="Output format")
+
     @click.option("-m", "--mailbox", "mailbox_email_address",
-            help="Mailbox email address that received the message [optional]"
-    )
+        help="Mailbox email address that received the message [optional]")
+
     @pass_api_client
     @click.pass_context
     @echo_result
@@ -258,7 +277,7 @@ def analyze_command(function):
     @click.command()
 
     @click.option("-k", "--api-key", "api_key",
-            help="Key to include in API requests [optional]")
+        help="Key to include in API requests [optional]")
 
     @click.option("-i", "--input", "input_path",
         type=click.Path(exists=True),

@@ -46,18 +46,44 @@ def create(
     context,
     api_client,
     api_key,
-    input_file,
+    input_path,
     message_type,
-    output_file,
+    output_path,
     output_format,
     mailbox_email_address,
     verbose,
 ):
     """Create a Message Data Model from an EML or MSG."""
-    if input_file.name.endswith(".msg"):
-        raw_message = load_msg_file_handle(input_file)
+    # enforce the output_path here (if not file, path must exist)
+
+    # if it isn't a valid path, it should at least look like a file
+    if os.path.isfile(output_path):
+        print(f"{output_path} is a file")
+    elif os.path.isdir(output_path):
+        print(f"{output_path} is a directory")
     else:
-        raw_message = load_eml_file_handle(input_file)
+        print(f"{output_path} is neither")
+
+     
+
+    if (not os.path.isfile(output_path)) and not os.path.exists(output_path):
+        LOGGER.error(f"Error: Invalid value for '-o' / '--output': Path '{output_path}' does not exist.")
+        context.exit(-1)
+    
+    # load and pull the raw message from the input_file
+    if os.path.isfile(input_path):
+        _, _, extension = input_path.rpartition('.')
+
+        if extension == "msg":
+            raw_message = load_msg(input_path)
+        if extension == "eml":
+            raw_message = load_eml(input_path)
+        else:
+            LOGGER.error("Only .msg and .eml extensions supported")
+            context.exit(-1)
+    else:
+        LOGGER.error("Only single files supported currently")
+        context.exit(-1)
 
     results = api_client.create_message(
             raw_message,
