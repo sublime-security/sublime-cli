@@ -53,31 +53,77 @@ def colored_output(function):
     return wrapper
 
 
-def json_formatter(result, verbose=False):
+def json_formatter(result, verbose=False, indent=4, offset=0):
     """Format result as json."""
-    return json.dumps(result, indent=4)
+    string = json.dumps(result, indent=indent)
+    string = string.replace("\n", "\n" + "  "*offset)
+    return string
 
 
 @colored_output
 def analyze_formatter(results, verbose):
     """Convert Analyze output into human-readable text."""
-    template = JINJA2_ENV.get_template("analyze_result.txt.j2")
+    if len(results) > 1:
+        mql_offset = 5
+        json_offset = 4
+        template = JINJA2_ENV.get_template("analyze_result_multi.txt.j2")
+    else:
+        mql_offset = 3
+        json_offset = 2
+        template = JINJA2_ENV.get_template("analyze_result.txt.j2")
+    
+    # calculate total stats
+    result = next(iter(results.values()))
+    summary_stats = {
+        'total_messages': len(results),
+        'total_rules': len(result['rule_results']),
+        'total_queries': len(result['query_results']),
+    }
+    
+    # separate matched messages from unmatched ones and clear out unflagged rules
+    flagged_messages = []
+    unflagged_messages = []
+    all_flagged_rules = set()
+    for _, result in results.items():
+        flagged_rules = []
+        unflagged_rules = []
+        for rule in result['rule_results']:
+            if rule['result']:
+                flagged_rules.append(rule)
+                all_flagged_rules.add(rule['name']+rule['source']) # no unique identifier
+            else:
+                unflagged_rules.append(rule)
 
-    # analyze/multi will return 'results', otherwise 'result'
-    rule_results, query_results = results["rule_results"], results["query_results"]
+        result['flagged_rule_results'] = flagged_rules
+        result['unflagged_rule_results'] = unflagged_rules
+        if len(flagged_rules) > 0:
+            flagged_messages.append(result)
+        else:
+            unflagged_messages.append(result)
 
-    for result in rule_results:
-        if result.get("source"):
-            result["source"] = format_mql(result["source"])
+    # calculate flagged stats
+    summary_stats['flagged_rules'] = len(all_flagged_rules)
+    summary_stats['flagged_messages'] = len(flagged_messages)
 
-    for result in query_results:
-        if result.get("result") and isinstance(result["result"], dict):
-            result["result"] = json_formatter(result["result"])
+    # format mql and json outputs
+    for msg in flagged_messages + unflagged_messages: 
+        for result in msg['rule_results'] + msg['query_results']:
+            if 'source' in result:
+                result['source'] = format_mql(result['source'], offset=mql_offset)
 
-        if result.get("source"):
-            result["source"] = format_mql(result["source"])
+            if 'result' in result and isinstance(result['result'], dict):
+                result['result'] = json_formatter(
+                        result['result'],
+                        offset=json_offset,
+                        indent=2)
 
-    return template.render(rules=rule_results, queries=query_results, verbose=verbose)
+    # TO DO: sort each list of messages by extension and file name (or directory?)
+
+    return template.render(
+            stats=summary_stats,
+            flagged_messages=flagged_messages,
+            unflagged_messages=unflagged_messages,
+            verbose=verbose)
 
 
 def mdm_formatter(results, verbose):
@@ -92,11 +138,11 @@ def mdm_formatter(results, verbose):
     # return template.render(results=results, verbose=verbose)
 
 
-def format_mql(mql):
+def format_mql(mql, offset=0):
     mql = mql.replace("&&", "\n  &&")
     mql = mql.replace("||", "\n  ||")
     mql = mql.replace("],", "],\n  ")
-
+    mql = mql.replace("\n", "\n" + "  "*offset)
     return mql
 
 @colored_output

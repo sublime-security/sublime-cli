@@ -245,9 +245,17 @@ def load_yml_path(files_path, ignore_errors=True):
     :raises: LoadRuleError
 
     """
+    # gather all rules files
+    sqar_files = []
+    for file in Path(files_path).rglob("*.yml"):
+        sqar_files.append(file)
+    for file in Path(files_path).rglob("*.yaml"):
+        sqar_files.append(file)
+
+    # get all rules and queries from
     rules, queries = [], []
-    for rules_file in Path(files_path).rglob("*.yml"):
-        with rules_file.open(encoding='utf-8') as f:
+    for file in sqar_files:
+        with file.open(encoding='utf-8') as f:
             try:
                 rules_tmp, queries_tmp = load_yml(f)
                 if rules_tmp:
@@ -255,15 +263,14 @@ def load_yml_path(files_path, ignore_errors=True):
                 if queries_tmp:
                     queries.extend(queries_tmp)
             except LoadRuleError as error:
-                # We want to ignore errors and continue reading the rest 
-                # of the files. 
+                # Ignore errors and continue reading the remaining files.
                 if ignore_errors:
                     LOGGER.warning(error.message)
                 else:
                     raise
 
     if len(rules) == 0 and len(queries) == 0:
-        LOGGER.warning("No valid YML files found in {}".format(files_path))
+        LOGGER.warning(f"No valid YAML files found in {files_path}")
 
     return rules, queries
 

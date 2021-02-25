@@ -6,6 +6,7 @@ import platform
 import click
 import structlog
 from halo import Halo
+from pathlib import Path
 
 from sublime.__version__ import __version__
 from sublime.cli.decorator import (
@@ -72,7 +73,7 @@ def analyze(
     context,
     api_client,
     api_key,
-    input_file,
+    input_path,
     run_path,
     query,
     message_type,
@@ -81,10 +82,11 @@ def analyze(
     output_format,
     verbose,
 ):
-    """Analyze a single Message Data Model, EML, or MSG."""
+    """Analyze a file or directory of EMLs, MSGs, or MDMs."""
     if not run_path and not query:
         raise MissingRuleInput
 
+    # load all rules and queries
     rules, queries = [], []
     if run_path:
         if os.path.isfile(run_path):
@@ -107,43 +109,66 @@ def analyze(
         LOGGER.error("YML file or raw MQL required")
         context.exit(-1)
 
-    if input_file.name.endswith(".mdm"):
-        message_data_model = load_message_data_model_file_handle(input_file)
+    # sort rules and queries in advance so we don't have to later
+    # analyze endpoint should conserve the order in which they're submitted
+    rules = sorted(rules, key=lambda i: i['name'].lower() if i.get('name') else '')
+    queries = sorted(queries, key=lambda i: i['name'].lower() if i.get('name') else '')
 
-        if output_format != "json":
-            with Halo(text='Analyzing...', spinner='dots'):
-                results = api_client.analyze_message(
-                        message_data_model, rules, queries)
-        else:
-            results = api_client.analyze_message(
-                    message_data_model, rules, queries)
+    # aggregate all files we need to check 
+    file_paths = []
+    if os.path.isfile(input_path):
+        file_paths.append(input_path)
     else:
-        if input_file.name.endswith(".msg"):
-            raw_message = load_msg_file_handle(input_file)
-        else:
-            raw_message = load_eml_file_handle(input_file)
+        for file_path in Path(input_path).rglob('*.eml'):
+            file_paths.append(str(file_path))
+        for file_path in Path(input_path).rglob('*.msg'):
+            file_paths.append(str(file_path))
+        for file_path in Path(input_path).rglob('*.mdm'):
+            file_paths.append(str(file_path))
 
-        if output_format != "json":
-            with Halo(text='Analyzing...', spinner='dots'):
-                results = api_client.analyze_raw_message(
+    # analyze each file and aggregate all responses
+    results = {}
+    num_files = len(file_paths)
+    for i in range(num_files):
+        file_path = file_paths[i]
+        file_dir, _, file_name = file_path.rpartition('/')
+        _, _, extension = file_name.rpartition('.')
+
+        with Halo(
+            text=f'Analyzing file {i+1} of {num_files} ({file_name})...',
+            spinner='dots'
+        ):
+            if file_path.endswith('.mdm'):
+                message_data_model = load_message_data_model(file_path)
+                response = api_client.analyze_message(
+                        message_data_model,
+                        rules,
+                        queries)
+            elif file_path.endswith('.msg'):
+                raw_message = load_msg(file_path)
+                response = api_client.analyze_raw_message(
                         raw_message, 
                         rules,
                         queries,
                         mailbox_email_address,
                         message_type)
-        else:
-            results = api_client.analyze_raw_message(
-                    raw_message, 
-                    rules,
-                    queries,
-                    mailbox_email_address,
-                    message_type)
-
-    for result_key in ["rule_results", "query_results"]:
-        results_list = results.get(result_key) if results.get(result_key) else []
-        results[result_key] = sorted(results_list,
-                                     key=lambda i: i["name"].lower() if i.get("name") else "")
-
+            elif file_path.endswith('.eml'):
+                raw_message = load_eml(file_path)
+                response = api_client.analyze_raw_message(
+                        raw_message, 
+                        rules,
+                        queries,
+                        mailbox_email_address,
+                        message_type)
+            else:
+                LOGGER.error("Input file must have .eml, .msg or .mdm extension")
+                context.exit(-1)
+            
+            response['file_name'] = file_name
+            response['extension'] = extension
+            response['directory'] = file_dir
+            results[file_path] = response
+ 
     return results
 
 
