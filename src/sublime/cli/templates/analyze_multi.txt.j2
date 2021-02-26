@@ -33,9 +33,8 @@
 {%- endif %}
 
 
-
-{% block body %}
 {%- if flagged_messages|length > 0 %}
+{# new line #}
 {# new line #}
 {# new line #}
 <header>FLAGGED MESSAGES</header>
@@ -55,28 +54,46 @@
     {# new line #}
     <header>FLAGGED RULES</header>
     {%- for rule in msg.flagged_rule_results %}
-      - <detected><bold>{{rule.name}}</bold></detected>
-    {%- endfor %}
-
-    {%- if msg.normal_query_results|length > 0 %}
-    {# new line #}
-    <header>QUERIES</header>
-    {%- for query in msg.normal_query_results %}
-      {%- if query.success %}
-      - <query><bold>{{ query.name }}</bold></query>
-        <key>Result:</key> {{ query.result }}
-      {%- else %}
-      - <fail><bold>{{ query.name }}</bold></fail>
+      - <detected><bold>{{ rule.name }}</bold></detected>
+      {%- if verbose %}
+        <key>Source:</key> {{ rule.source }}
       {%- endif %}
       {# new line #}
     {%- endfor %}
-    {%- endif %}
 
     {%- if msg.failed_rule_results|length > 0 %}
     {# new line #}
     <header>FAILED RULES</header>
     {%- for rule in msg.failed_rule_results %}
       - <fail><bold>{{ rule.name }}</bold></fail>
+      {%- if verbose %}
+        <key>Source:</key> {{ rule.source }}
+      {%- endif %}
+      {# new line #}
+    {%- endfor %}
+    {%- endif %}
+  
+    {%- if msg.normal_query_results | length > 0 %}
+    {# new line #}
+    <header>QUERIES</header>
+    {%- for query in (msg.normal_query_results) %}
+      - <query><bold>{{ query.name }}</bold></query>
+        <key>Result:</key> {{ query.result }}
+      {%- if verbose %}
+        <key>Source:</key> {{ query.source }}
+      {%- endif %}
+      {# new line #}
+    {%- endfor %}
+    {%- endif %}
+
+    {%- if verbose and (msg.falsey_query_results | length > 0) %}
+    {# new line #}
+    <header>QUERIES (FALSE-Y)</header>
+    {%- for query in (msg.falsey_query_results) %}
+      - <query><bold>{{ query.name }}</bold></query>
+        <key>Result:</key> {{ query.result }}
+        <key>Source:</key> {{ query.source }}
+      {# new line #}
     {%- endfor %}
     {%- endif %}
 
@@ -85,14 +102,25 @@
     <header>FAILED QUERIES</header>
     {%- for query in msg.failed_query_results %}
       - <fail><bold>{{ query.name }}</bold></fail>
+      {%- if verbose %}
+        <key>Source:</key> {{ query.source }}
+      {%- endif %}
+      {# new line #}
     {%- endfor %}
     {%- endif %}
+
+    {%- if not (verbose and (msg.rule_results | length == 0) and (msg.falsey_query_results|length == msg.query_results|length)) %}
     {# new line #}
+    (no outputs for this message)
+    {%- endif %}
+
 {% endfor %}
 
 
 
 {%- if unflagged_messages|length > 0 %}
+{# new line #}
+{# new line #}
 {# new line #}
 <header>UNFLAGGED MESSAGES</header>
 ==================
@@ -108,25 +136,39 @@
   <key>File Name</key>: <value>{{msg.file_name}}</value>
   <key>Directory</key>: <value>{{msg.directory}}</value>
 
-    {%- if msg.normal_query_results|length > 0 %}
-    {# new line #}
-    <header>QUERIES</header>
-    {%- for query in msg.normal_query_results %}
-      {%- if query.success %}
-      - <query><bold>{{ query.name }}</bold></query>
-        <key>Result:</key> {{ query.result }}
-      {%- else %}
-      - <fail><bold>{{ query.name }}</bold></fail>
-      {%- endif %}
-      {# new line #}
-    {%- endfor %}
-    {%- endif %}
-
     {%- if msg.failed_rule_results|length > 0 %}
     {# new line #}
     <header>FAILED RULES</header>
     {%- for rule in msg.failed_rule_results %}
       - <fail><bold>{{ rule.name }}</bold></fail>
+      {%- if verbose %}
+        <key>Source:</key> {{ rule.source }}
+      {%- endif %}
+      {# new line #}
+    {%- endfor %}
+    {%- endif %}
+
+    {%- if msg.normal_query_results | length > 0 %}
+    {# new line #}
+    <header>QUERIES</header>
+    {%- for query in (msg.normal_query_results) %}
+      - <query><bold>{{ query.name }}</bold></query>
+        <key>Result:</key> {{ query.result }}
+      {%- if verbose %}
+        <key>Source:</key> {{ query.source }}
+      {%- endif %}
+      {# new line #}
+    {%- endfor %}
+    {%- endif %}
+
+    {%- if verbose and (msg.falsey_query_results | length > 0) %}
+    {# new line #}
+    <header>QUERIES (FALSE-Y)</header>
+    {%- for query in (msg.falsey_query_results) %}
+      - <query><bold>{{ query.name }}</bold></query>
+        <key>Result:</key> {{ query.result }}
+        <key>Source:</key> {{ query.source }}
+      {# new line #}
     {%- endfor %}
     {%- endif %}
 
@@ -135,9 +177,11 @@
     <header>FAILED QUERIES</header>
     {%- for query in msg.failed_query_results %}
       - <fail><bold>{{ query.name }}</bold></fail>
+      {%- if verbose %}
+        <key>Source:</key> {{ query.source }}
+      {%- endif %}
+      {# new line #}
     {%- endfor %}
     {%- endif %}
-
-    {# new line #}
 {% endfor %}
-{% endblock %}
+{# new line #}

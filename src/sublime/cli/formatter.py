@@ -66,12 +66,11 @@ def analyze_formatter(results, verbose):
     if len(results) > 1:
         mql_offset = 5
         json_offset = 4
-        template_file = "analyze_verbose.txt.j2" if verbose else "analyze_multi.txt.j2"
+        template = JINJA2_ENV.get_template("analyze_multi.txt.j2")
     else:
         mql_offset = 3
         json_offset = 2
-        template_file = "analyze_verbose.txt.j2" if verbose else "analyze.txt.j2"
-    template = JINJA2_ENV.get_template(template_file)
+        template = JINJA2_ENV.get_template("analyze.txt.j2")
     
     # calculate total stats
     sample_result = next(iter(results.values()))
