@@ -85,3 +85,8 @@
   {%- endif %}
 {%- endfor %}
 {%- endif %}
+
+{%- if not (verbose and (msg.rule_results | length == 0) and (msg.falsey_query_results|length == msg.query_results|length)) %}
+  {# new line #}
+  (no outputs for this message)
+{%- endif %}

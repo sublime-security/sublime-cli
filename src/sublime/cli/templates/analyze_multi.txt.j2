@@ -122,8 +122,13 @@
 {# new line #}
 {# new line #}
 {# new line #}
+{%- if rules|length > 0 %}
 <header>UNFLAGGED MESSAGES</header>
 ==================
+{%- else %}
+<header>MESSAGES</header>
+==================
+{%- endif %}
 {%- endif %}
 
 {%- for msg in unflagged_messages %}
@@ -183,5 +188,9 @@
       {# new line #}
     {%- endfor %}
     {%- endif %}
+
+  {%- if not (verbose and (msg.rule_results | length == 0) and (msg.falsey_query_results|length == msg.query_results|length)) %}
+    {# new line #}
+    (no outputs for this message)
+  {%- endif %}
 {% endfor %}
-{# new line #}
