@@ -20,8 +20,16 @@ from sublime.error import *
 CONFIG_FILE = os.path.expanduser(os.path.join("~", ".config", "sublime", "setup.cfg"))
 LOGGER = structlog.get_logger()
 
-DEFAULT_CONFIG = {"api_key": "", "save_dir": ""}
+DEFAULT_CONFIG = {"api_key": "", "save_dir": "", "permission": ""}
 
+CONFIRMATION_MESSAGE = """
+    Messages will be sent to Sublime Security servers for analysis.
+    
+    This message is intended to preserve your privacy. You only need to accept once.
+    
+    Would you like to continue?
+
+"""
 
 def load_config():
     """Load configuration.
@@ -58,7 +66,8 @@ def load_config():
 
     return {
         "api_key": config_parser.get("sublime", "api_key"),
-        "save_dir": config_parser.get("sublime", "save_dir")
+        "save_dir": config_parser.get("sublime", "save_dir"),
+        "permission": config_parser.get("sublime", "permission"),
     }
 
 
@@ -72,18 +81,19 @@ def save_config(config):
     config_parser = ConfigParser()
     config_parser.add_section("sublime")
 
-    if not config["api_key"] and not config["save_dir"]:
+    if len(config) == 0:
         click.echo('Error: no options provided. Try "sublime setup -h" for help.')
         click.get_current_context().exit(-1)
 
     # If either value was not specified, load the existing values saved
     # to ensure we don't overwrite their values to null here
-    if not config["api_key"] or not config["save_dir"]:
-        saved_config = load_config()
-        if not config["api_key"]:
-            config["api_key"] = saved_config["api_key"]
-        if not config["save_dir"]:
-            config["save_dir"] = saved_config["save_dir"]
+    saved_config = load_config()
+    if not config["api_key"]:
+        config["api_key"] = saved_config["api_key"]
+    if not config["save_dir"]:
+        config["save_dir"] = saved_config["save_dir"]
+    if not config["permission"]:
+        config["permission"] = saved_config["permission"]
 
     if config["save_dir"] and not os.path.isdir(config["save_dir"]):
         click.echo("Error: save directory is not a valid directory")
@@ -91,6 +101,7 @@ def save_config(config):
 
     config_parser.set("sublime", "api_key", config["api_key"])
     config_parser.set("sublime", "save_dir", config["save_dir"])
+    config_parser.set("sublime", "permission", config["permission"])
 
     config_parser_existing = ConfigParser()
     if os.path.isfile(CONFIG_FILE):
@@ -113,6 +124,15 @@ def save_config(config):
 
     with open(CONFIG_FILE, "w") as config_file:
         config_parser.write(config_file)
+
+
+def request_permission():
+    config = load_config()
+    permission = config['permission'] 
+    if not permission or permission != "True":
+        if click.confirm(CONFIRMATION_MESSAGE, abort=True):
+            config['permission'] = "True"
+            save_config(config)
 
 
 def load_eml(input_file):
