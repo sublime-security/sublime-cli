@@ -156,18 +156,18 @@ def load_eml_file_handle(input_file):
     return raw_message_base64
 
 
-def load_msg(filepath):
+def load_msg(file_path):
     """Load .MSG file.
 
-    :param filepath: Path to file.
-    :type filepath: str
+    :param file_path: Path to file.
+    :type file_path: str
     :returns: Base64-encoded raw content
     :rtype: string
     :raises: LoadMSGError
 
     """
 
-    with open(filepath) as f:
+    with open(file_path) as f:
         return load_msg_file_handle(f)
 
 
@@ -197,18 +197,18 @@ def load_msg_file_handle(input_file):
 
     return raw_message_base64
 
-def load_mbox(filepath):
+def load_mbox(file_path):
     """Load .MBOX file.
 
-    :param filepath: Path to file.
-    :type filepath: str
+    :param file_path: Path to file.
+    :type file_path: str
     :returns: Base64-encoded raw content
     :rtype: map of (key: subject+index, value: raw_message)
     :raises: LoadMBOXError
 
     """
     raw_messages = {}
-    mbox = mailbox.mbox(filepath)
+    mbox = mailbox.mbox(file_path)
 
     try:
         for message in mbox:
@@ -230,17 +230,17 @@ def load_mbox(filepath):
 
     return raw_messages
 
-def load_message_data_model(filepath):
+def load_message_data_model(file_path):
     """Load Message Data Model file.
 
-    :param filepath: Path to file.
-    :type filepath: str
+    :param file_path: Path to file.
+    :type file_path: str
     :returns: Message Data Model JSON object
     :rtype: dict
     :raises: LoadMessageDataModelError
 
     """
-    with open(filepath) as f:
+    with open(file_path) as f:
         return load_message_data_model_file_handle(f)
 
 
