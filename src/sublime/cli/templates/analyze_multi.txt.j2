@@ -1,3 +1,5 @@
+{% import "macros.txt.j2" as macros with context %}
+
 ╔═══════════════════════════╗
 ║ <header>{{ "{:^25}".format("Results") }}</header> ║
 ╚═══════════════════════════╝
@@ -28,7 +30,11 @@
   <header>Queries Run</header>
   ------------------
   {%- for query in queries %}
+  {%- if query.name %}
     - {{query.name}}
+  {%- else %}
+    - Query {{loop.index}}
+  {%- endif %}
   {%- endfor %}
 {%- endif %}
 
@@ -42,84 +48,34 @@
 {%- endif %}
 
 {%- for msg in flagged_messages %}
-  {# new line #}
-  <header>MESSAGE {{loop.index}}</header>
-  ------------------
-  {%- if msg.extension == 'mbox' %}
-  <key>Subject</key>: <value>{{msg.subject}}</value>
-  {%- endif%}
-  <key>File Name</key>: <value>{{msg.file_name}}</value>
-  <key>Directory</key>: <value>{{msg.directory}}</value>
+{# new line #}
+<header>MESSAGE {{loop.index}}</header>
+------------------
+{%- if msg.extension == 'mbox' %}
+<key>Subject</key>: <value>{{msg.subject}}</value>
+{%- endif%}
+<key>File Name</key>: <value>{{msg.file_name}}</value>
+{%- if msg.directory %}
+<key>Directory</key>: <value>{{msg.directory}}</value>
+{%- endif %}
 
-    {# new line #}
-    <header>FLAGGED RULES</header>
-    {%- for rule in msg.flagged_rule_results %}
-      - <detected><bold>{{ rule.name }}</bold></detected>
-      {%- if verbose %}
-        <key>Source:</key> {{ rule.source }}
-      {%- endif %}
-      {# new line #}
-    {%- endfor %}
+{%- if msg.flagged_rule_results|length > 0 %}
+{{ macros.flagged_rules(msg) }}
+{%- endif %}
 
-    {%- if msg.failed_rule_results|length > 0 %}
-    {# new line #}
-    <header>FAILED RULES</header>
-    {%- for rule in msg.failed_rule_results %}
-      - <fail><bold>{{ rule.name }}</bold></fail>
-      {%- if verbose %}
-        <key>Source:</key> {{ rule.source }}
-      {%- endif %}
-      {# new line #}
-    {%- endfor %}
-    {%- endif %}
+{%- if msg.failed_rule_results|length > 0 %}
+{{ macros.failed_rules(msg) }}
+{%- endif %}
   
-    {%- if msg.normal_query_results | length > 0 %}
-    {# new line #}
-    <header>QUERIES</header>
-    {%- for query in (msg.normal_query_results) %}
-      - <query><bold>{{ query.name }}</bold></query>
-        <key>Result:</key> {{ query.result }}
-      {%- if verbose %}
-        <key>Source:</key> {{ query.source }}
-      {%- endif %}
-      {# new line #}
-    {%- endfor %}
-    {%- endif %}
-
-    {%- if verbose and (msg.falsey_query_results | length > 0) %}
-    {# new line #}
-    <header>QUERIES (FALSE-Y)</header>
-    {%- for query in (msg.falsey_query_results) %}
-      - <query><bold>{{ query.name }}</bold></query>
-        <key>Result:</key> {{ query.result }}
-        <key>Source:</key> {{ query.source }}
-      {# new line #}
-    {%- endfor %}
-    {%- endif %}
-
-    {%- if msg.failed_query_results|length > 0 %}
-    {# new line #}
-    <header>FAILED QUERIES</header>
-    {%- for query in msg.failed_query_results %}
-      - <fail><bold>{{ query.name }}</bold></fail>
-      {%- if verbose %}
-        <key>Source:</key> {{ query.source }}
-      {%- endif %}
-      {# new line #}
-    {%- endfor %}
-    {%- endif %}
-
-    {%- if not (verbose and (msg.rule_results | length == 0) and (msg.falsey_query_results|length == msg.query_results|length)) %}
-    {# new line #}
-    (no outputs for this message)
-    {%- endif %}
+{%- if true %}
+{{ macros.query_results(msg) }}
+{%- endif %}
 
 {% endfor %}
 
 
 
 {%- if unflagged_messages|length > 0 %}
-{# new line #}
 {# new line #}
 {# new line #}
 {%- if rules|length > 0 %}
@@ -133,64 +89,20 @@
 
 {%- for msg in unflagged_messages %}
 {# new line #}
-  <header>MESSAGE {{loop.index}}</header>
-  ------------------
-  {%- if msg.extension == 'mbox' %}
-  <key>Subject</key>: <value>{{msg.subject}}</value>
-  {%- endif %}
-  <key>File Name</key>: <value>{{msg.file_name}}</value>
-  <key>Directory</key>: <value>{{msg.directory}}</value>
+<header>MESSAGE {{loop.index}}</header>
+------------------
+{%- if msg.extension == 'mbox' %}
+<key>Subject</key>: <value>{{msg.subject}}</value>
+{%- endif %}
+<key>File Name</key>: <value>{{msg.file_name}}</value>
+<key>Directory</key>: <value>{{msg.directory}}</value>
 
-    {%- if msg.failed_rule_results|length > 0 %}
-    {# new line #}
-    <header>FAILED RULES</header>
-    {%- for rule in msg.failed_rule_results %}
-      - <fail><bold>{{ rule.name }}</bold></fail>
-      {%- if verbose %}
-        <key>Source:</key> {{ rule.source }}
-      {%- endif %}
-      {# new line #}
-    {%- endfor %}
-    {%- endif %}
+{%- if msg.failed_rule_results|length > 0 %}
+{{ macros.failed_rules(msg) }}
+{%- endif %}
+  
+{%- if true -%}
+{{ macros.query_results(msg) }}
+{%- endif -%}
 
-    {%- if msg.normal_query_results | length > 0 %}
-    {# new line #}
-    <header>QUERIES</header>
-    {%- for query in (msg.normal_query_results) %}
-      - <query><bold>{{ query.name }}</bold></query>
-        <key>Result:</key> {{ query.result }}
-      {%- if verbose %}
-        <key>Source:</key> {{ query.source }}
-      {%- endif %}
-      {# new line #}
-    {%- endfor %}
-    {%- endif %}
-
-    {%- if verbose and (msg.falsey_query_results | length > 0) %}
-    {# new line #}
-    <header>QUERIES (FALSE-Y)</header>
-    {%- for query in (msg.falsey_query_results) %}
-      - <query><bold>{{ query.name }}</bold></query>
-        <key>Result:</key> {{ query.result }}
-        <key>Source:</key> {{ query.source }}
-      {# new line #}
-    {%- endfor %}
-    {%- endif %}
-
-    {%- if msg.failed_query_results|length > 0 %}
-    {# new line #}
-    <header>FAILED QUERIES</header>
-    {%- for query in msg.failed_query_results %}
-      - <fail><bold>{{ query.name }}</bold></fail>
-      {%- if verbose %}
-        <key>Source:</key> {{ query.source }}
-      {%- endif %}
-      {# new line #}
-    {%- endfor %}
-    {%- endif %}
-
-  {%- if not (verbose and (msg.rule_results | length == 0) and (msg.falsey_query_results|length == msg.query_results|length)) %}
-    {# new line #}
-    (no outputs for this message)
-  {%- endif %}
 {% endfor %}
