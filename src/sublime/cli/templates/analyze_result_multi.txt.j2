@@ -24,6 +24,9 @@
   {# new line #}
   <header>MESSAGE {{loop.index}}</header>
   ------------------
+  {%- if msg.extension == 'mbox' %}
+  <key>Subject</key>: <value>{{msg.subject}}</value>
+  {%- endif%}
   <key>File Name</key>: <value>{{msg.file_name}}</value>
   <key>Directory</key>: <value>{{msg.directory}}</value>
 
@@ -112,6 +115,9 @@
 {# new line #}
   <header>MESSAGE {{loop.index}}</header>
   ------------------
+  {%- if msg.extension == 'mbox' %}
+  <key>Subject</key>: <value>{{msg.subject}}</value>
+  {%- endif%}
   <key>File Name</key>: <value>{{msg.file_name}}</value>
   <key>Directory</key>: <value>{{msg.directory}}</value>
 

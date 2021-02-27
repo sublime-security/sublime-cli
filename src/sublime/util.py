@@ -4,6 +4,7 @@ import os
 import socket
 import sys
 import email
+import mailbox
 import base64
 import json
 
@@ -155,18 +156,18 @@ def load_eml_file_handle(input_file):
     return raw_message_base64
 
 
-def load_msg(input_file):
+def load_msg(file_path):
     """Load .MSG file.
 
-    :param input_file: Path to file.
-    :type input_file: str
+    :param file_path: Path to file.
+    :type file_path: str
     :returns: Base64-encoded raw content
     :rtype: string
     :raises: LoadMSGError
 
     """
 
-    with open(input_file) as f:
+    with open(file_path) as f:
         return load_msg_file_handle(f)
 
 
@@ -196,18 +197,50 @@ def load_msg_file_handle(input_file):
 
     return raw_message_base64
 
+def load_mbox(file_path):
+    """Load .MBOX file.
 
-def load_message_data_model(input_file):
+    :param file_path: Path to file.
+    :type file_path: str
+    :returns: Base64-encoded raw content
+    :rtype: map of (key: subject+index, value: raw_message)
+    :raises: LoadMBOXError
+
+    """
+    raw_messages = {}
+    mbox = mailbox.mbox(file_path)
+
+    try:
+        for message in mbox:
+            # identify a suitable key for this message
+            instance = 0
+            subject = message['subject'] or "[Empty Subject]"
+            key = subject
+            while key in raw_messages:
+                instance += 1
+                key = subject + f" ({instance})"
+
+            # encode the raw message and return
+            raw_message = message.as_string().encode('utf-8')
+            raw_messages[key] = base64.b64encode(raw_message).decode('ascii')
+
+    except Exception as exception:
+        error_message = f"{exception}"
+        raise LoadMBOXError(error_message)
+
+    return raw_messages
+
+def load_message_data_model(file_path):
     """Load Message Data Model file.
 
-    :param input_file: Path to file.
-    :type input_file: str
+    :param file_path: Path to file.
+    :type file_path: str
     :returns: Message Data Model JSON object
     :rtype: dict
     :raises: LoadMessageDataModelError
 
     """
-    with open(input_file) as f:
+    with open(file_path) as f:
         return load_message_data_model_file_handle(f)
 
 

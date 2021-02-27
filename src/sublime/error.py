@@ -65,3 +65,7 @@ class LoadEMLError(SublimeError):
 
 class LoadMSGError(SublimeError):
     """Error loading .MSG."""
+
+
+class LoadMBOXError(SublimeError):
+    """Error loading .MBOX."""
