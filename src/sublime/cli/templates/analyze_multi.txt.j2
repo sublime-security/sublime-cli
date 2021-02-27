@@ -1,0 +1,106 @@
+{% import "macros.txt.j2" as macros with context %}
+
+╔═══════════════════════════╗
+║ <header>{{ "{:^25}".format("Results") }}</header> ║
+╚═══════════════════════════╝
+
+{# new line #}
+<header>SUMMARY</header>
+==================
+<key>Total Rules</key>: <value>{{stats.total_rules}}</value>
+<key>Total Queries</key>: <value>{{stats.total_queries}}</value>
+<key>Total Messages</key>: <value>{{stats.total_messages}}</value>
+
+<key>Flagged Rules</key>: <value>{{stats.flagged_rules}}</value>
+<key>Flagged Messages</key>: <value>{{stats.flagged_messages}}</value>
+
+{%- if rules|length > 0 %}
+{# new line #}
+{# new line #}
+  <header>Rules Run</header>
+  ------------------
+  {%- for rule in rules %}
+    - {{rule.name}}
+  {%- endfor %}
+{%- endif %}
+
+{%- if queries|length > 0 %}
+{# new line #}
+{# new line #}
+  <header>Queries Run</header>
+  ------------------
+  {%- for query in queries %}
+  {%- if query.name %}
+    - {{query.name}}
+  {%- else %}
+    - Query {{loop.index}}
+  {%- endif %}
+  {%- endfor %}
+{%- endif %}
+
+
+{%- if flagged_messages|length > 0 %}
+{# new line #}
+{# new line #}
+<header>FLAGGED MESSAGES</header>
+==================
+{%- endif %}
+
+{%- for msg in flagged_messages %}
+{# new line #}
+<header>MESSAGE {{loop.index}}</header>
+------------------
+{%- if msg.extension == 'mbox' %}
+<key>Subject</key>: <value>{{msg.subject}}</value>
+{%- endif%}
+<key>File Name</key>: <value>{{msg.file_name}}</value>
+{%- if msg.directory %}
+<key>Directory</key>: <value>{{msg.directory}}</value>
+{%- endif %}
+
+{%- if msg.flagged_rule_results|length > 0 -%}
+{{ macros.flagged_rules(msg) }}
+{%- endif -%}
+
+{%- if msg.failed_rule_results|length > 0 -%}
+{{ macros.failed_rules(msg) }}
+{%- endif -%}
+  
+{%- if true -%}
+{{ macros.query_results(msg) }}
+{%- endif -%}
+
+{% endfor %}
+
+
+
+{%- if unflagged_messages|length > 0 %}
+{# new line #}
+{%- if rules|length > 0 %}
+<header>UNFLAGGED MESSAGES</header>
+==================
+{%- else %}
+<header>MESSAGES</header>
+==================
+{%- endif %}
+{%- endif %}
+
+{%- for msg in unflagged_messages %}
+{# new line #}
+<header>MESSAGE {{loop.index}}</header>
+------------------
+{%- if msg.extension == 'mbox' %}
+<key>Subject</key>: <value>{{msg.subject}}</value>
+{%- endif %}
+<key>File Name</key>: <value>{{msg.file_name}}</value>
+<key>Directory</key>: <value>{{msg.directory}}</value>
+
+{%- if msg.failed_rule_results|length > 0 -%}
+{{ macros.failed_rules(msg) }}
+{%- endif -%}
+  
+{%- if true -%}
+{{ macros.query_results(msg) }}
+{%- endif -%}
+
+{% endfor %}

@@ -176,18 +176,18 @@ def load_eml_file_handle(input_file):
     return raw_message_base64
 
 
-def load_msg(file_path):
+def load_msg(filepath):
     """Load .MSG file.
 
-    :param file_path: Path to file.
-    :type file_path: str
+    :param filepath: Path to file.
+    :type filepath: str
     :returns: Base64-encoded raw content
     :rtype: string
     :raises: LoadMSGError
 
     """
 
-    with open(file_path) as f:
+    with open(filepath) as f:
         return load_msg_file_handle(f)
 
 
@@ -217,18 +217,18 @@ def load_msg_file_handle(input_file):
 
     return raw_message_base64
 
-def load_mbox(file_path):
+def load_mbox(filepath):
     """Load .MBOX file.
 
-    :param file_path: Path to file.
-    :type file_path: str
+    :param filepath: Path to file.
+    :type filepath: str
     :returns: Base64-encoded raw content
     :rtype: map of (key: subject+index, value: raw_message)
     :raises: LoadMBOXError
 
     """
     raw_messages = {}
-    mbox = mailbox.mbox(file_path)
+    mbox = mailbox.mbox(filepath)
 
     try:
         for message in mbox:
@@ -250,17 +250,17 @@ def load_mbox(file_path):
 
     return raw_messages
 
-def load_message_data_model(file_path):
+def load_message_data_model(filepath):
     """Load Message Data Model file.
 
-    :param file_path: Path to file.
-    :type file_path: str
+    :param filepath: Path to file.
+    :type filepath: str
     :returns: Message Data Model JSON object
     :rtype: dict
     :raises: LoadMessageDataModelError
 
     """
-    with open(file_path) as f:
+    with open(filepath) as f:
         return load_message_data_model_file_handle(f)
 
 
@@ -366,6 +366,11 @@ def load_yml(yml_file, ignore_errors=True):
 
     if not rules_yaml and not queries_yaml:
         rule_or_query_yaml = rules_and_queries_yaml
+
+        # default to query
+        if "type" not in rule_or_query_yaml:
+            rule_or_query_yaml["type"] = "query"
+
         if rule_or_query_yaml.get("type") not in ["rule", "query"]:
             error_str = f'Invalid type in {yml_file.name}'
             if ignore_errors:
@@ -380,10 +385,7 @@ def load_yml(yml_file, ignore_errors=True):
 
     def safe_yaml_filter(yaml_dict):
         if not yaml_dict.get("source"):
-            error_str = f"Missing source in {yml_file.name}'"
-            if ignore_errors:
-                LOGGER.warning(error_str)
-                return None
+            error_str = f"Missing source in '{yml_file.name}'"
             raise LoadRuleError(error_str)
         return {
                 "source": yaml_dict.get("source"),
@@ -391,12 +393,20 @@ def load_yml(yml_file, ignore_errors=True):
         }
 
     for rule_yaml in rules_yaml:
+        if not isinstance(rule_yaml, dict):
+            error_str = f"Invalid list of rules"
+            raise LoadRuleError(error_str)
+
         rule = safe_yaml_filter(rule_yaml)
 
         if rule:
             rules.append(rule)
 
     for query_yaml in queries_yaml:
+        if not isinstance(query_yaml, dict):
+            error_str = f"Invalid list of queries"
+            raise LoadRuleError(error_str)
+
         query = safe_yaml_filter(query_yaml)
 
         if query:

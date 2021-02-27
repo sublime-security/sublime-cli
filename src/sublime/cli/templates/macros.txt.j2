@@ -1,0 +1,82 @@
+{% macro flagged_rules(msg) %}
+{# new line #}
+<header>FLAGGED RULES</header>
+{# new line #}
+{%- for rule in msg.flagged_rule_results %}
+  - <detected><bold>{{ rule.name }}</bold></detected>
+  {%- if verbose %}
+    <key>Source:</key> {{ rule.source }}
+    {# new line #}
+  {%- endif %}
+{%- endfor %}
+{% endmacro %}
+
+{% macro failed_rules(msg) %}
+{# new line #}
+<header>FAILED RULES</header>
+{# new line #}
+{%- for rule in msg.failed_rule_results %}
+  - <fail><bold>{{ rule.name }}</bold></fail>
+    <key>Error:</key> {{ rule.error }}
+  {%- if verbose %}
+    <key>Source:</key> {{ rule.source }}
+    {# new line #}
+  {%- endif %}
+{%- endfor %}
+{% endmacro %}
+
+{% macro query_results(msg) %}
+{%- if msg.normal_query_results | length > 0 or msg.falsey_query_results | length > 0 %}
+{# new line #}
+<header>QUERIES</header>
+{# new line #}
+{%- endif %}
+
+{%- if msg.normal_query_results | length > 0 %}
+{%- for query in (msg.normal_query_results) %}
+{%- if query.name %}
+  - <query><bold>{{ query.name }}</bold></query>
+{%- else %}
+  - <query><bold>Query {{ loop.index }}</bold></query>
+{%- endif %}
+    <key>Result:</key> {{ query.result }}
+  {%- if verbose %}
+    <key>Source:</key> {{ query.source }}
+  {%- endif %}
+  {# new line #}
+{%- endfor %}
+{%- endif %}
+
+{%- if (verbose and (msg.falsey_query_results | length > 0)) or msg.falsey_query_results|length == 1 %}
+{%- for query in (msg.falsey_query_results) %}
+{%- if query.name %}
+  - <query><bold>{{ query.name }}</bold></query>
+{%- else %}
+  - <query><bold>Query {{ loop.index }}</bold></query>
+{%- endif %}
+    <key>Result:</key> {{ query.result }}
+  {%- if verbose %}
+    <key>Source:</key> {{ query.source }}
+  {# new line #}
+  {%- endif %}
+{%- endfor %}
+{%- endif %}
+
+{%- if msg.failed_query_results|length > 0 %}
+{# new line #}
+<header>FAILED QUERIES</header>
+{# new line #}
+{%- for query in msg.failed_query_results %}
+{%- if query.name %}
+  - <fail><bold>{{ query.name }}</bold></fail>
+{%- else %}
+  - <fail><bold>Query {{ loop.index }}</bold></fail>
+{%- endif %}
+    <key>Error:</key> {{ query.error }}
+  {%- if verbose %}
+    <key>Source:</key> {{ query.source }}
+    {# new line #}
+  {%- endif %}
+{%- endfor %}
+{%- endif %}
+{% endmacro %}

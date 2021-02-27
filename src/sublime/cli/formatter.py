@@ -66,41 +66,61 @@ def analyze_formatter(results, verbose):
     if len(results) > 1:
         mql_offset = 5
         json_offset = 4
-        template = JINJA2_ENV.get_template("analyze_result_multi.txt.j2")
+        template = JINJA2_ENV.get_template("analyze_multi.txt.j2")
     else:
         mql_offset = 3
         json_offset = 2
-        template = JINJA2_ENV.get_template("analyze_result.txt.j2")
+        template = JINJA2_ENV.get_template("analyze.txt.j2")
     
     # calculate total stats
-    result = next(iter(results.values()))
+    sample_result = next(iter(results.values()))
     summary_stats = {
         'total_messages': len(results),
-        'total_rules': len(result['rule_results']),
-        'total_queries': len(result['query_results']),
+        'total_rules': len(sample_result['rule_results']),
+        'total_queries': len(sample_result['query_results']),
     }
+    rules = [rule for rule in sample_result['rule_results']]
+    queries = [query for query in sample_result['query_results']]
     
     # separate matched/unmatched messages and distinguish flagged/unflagged rules
     flagged_messages = []
     unflagged_messages = []
     all_flagged_rules = set()
     for _, result in results.items():
+        normal_queries = []
+        falsey_queries = []
+        failed_queries = []
+        for query in result['query_results']:
+            if query['result']:
+                normal_queries.append(query)
+            elif query['success']:
+                falsey_queries.append(query)
+            else:
+                failed_queries.append(query)
+        result['normal_query_results'] = normal_queries
+        result['falsey_query_results'] = falsey_queries
+        result['failed_query_results'] = failed_queries
+
         flagged_rules = []
         unflagged_rules = []
+        failed_rules = []
         for rule in result['rule_results']:
             if rule['result']:
                 flagged_rules.append(rule)
                 all_flagged_rules.add(rule['name']+rule['source']) # no unique identifier
-            else:
+            elif rule['success']:
                 unflagged_rules.append(rule)
-
+            else:
+                failed_rules.append(rule)
         result['flagged_rule_results'] = flagged_rules
         result['unflagged_rule_results'] = unflagged_rules
+        result['failed_rule_results'] = failed_rules
+
         if len(flagged_rules) > 0:
             flagged_messages.append(result)
         else:
             unflagged_messages.append(result)
-
+        
     # calculate flagged stats
     summary_stats['flagged_rules'] = len(all_flagged_rules)
     summary_stats['flagged_messages'] = len(flagged_messages)
@@ -123,6 +143,8 @@ def analyze_formatter(results, verbose):
             stats=summary_stats,
             flagged_messages=flagged_messages,
             unflagged_messages=unflagged_messages,
+            rules=rules,
+            queries=queries,
             verbose=verbose)
 
 
