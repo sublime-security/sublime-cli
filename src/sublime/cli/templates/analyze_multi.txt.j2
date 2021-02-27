@@ -42,7 +42,6 @@
 {%- if flagged_messages|length > 0 %}
 {# new line #}
 {# new line #}
-{# new line #}
 <header>FLAGGED MESSAGES</header>
 ==================
 {%- endif %}
@@ -59,24 +58,23 @@
 <key>Directory</key>: <value>{{msg.directory}}</value>
 {%- endif %}
 
-{%- if msg.flagged_rule_results|length > 0 %}
+{%- if msg.flagged_rule_results|length > 0 -%}
 {{ macros.flagged_rules(msg) }}
-{%- endif %}
+{%- endif -%}
 
-{%- if msg.failed_rule_results|length > 0 %}
+{%- if msg.failed_rule_results|length > 0 -%}
 {{ macros.failed_rules(msg) }}
-{%- endif %}
+{%- endif -%}
   
-{%- if true %}
+{%- if true -%}
 {{ macros.query_results(msg) }}
-{%- endif %}
+{%- endif -%}
 
 {% endfor %}
 
 
 
 {%- if unflagged_messages|length > 0 %}
-{# new line #}
 {# new line #}
 {%- if rules|length > 0 %}
 <header>UNFLAGGED MESSAGES</header>
@@ -97,9 +95,9 @@
 <key>File Name</key>: <value>{{msg.file_name}}</value>
 <key>Directory</key>: <value>{{msg.directory}}</value>
 
-{%- if msg.failed_rule_results|length > 0 %}
+{%- if msg.failed_rule_results|length > 0 -%}
 {{ macros.failed_rules(msg) }}
-{%- endif %}
+{%- endif -%}
   
 {%- if true -%}
 {{ macros.query_results(msg) }}

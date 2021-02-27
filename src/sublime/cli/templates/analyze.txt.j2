@@ -18,21 +18,25 @@
 <key>Flagged Rules</key>: <value>{{stats.flagged_rules}}</value>
 {# new line #}
 
-{%- if msg.flagged_rule_results|length > 0 %}
+{%- if msg.flagged_rule_results|length > 0 -%}
 {{ macros.flagged_rules(msg) }}
-{%- endif %}
+{%- endif -%}
 
 {%- if msg.unflagged_rule_results|length > 0 %}
-{# new line #}
 <header>UNFLAGGED RULES</header>
 {# new line #}
-{%- for rule in msg.unflagged_rule_results %}
+{%- set max_elements = 20 %}
+{%- set elements_slice = msg.unflagged_rule_results[:max_elements if verbose < 1 else None] %}
+{%- for rule in elements_slice %}
   - <not-detected><bold>{{ rule.name }}</bold></not-detected>
   {%- if verbose %}
     <key>Source:</key> {{ rule.source }}
     {# new line #}
   {%- endif %}
 {%- endfor %}
+{% if msg.unflagged_rule_results | length > max_elements and verbose < 1  -%}
+{{ " " | indent(2) }} - <not-detected>And {{ msg.unflagged_rule_results | length - max_elements}} more. Run again with -v for full output.</not-detected>
+{% endif -%}
 {%- endif %}
 
 {%- if msg.failed_rule_results|length > 0 %}
