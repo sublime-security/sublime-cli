@@ -56,10 +56,13 @@
 {%- endfor %}
 {%- endif %}
 
-{%- if msg.normal_query_results | length > 0 %}
+{%- if msg.normal_query_results | length > 0 or msg.falsey_query_results | length > 0 %}
 {# new line #}
 <header>QUERIES</header>
 {# new line #}
+{%- endif %}
+
+{%- if msg.normal_query_results | length > 0 %}
 {%- for query in (msg.normal_query_results) %}
   - <query><bold>{{ query.name }}</bold></query>
     <key>Result:</key> {{ query.result }}
@@ -70,12 +73,18 @@
 {%- endfor %}
 {%- endif %}
 
-{%- if verbose and (msg.falsey_query_results | length > 0) %}
+{%- if (verbose and (msg.falsey_query_results | length > 0)) or msg.falsey_query_results|length == 1 %}
 {%- for query in (msg.falsey_query_results) %}
+{%- if query.name %}
   - <query><bold>{{ query.name }}</bold></query>
+{%- else %}
+  - <query><bold>Query {{ loop.index }}</bold></query>
+{%- endif %}
     <key>Result:</key> {{ query.result }}
+  {%- if verbose %}
     <key>Source:</key> {{ query.source }}
   {# new line #}
+  {%- endif %}
 {%- endfor %}
 {%- endif %}
 
@@ -86,13 +95,13 @@
 {%- for query in msg.failed_query_results %}
 {%- if query.name %}
   - <fail><bold>{{ query.name }}</bold></fail>
+{%- else %}
+  - <fail><bold>Query {{ loop.index }}</bold></fail>
+{%- endif %}
     {{ query.error }}
   {%- if verbose %}
     <key>Source:</key> {{ query.source }}
     {# new line #}
   {%- endif %}
-{%- else %}
-{{ query.error }}
-{%- endif %}
 {%- endfor %}
 {%- endif %}
