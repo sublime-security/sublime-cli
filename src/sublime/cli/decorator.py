@@ -267,7 +267,11 @@ def analyze_command(function):
 
     @click.option("-r", "--run", "run_path",
         type=click.Path(exists=True), 
-        help="Rule/query file or directory (.yml and .yaml supported)")
+        help=(
+            "Rule/query file or directory (.yml and .yaml supported). "
+            "Queries outputs that return false, null, [], {} are not displayed by default"
+            )
+        )
 
     @click.option("-q", "--query", "query",
         type=str,
