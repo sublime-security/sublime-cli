@@ -366,6 +366,11 @@ def load_yml(yml_file, ignore_errors=True):
 
     if not rules_yaml and not queries_yaml:
         rule_or_query_yaml = rules_and_queries_yaml
+
+        # default to query
+        if "type" not in rule_or_query_yaml:
+            rule_or_query_yaml["type"] = "query"
+
         if rule_or_query_yaml.get("type") not in ["rule", "query"]:
             error_str = f'Invalid type in {yml_file.name}'
             if ignore_errors:
