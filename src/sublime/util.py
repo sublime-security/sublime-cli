@@ -385,10 +385,7 @@ def load_yml(yml_file, ignore_errors=True):
 
     def safe_yaml_filter(yaml_dict):
         if not yaml_dict.get("source"):
-            error_str = f"Missing source in {yml_file.name}'"
-            if ignore_errors:
-                LOGGER.warning(error_str)
-                return None
+            error_str = f"Missing source in '{yml_file.name}'"
             raise LoadRuleError(error_str)
         return {
                 "source": yaml_dict.get("source"),
@@ -396,12 +393,20 @@ def load_yml(yml_file, ignore_errors=True):
         }
 
     for rule_yaml in rules_yaml:
+        if not isinstance(rule_yaml, dict):
+            error_str = f"Invalid list of rules"
+            raise LoadRuleError(error_str)
+
         rule = safe_yaml_filter(rule_yaml)
 
         if rule:
             rules.append(rule)
 
     for query_yaml in queries_yaml:
+        if not isinstance(query_yaml, dict):
+            error_str = f"Invalid list of queries"
+            raise LoadRuleError(error_str)
+
         query = safe_yaml_filter(query_yaml)
 
         if query:
