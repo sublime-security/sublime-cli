@@ -48,6 +48,7 @@
 {# new line #}
 {%- for rule in msg.failed_rule_results %}
   - <fail><bold>{{ rule.name }}</bold></fail>
+  {{ rule.error }}
   {%- if verbose %}
     <key>Source:</key> {{ rule.source }}
     {# new line #}
