@@ -17,7 +17,7 @@
 {# new line #}
 {%- for rule in msg.failed_rule_results %}
   - <fail><bold>{{ rule.name }}</bold></fail>
-  {{ rule.error }}
+    <key>Error:</key> {{ rule.error }}
   {%- if verbose %}
     <key>Source:</key> {{ rule.source }}
     {# new line #}
@@ -72,7 +72,7 @@
 {%- else %}
   - <fail><bold>Query {{ loop.index }}</bold></fail>
 {%- endif %}
-    {{ query.error }}
+    <key>Error:</key> {{ query.error }}
   {%- if verbose %}
     <key>Source:</key> {{ query.source }}
     {# new line #}
