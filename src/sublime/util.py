@@ -236,12 +236,12 @@ def load_mbox(filepath, halo=None):
     mbox = mailbox.mbox(filepath)
     num_messages = len(mbox)
 
-    try:
-        for i in range(num_messages):
-            message = mbox[i]
-            if halo:
-                halo.text = f"Encoding ({file_name}) message {i+1} of {num_messages}"
+    for i in range(num_messages):
+        message = mbox[i]
+        if halo:
+            halo.text = f"Encoding ({file_name}) message {i+1} of {num_messages}"
 
+        try:
             # identify a suitable key for this message
             instance = 0
             subject = message['subject'] or "[Empty Subject]"
@@ -254,9 +254,11 @@ def load_mbox(filepath, halo=None):
             raw_message = message.as_string().encode('utf-8')
             raw_messages[key] = base64.b64encode(raw_message).decode('ascii')
 
-    except Exception as exception:
-        error_message = f"{exception}"
-        raise LoadMBOXError(error_message)
+        except Exception as exception:
+            if halo: halo.stop()
+            LOGGER.warning(f"failed to decode {key}: {exception}")
+            if halo: halo.start()
+            # raise LoadMBOXError(error_message)
 
     return raw_messages
 
