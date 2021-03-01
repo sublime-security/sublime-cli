@@ -137,6 +137,7 @@ def analyze(
     num_files = len(file_paths)
     with Halo(text="", spinner='dots') as halo:
         for i in range(num_files):
+            halo.start()
             file_path = file_paths[i]
             file_dir, _, file_name = file_path.rpartition('/')
             _, _, extension = file_name.rpartition('.')
@@ -144,29 +145,44 @@ def analyze(
             halo.text = halo_text
 
             if file_path.endswith('.mdm'):
-                message_data_model = load_message_data_model(file_path)
-                response = api_client.analyze_message(
-                        message_data_model,
-                        rules,
-                        queries)
+                try:
+                    message_data_model = load_message_data_model(file_path)
+                    response = api_client.analyze_message(
+                            message_data_model,
+                            rules,
+                            queries)
+                except Exception as exception:
+                    halo.stop()
+                    LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                    continue
 
             elif file_path.endswith('.msg'):
-                raw_message = load_msg(file_path)
-                response = api_client.analyze_raw_message(
-                        raw_message, 
-                        rules,
-                        queries,
-                        mailbox_email_address,
-                        message_type)
+                try:
+                    raw_message = load_msg(file_path)
+                    response = api_client.analyze_raw_message(
+                            raw_message, 
+                            rules,
+                            queries,
+                            mailbox_email_address,
+                            message_type)
+                except Exception as exception:
+                    halo.stop()
+                    LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                    continue
 
             elif file_path.endswith('.eml'):
-                raw_message = load_eml(file_path)
-                response = api_client.analyze_raw_message(
-                        raw_message, 
-                        rules,
-                        queries,
-                        mailbox_email_address,
-                        message_type)
+                try:
+                    raw_message = load_eml(file_path)
+                    response = api_client.analyze_raw_message(
+                            raw_message, 
+                            rules,
+                            queries,
+                            mailbox_email_address,
+                            message_type)
+                except Exception as exception:
+                    halo.stop()
+                    LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                    continue
 
             elif file_path.endswith('.mbox'):
                 # in the mbox case we want to retrieve the response for each message
@@ -179,12 +195,18 @@ def analyze(
                     count += 1
                     halo_suffix = f" message {count} of {file_count}..."
                     halo.text = halo_text + halo_suffix
-                    response = api_client.analyze_raw_message(
-                            mbox_files[subject_unique], 
-                            rules,
-                            queries,
-                            mailbox_email_address,
-                            message_type)
+                    try:
+                        response = api_client.analyze_raw_message(
+                                mbox_files[subject_unique], 
+                                rules,
+                                queries,
+                                mailbox_email_address,
+                                message_type)
+                    except Exception as exception:
+                        halo.stop()
+                        LOGGER.warning(f"failed to analyze ({file_name}) {subject_unique}: {exception}")
+                        continue
+
                     response['file_name'] = file_name
                     response['extension'] = extension
                     response['directory'] = file_dir
