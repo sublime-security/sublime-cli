@@ -131,7 +131,7 @@ def analyze_formatter(results, verbose):
             if 'source' in result:
                 result['source'] = format_mql(result['source'], offset=mql_offset)
 
-            if 'result' in result and isinstance(result['result'], dict):
+            if 'result' in result and isinstance(result['result'], dict) or isinstance(result['result'], list):
                 result['result'] = json_formatter(
                         result['result'],
                         offset=json_offset,
