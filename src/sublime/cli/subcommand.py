@@ -84,7 +84,7 @@ def analyze(
     output_format,
     verbose,
 ):
-    """Analyze a file or directory of EMLs, MSGs, or MDMs."""
+    """Analyze a file or directory of EMLs, MSGs, MDMs or MBOX files."""
     request_permission()
 
     if not run_path and not query:
@@ -135,15 +135,14 @@ def analyze(
     # analyze each file and aggregate all responses
     results = {}
     num_files = len(file_paths)
-    for i in range(num_files):
-        file_path = file_paths[i]
-        file_dir, _, file_name = file_path.rpartition('/')
-        _, _, extension = file_name.rpartition('.')
+    with Halo(text="", spinner='dots') as halo:
+        for i in range(num_files):
+            file_path = file_paths[i]
+            file_dir, _, file_name = file_path.rpartition('/')
+            _, _, extension = file_name.rpartition('.')
+            halo_text = f"Analyzing file {i+1} of {num_files} ( {file_name} )"
+            halo.text = halo_text
 
-        with Halo(
-            text=f'Analyzing file {i+1} of {num_files} ( {file_name} )...',
-            spinner='dots'
-        ):
             if file_path.endswith('.mdm'):
                 message_data_model = load_message_data_model(file_path)
                 response = api_client.analyze_message(
@@ -172,9 +171,16 @@ def analyze(
             elif file_path.endswith('.mbox'):
                 # in the mbox case we want to retrieve the response for each message
                 # contained and provide a unique results key for each entry
-                for subject_unique, raw_message in load_mbox(file_path).items():
+                mbox_files = load_mbox(file_path, halo=halo)
+                file_count = len(mbox_files)
+
+                count = 0
+                for subject_unique in mbox_files.keys():
+                    count += 1
+                    halo_suffix = f" message {count} of {file_count}..."
+                    halo.text = halo_text + halo_suffix
                     response = api_client.analyze_raw_message(
-                            raw_message, 
+                            mbox_files[subject_unique], 
                             rules,
                             queries,
                             mailbox_email_address,
@@ -194,7 +200,7 @@ def analyze(
             response['extension'] = extension
             response['directory'] = file_dir
             results[file_path] = response
- 
+
     return results
 
 

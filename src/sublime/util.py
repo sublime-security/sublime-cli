@@ -12,6 +12,7 @@ import yaml
 import click
 import structlog
 import msg_parser
+from halo import Halo
 from six.moves.configparser import ConfigParser
 from pathlib import Path
 
@@ -217,7 +218,7 @@ def load_msg_file_handle(input_file):
 
     return raw_message_base64
 
-def load_mbox(filepath):
+def load_mbox(filepath, halo=None):
     """Load .MBOX file.
 
     :param filepath: Path to file.
@@ -227,11 +228,20 @@ def load_mbox(filepath):
     :raises: LoadMBOXError
 
     """
+    if halo:
+        _, _, file_name = filepath.rpartition('/')
+        halo.text = f"Loading ({file_name}) this may take a while..."
+
     raw_messages = {}
     mbox = mailbox.mbox(filepath)
+    num_messages = len(mbox)
 
     try:
-        for message in mbox:
+        for i in range(num_messages):
+            message = mbox[i]
+            if halo:
+                halo.text = f"Encoding ({file_name}) message {i+1} of {num_messages}"
+
             # identify a suitable key for this message
             instance = 0
             subject = message['subject'] or "[Empty Subject]"
