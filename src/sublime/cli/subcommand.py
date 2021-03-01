@@ -239,7 +239,7 @@ def feedback(
         help="Default save directory for items retrieved from your Sublime environment")
 def setup(api_key="", save_dir=""):
     """Configure defaults."""
-    config = {"api_key": api_key, "save_dir": save_dir}
+    config = {"api_key": api_key, "save_dir": save_dir, "permission": ""}
     save_config(config)
     click.echo("Configuration saved to {!r}".format(CONFIG_FILE))
 

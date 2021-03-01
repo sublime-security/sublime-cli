@@ -88,12 +88,12 @@ def save_config(config):
     # If either value was not specified, load the existing values saved
     # to ensure we don't overwrite their values to null here
     saved_config = load_config()
-    if not config["api_key"]:
-        config["api_key"] = saved_config["api_key"]
-    if not config["save_dir"]:
-        config["save_dir"] = saved_config["save_dir"]
-    if not config["permission"]:
-        config["permission"] = saved_config["permission"]
+    if 'api_key' not in config or not config['api_key']:
+        config['api_key'] = saved_config['api_key']
+    if 'save_dir' not in config or not config['save_dir']:
+        config['save_dir'] = saved_config['save_dir']
+    if 'permission' not in config or not config['permission']:
+        config['permission'] = saved_config['permission']
 
     if config["save_dir"] and not os.path.isdir(config["save_dir"]):
         click.echo("Error: save directory is not a valid directory")
