@@ -6,15 +6,15 @@ The Sublime CLI lets you interact with the Sublime Analysis API right from the t
 
 **With the CLI/Python module, you can:**
 
-- Analyze and query raw messages (EMLs and MSGs), MBOX files, and [Message Data Models (MDMs)](https://dev.docs.sublimesecurity.com/docs/mdm)
+- Analyze and query raw messages (EMLs and MSGs), MBOX files, and [Message Data Models (MDMs)](https://docs.sublimesecurity.com/docs/mdm)
 - Write your own detection rules and queries
 - Detect many different types of phishing attacks like executive impersonation and lookalike domains
 - Triage reported phish
 
 ## Installation
 
-Sublime CLI is available for Windows, macOS, and Linux. Refer to the [Quickstart](https://dev.docs.sublimesecurity.com/docs/quickstart) documentation for installation instructions.
+Sublime CLI is available for Windows, macOS, and Linux. Refer to the [Quickstart](https://docs.sublimesecurity.com/docs/quickstart) documentation for installation instructions.
 
 ## Documentation
 
-For a full reference, see the [CLI reference docs](https://dev.docs.sublimesecurity.com/docs/sublime-cli).
+For a full reference, see the [CLI reference docs](https://docs.sublimesecurity.com/docs/sublime-cli).
