@@ -63,14 +63,10 @@ def json_formatter(result, verbose=False, indent=4, offset=0):
 @colored_output
 def analyze_formatter(results, verbose):
     """Convert Analyze output into human-readable text."""
-    if len(results) > 1:
-        mql_offset = 5
-        json_offset = 4
-        template = JINJA2_ENV.get_template("analyze_multi.txt.j2")
-    else:
-        mql_offset = 3
-        json_offset = 2
-        template = JINJA2_ENV.get_template("analyze.txt.j2")
+    mql_offset = 3
+    json_offset = 2
+    template_file = "analyze_multi.txt.j2" if len(results) > 1 else "analyze.txt.j2"
+    template = JINJA2_ENV.get_template(template_file)
     
     # calculate total stats
     sample_result = next(iter(results.values()))
@@ -131,11 +127,15 @@ def analyze_formatter(results, verbose):
             if 'source' in result:
                 result['source'] = format_mql(result['source'], offset=mql_offset)
 
-            if 'result' in result and isinstance(result['result'], dict) or isinstance(result['result'], list):
+            if 'error' in result:
+                result['error'] = format_mql(result['error'], offset=mql_offset)
+
+            if 'result' in result and (isinstance(result['result'], dict) or isinstance(result['result'], list)):
                 result['result'] = json_formatter(
                         result['result'],
                         offset=json_offset,
                         indent=2)
+
 
     # TO DO: sort each list of messages by extension and file name (or directory?)
 
