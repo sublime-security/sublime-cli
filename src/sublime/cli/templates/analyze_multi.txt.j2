@@ -10,8 +10,12 @@
 <key>Total Rules</key>: <value>{{stats.total_rules}}</value>
 <key>Total Queries</key>: <value>{{stats.total_queries}}</value>
 <key>Total Messages</key>: <value>{{stats.total_messages}}</value>
-
+{# new line #}
+{%- if stats.total_rules > 0 -%}
+{# new line #}
 <key>Flagged Rules</key>: <value>{{stats.flagged_rules}}</value>
+{%- endif -%}
+{# new line #}
 <key>Flagged Messages</key>: <value>{{stats.flagged_messages}}</value>
 
 {%- if rules|length > 0 %}
