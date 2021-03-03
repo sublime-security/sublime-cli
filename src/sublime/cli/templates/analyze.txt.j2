@@ -20,12 +20,14 @@
 <key>Flagged Rules</key>: <value>{{stats.flagged_rules}}</value>
 {%- endif -%}
 {# new line #}
+{# new line #}
 
 {%- if msg.flagged_rule_results|length > 0 -%}
 {{ macros.flagged_rules(msg) }}
 {%- endif -%}
 
 {%- if msg.unflagged_rule_results|length > 0 %}
+{# new line #}
 <header>UNFLAGGED RULES</header>
 {# new line #}
 {%- set max_elements = 20 %}
