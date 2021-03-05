@@ -135,6 +135,7 @@ def analyze(
 
     # analyze each file and aggregate all responses
     results = {}
+    errors = []
     num_files = len(file_paths)
     with Halo(text="", spinner='dots') as halo:
         for i in range(num_files):
@@ -158,6 +159,7 @@ def analyze(
                     else:
                         halo.stop()
                         LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                        errors.append(exception)
                         continue
 
             elif file_path.endswith('.msg'):
@@ -175,6 +177,7 @@ def analyze(
                     else:
                         halo.stop()
                         LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                        errors.append(exception)
                         continue
 
             elif file_path.endswith('.eml'):
@@ -192,6 +195,7 @@ def analyze(
                     else:
                         halo.stop()
                         LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                        errors.append(exception)
                         continue
 
             elif file_path.endswith('.mbox'):
@@ -218,6 +222,7 @@ def analyze(
                         else:
                             halo.stop()
                             LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                            errors.append(exception)
                             continue
 
                     response['file_name'] = file_name
@@ -236,6 +241,8 @@ def analyze(
             response['directory'] = file_dir
             results[file_path] = response
 
+    # raise the first error we saw if there were no successful results
+    if len(results) == 0: raise errors[0] 
     return results
 
 
