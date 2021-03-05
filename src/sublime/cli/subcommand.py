@@ -18,6 +18,7 @@ from sublime.cli.decorator import (
     MissingRuleInput
 )
 from sublime.util import *
+from sublime.error import AuthenticationError
 
 # for the listen subcommand
 import ssl
@@ -152,9 +153,12 @@ def analyze(
                             rules,
                             queries)
                 except Exception as exception:
-                    halo.stop()
-                    LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
-                    continue
+                    if isinstance(exception, AuthenticationError):
+                        raise exception
+                    else:
+                        halo.stop()
+                        LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                        continue
 
             elif file_path.endswith('.msg'):
                 try:
@@ -166,9 +170,12 @@ def analyze(
                             mailbox_email_address,
                             message_type)
                 except Exception as exception:
-                    halo.stop()
-                    LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
-                    continue
+                    if isinstance(exception, AuthenticationError):
+                        raise exception
+                    else:
+                        halo.stop()
+                        LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                        continue
 
             elif file_path.endswith('.eml'):
                 try:
@@ -180,9 +187,12 @@ def analyze(
                             mailbox_email_address,
                             message_type)
                 except Exception as exception:
-                    halo.stop()
-                    LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
-                    continue
+                    if isinstance(exception, AuthenticationError):
+                        raise exception
+                    else:
+                        halo.stop()
+                        LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                        continue
 
             elif file_path.endswith('.mbox'):
                 # in the mbox case we want to retrieve the response for each message
@@ -203,9 +213,12 @@ def analyze(
                                 mailbox_email_address,
                                 message_type)
                     except Exception as exception:
-                        halo.stop()
-                        LOGGER.warning(f"failed to analyze ({file_name}) {subject_unique}: {exception}")
-                        continue
+                        if isinstance(exception, AuthenticationError):
+                            raise exception
+                        else:
+                            halo.stop()
+                            LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
+                            continue
 
                     response['file_name'] = file_name
                     response['extension'] = extension
