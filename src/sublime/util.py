@@ -127,13 +127,20 @@ def save_config(config):
         config_parser.write(config_file)
 
 
-def request_permission():
+def request_permission(api_key=None):
     config = load_config()
     permission = config['permission'] 
     if not permission or permission != "True":
-        if click.confirm(CONFIRMATION_MESSAGE, abort=True):
+        from sublime.api import Sublime
+        sublime_client = Sublime(api_key)
+        if click.confirm(CONFIRMATION_MESSAGE):
             config['permission'] = "True"
             save_config(config)
+            sublime_client.privacy_ack(True)
+        else:
+            sublime_client.privacy_ack(False)
+            print("Aborted!")
+            sys.exit()
 
 
 def load_eml(input_file):

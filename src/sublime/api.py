@@ -34,6 +34,7 @@ class Sublime(object):
     _EP_MESSAGES_CREATE = "messages"
     _EP_MESSAGES_ANALYZE = "messages/analyze"
     _EP_RAW_MESSAGES_ANALYZE = "raw-messages/analyze"
+    _EP_PRIVACY_ACK = "privacy-ack"
     _EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None):
@@ -138,6 +139,14 @@ class Sublime(object):
                     headers=resp.headers)
 
         raise err
+
+    def privacy_ack(self, acknowledged):
+        """Send privacy acknowledgement to the Sublime server."""
+        params = {"acknowledged": acknowledged}
+
+        endpoint = self._EP_PRIVACY_ACK
+        response, _ = self._request(endpoint, request_type='GET', params=params)
+        return response
 
     def me(self):
         """Get information about the currently authenticated Sublime user."""
