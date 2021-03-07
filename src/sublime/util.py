@@ -23,8 +23,17 @@ LOGGER = structlog.get_logger()
 
 DEFAULT_CONFIG = {"api_key": "", "save_dir": "", "permission": ""}
 
-CONFIRMATION_MESSAGE = """
-    Messages will be sent to Sublime Security servers for analysis.
+CONFIRMATION_MESSAGE_GENERIC = """
+    Messages will be sent to Sublime Security servers in order to be processed.
+    
+    This message is intended to preserve your privacy. You only need to accept once.
+    
+    Would you like to continue?
+
+"""
+
+CONFIRMATION_MESSAGE_ANALYZE = """
+    Messages will be sent to Sublime Security servers in order to run rules and queries.
     
     This message is intended to preserve your privacy. You only need to accept once.
     
@@ -127,13 +136,24 @@ def save_config(config):
         config_parser.write(config_file)
 
 
-def request_permission():
+def request_permission(subcommand, api_key=None):
     config = load_config()
     permission = config['permission'] 
     if not permission or permission != "True":
-        if click.confirm(CONFIRMATION_MESSAGE, abort=True):
+        from sublime.api import Sublime
+        sublime_client = Sublime(api_key)
+
+        message = CONFIRMATION_MESSAGE_ANALYZE if subcommand == "analyze" \
+                else CONFIRMATION_MESSAGE_GENERIC
+
+        if click.confirm(message):
             config['permission'] = "True"
             save_config(config)
+            sublime_client.privacy_ack(True)
+        else:
+            sublime_client.privacy_ack(False)
+            print("Aborted!")
+            sys.exit()
 
 
 def load_eml(input_file):

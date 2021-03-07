@@ -55,7 +55,7 @@ def create(
     verbose,
 ):
     """Create a Message Data Model from an EML or MSG."""
-    request_permission()
+    request_permission("create", api_key)
 
     if input_file.name.endswith(".msg"):
         raw_message = load_msg_file_handle(input_file)
@@ -86,7 +86,7 @@ def analyze(
     verbose,
 ):
     """Analyze a file or directory of EMLs, MSGs, MDMs or MBOX files."""
-    request_permission()
+    request_permission("analyze", api_key)
 
     if not run_path and not query:
         raise MissingRuleInput

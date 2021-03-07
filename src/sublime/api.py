@@ -34,6 +34,8 @@ class Sublime(object):
     _EP_MESSAGES_CREATE = "messages"
     _EP_MESSAGES_ANALYZE = "messages/analyze"
     _EP_RAW_MESSAGES_ANALYZE = "raw-messages/analyze"
+    _EP_PRIVACY_ACCEPT = "privacy/accept"
+    _EP_PRIVACY_DECLINE = "privacy/decline"
     _EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None):
@@ -249,6 +251,15 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
+    def privacy_ack(self, accept):
+        """Sends privacy acknowledgement to the Sublime server."""
+        if accept:
+            endpoint = self._EP_PRIVACY_ACCEPT
+        else:
+            endpoint = self._EP_PRIVACY_DECLINE
+
+        response, _ = self._request(endpoint, request_type='POST')
+        return response
 
     def _not_implemented(self, subcommand_name):
         """Send request for a not implemented CLI subcommand.
