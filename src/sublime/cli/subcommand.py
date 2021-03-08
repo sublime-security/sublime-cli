@@ -111,7 +111,7 @@ def analyze(
         }]
 
     if not rules and not queries:
-        LOGGER.error("YML file or raw MQL required")
+        LOGGER.error("YML file or raw MQL string required")
         context.exit(-1)
 
     # sort rules and queries in advance so we don't have to later
@@ -119,19 +119,17 @@ def analyze(
     rules = sorted(rules, key=lambda i: i['name'].lower() if i.get('name') else '')
     queries = sorted(queries, key=lambda i: i['name'].lower() if i.get('name') else '')
 
-    # aggregate all files we need to check 
+    # aggregate all files we need to check
     file_paths = []
     if os.path.isfile(input_path):
         file_paths.append(input_path)
     else:
-        for file_path in Path(input_path).rglob('*.mdm'):
-            file_paths.append(str(file_path))
-        for file_path in Path(input_path).rglob('*.msg'):
-            file_paths.append(str(file_path))
-        for file_path in Path(input_path).rglob('*.eml'):
-            file_paths.append(str(file_path))
-        for file_path in Path(input_path).rglob('*.mbox'):
-            file_paths.append(str(file_path))
+        for extension in ['mdm', 'msg', 'eml', 'mbox']:
+            for file_path in Path(input_path).rglob('*.' + extension):
+                file_paths.append(str(file_path))
+    if not file_paths:
+        LOGGER.error("Input file(s) must have .eml, .msg, .mdm or .mbox extension")
+        context.exit(-1)
 
     # analyze each file and aggregate all responses
     results = {}
@@ -233,7 +231,7 @@ def analyze(
                 continue
                     
             else:
-                LOGGER.error("Input file must have .eml, .msg, .mdm or .mbox extension")
+                LOGGER.error("Input file(s) must have .eml, .msg, .mdm or .mbox extension")
                 context.exit(-1)
             
             response['file_name'] = file_name
