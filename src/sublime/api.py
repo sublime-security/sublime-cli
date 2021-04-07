@@ -36,6 +36,7 @@ class Sublime(object):
     _EP_RAW_MESSAGES_ANALYZE = "raw-messages/analyze"
     _EP_PRIVACY_ACCEPT = "privacy/accept"
     _EP_PRIVACY_DECLINE = "privacy/decline"
+    _EP_LIVE_FLOW_PROCESS_RAW_MESSAGE = "live-flow/raw-messages/analyze"
     _EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
     def __init__(self, api_key=None):
@@ -259,6 +260,54 @@ class Sublime(object):
             endpoint = self._EP_PRIVACY_DECLINE
 
         response, _ = self._request(endpoint, request_type='POST')
+        return response
+
+    def process_raw_message_live_flow(
+            self,
+            raw_message,
+            mailbox_email_address,
+            message_source_id,
+            create_mailbox=True,
+            message_type=None,
+            route_type=None,
+            external_created_at=None,
+            external_message_id=None,
+            external_thread_id=None,
+            folder=None,
+            labels=None
+            ):
+        """Process a raw message using a live flow message source connector.
+
+        :param raw_message: Base64 encoded raw message
+        :type raw_message: str
+
+        """
+
+        # LOGGER.debug("Processing raw message for live flow...")
+
+        body = {}
+        body["raw_message"] = raw_message
+        body["mailbox_email_address"] = mailbox_email_address
+        body["message_source_id"] = message_source_id
+        body["create_mailbox"] = create_mailbox
+
+        if message_type:
+            body["message_type"] = message_type
+        if route_type:
+            body["route_type"] = route_type
+        if external_created_at:
+            body["external_created_at"] = external_created_at
+        if external_message_id:
+            body["external_message_id"] = external_message_id
+        if external_thread_id:
+            body["external_thread_id"] = external_thread_id
+        if folder:
+            body["folder"] = folder
+        if labels:
+            body["labels"] = labels
+
+        endpoint = self._EP_LIVE_FLOW_PROCESS_RAW_MESSAGE
+        response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
     def _not_implemented(self, subcommand_name):
