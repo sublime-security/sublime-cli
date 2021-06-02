@@ -26,6 +26,6 @@ spinners==0.0.24
 structlog==20.2.0
 -e git+git@github.com:sublime-security/sublime-cli.git@236675f8775caaf5af2f802cbb974f7754df60dd#egg=sublime
 termcolor==1.1.0
-urllib3==1.26.3
+urllib3==1.26.5
 wcwidth==0.2.5
 websockets==8.1
