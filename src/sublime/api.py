@@ -169,7 +169,14 @@ class Sublime(object):
         if mailbox_email_address:
             body["mailbox_email_address"] = mailbox_email_address
         if message_type:
-            body["message_type"] = message_type
+            if message_type == "inbound":
+                body["message_type"] = {"inbound": True}
+            elif message_type == "internal":
+                body["message_type"] = {"internal": True}
+            elif message_type == "outbound":
+                body["message_type"] = {"outbound": True}
+            else:
+                raise Exception("Unsupported message_type")
 
         endpoint = self._EP_MESSAGES_CREATE
         response, _ = self._request(endpoint, request_type='POST', json=body)
@@ -224,7 +231,14 @@ class Sublime(object):
         if mailbox_email_address:
             body["mailbox_email_address"] = mailbox_email_address
         if message_type:
-            body["message_type"] = message_type
+            if message_type == "inbound":
+                body["message_type"] = {"inbound": True}
+            elif message_type == "internal":
+                body["message_type"] = {"internal": True}
+            elif message_type == "outbound":
+                body["message_type"] = {"outbound": True}
+            else:
+                raise Exception("Unsupported message_type")
 
         body["rules"] = rules
         body["queries"] = queries
