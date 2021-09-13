@@ -13,8 +13,8 @@ The Sublime CLI lets you interact with the Sublime Analysis API right from the t
 
 ## Installation
 
-Sublime CLI is available for Windows, macOS, and Linux. Refer to the [Quickstart](https://docs.sublimesecurity.com/docs/quickstart) documentation for installation instructions.
+Sublime CLI is available for Windows, macOS, and Linux. Refer to the [Quickstart](https://docs.sublimesecurity.com/docs/cli-quickstart) documentation for installation instructions.
 
 ## Documentation
 
-For a full reference, see the [CLI reference docs](https://docs.sublimesecurity.com/docs/sublime-cli).
+For a full reference, see the [CLI reference docs](https://docs.sublimesecurity.com/docs/cli).
