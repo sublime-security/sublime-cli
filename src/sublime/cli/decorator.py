@@ -53,8 +53,8 @@ def echo_result(function):
                 # regular subcommand
                 formatter = formatter[context.command.name]
 
-        if context.command.name == "create":
-            # default behavior is to always save the MDM
+        if context.command.name in ("create", "binexplode"):
+            # default behavior is to always save the MDM and binexplode output
             # even if no output file is specified
             if not params.get("output_file"):
                 input_file_relative_name = params.get('input_file').name
@@ -65,20 +65,23 @@ def echo_result(function):
                 output_file_name = f'{input_file_name_no_ext}'
 
                 if output_format == "json":
-                    output_file_name += ".mdm"
+                    if context.command.name == "create":
+                        output_file_name += ".mdm"
+                    else:
+                        output_file_name += ".json"
                 elif output_format == "txt":
                     output_file_name += ".txt"
 
                 # if the user has a default save directory configured,
-                # store the MDM there
+                # store the file there
                 if config["save_dir"]:
                     output_file_name = os.path.join(config["save_dir"], output_file_name)
 
-                params["output_file"] = click.open_file(output_file_name, 
-                        mode="w")
+                params["output_file"] = click.open_file(output_file_name, mode="w")
 
-            # strip the extra info and just save the unenriched MDM
-            result = result["data_model"]
+            if context.command.name == "create":
+                # strip the extra info and just save the unenriched MDM
+                result = result["data_model"]
 
         output = formatter(result, 
                 params.get("verbose", False)).strip("\n")
@@ -297,6 +300,36 @@ def analyze_command(function):
         default="txt",
         help="Output format")
 
+    @pass_api_client
+    @click.pass_context
+    @echo_result
+    @handle_exceptions
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        return function(*args, **kwargs)
+
+    return wrapper
+
+
+def binexplode_command(function):
+    """Decorator that groups decorators common to binexplode subcommand."""
+
+    @click.command()
+    @click.option("-k", "--api-key", help="Key to include in API requests")
+    @click.option("-i", "--input", "input_file", type=click.File(mode="rb"), required=True,
+            help="Input file to scan using binexplode")
+    @click.option(
+        "-o", "--output", "output_file", type=click.File(mode="w"), 
+        help="Output file"
+    )
+    @click.option(
+        "-f",
+        "--format",
+        "output_format",
+        type=click.Choice(["json"]),
+        default="json",
+        help="Output format",
+    )
     @pass_api_client
     @click.pass_context
     @echo_result
