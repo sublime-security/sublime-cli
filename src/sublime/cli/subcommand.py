@@ -2,6 +2,7 @@
 
 import os
 import platform
+import base64
 
 import click
 import structlog
@@ -14,6 +15,7 @@ from sublime.cli.decorator import (
     feedback_command,
     analyze_command,
     create_command,
+    binexplode_command,
     not_implemented_command,
     MissingRuleInput
 )
@@ -242,6 +244,29 @@ def analyze(
     # raise the first error we saw if there were no successful results
     if len(results) == 0: raise errors[0] 
     return results
+
+
+@binexplode_command
+@click.option("-v", "--verbose", count=True, help="Verbose output")
+def binexplode(
+    context,
+    api_client,
+    api_key,
+    input_file,
+    output_file,
+    output_format,
+    verbose,
+):
+    """Scan a binary using binexplode."""
+
+    file_contents = input_file.read()
+
+    with Halo(text="Scanning file...", spinner='dots') as halo:
+        file_contents_base64_encoded = base64.b64encode(file_contents).decode('utf-8')
+        file_name = Path(input_file.name).name
+        result = api_client.binexplode_scan(file_contents_base64_encoded, file_name)
+
+    return result
 
 
 @me_command

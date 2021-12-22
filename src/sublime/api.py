@@ -2,6 +2,7 @@
 
 import os
 import json
+import time
 import datetime
 from collections import OrderedDict
 
@@ -38,6 +39,13 @@ class Sublime(object):
     _EP_PRIVACY_DECLINE = "privacy/decline"
     _EP_NOT_IMPLEMENTED = "request/{subcommand}"
 
+    # NOTE: since there are two api versions, you must add logic to
+    # _is_public_endpoint if you add a public v0 path
+    _API_VERSION_PUBLIC = "v0"
+    _EP_PUBLIC_BINEXPLODE_SCAN = "binexplode/scan"
+    _EP_PUBLIC_BINEXPLODE_SCAN_RESULT = "binexplode/scan/{id}"
+    _EP_PUBLIC_TASK_STATUS = "tasks/{id}"
+
     def __init__(self, api_key=None):
         if api_key is None:
             config = load_config()
@@ -45,6 +53,14 @@ class Sublime(object):
 
         self._api_key = api_key
         self.session = requests.Session()
+
+    def _is_public_endpoint(self, endpoint):
+        if endpoint == self._EP_PUBLIC_BINEXPLODE_SCAN:
+            return True
+        if endpoint.startswith("binexplode") or endpoint.startswith("tasks/"):
+            return True
+
+        return False
 
     def _request(self, endpoint, request_type='GET', params=None, json=None):
         """Handle the requesting of information from the API.
@@ -69,7 +85,11 @@ class Sublime(object):
         }
         if self._api_key:
             headers["Key"] = self._api_key
-        url = "/".join([self._BASE_URL, self._API_VERSION, endpoint])
+
+        is_public = self._is_public_endpoint(endpoint)
+        api_version = self._API_VERSION_PUBLIC if is_public else self._API_VERSION
+
+        url = "/".join([self._BASE_URL, api_version, endpoint])
 
         # LOGGER.debug("Sending API request...", url=url, params=params, json=json)
 
@@ -245,6 +265,48 @@ class Sublime(object):
 
         endpoint = self._EP_RAW_MESSAGES_ANALYZE
         response, _ = self._request(endpoint, request_type='POST', json=body)
+        return response
+
+    def poll_task_status(self, task_id):
+        while True:
+            endpoint = self._EP_PUBLIC_TASK_STATUS.format(id=task_id)
+            response, _ = self._request(endpoint, request_type='GET')
+            if response.get("state"):
+                if response["state"] in ("pending", "started", "retrying"):
+                    time.sleep(1)
+                    continue
+                else:
+                    # state in ("succeeded", "failed")
+                    break
+
+        return response
+
+    def binexplode_scan(self, file_contents, file_name):
+        """Scan a binary using binexplode.
+
+        :param file_contents: Base64 encoded file contents
+        :type file_contents: str
+        :param file_name: File name
+        :type file_name: str
+        :rtype: dict
+
+        """
+
+        # LOGGER.debug("Scanning binary using binexplode...")
+
+        body = {}
+        body["file_contents"] = file_contents
+        body["file_name"] = file_name
+
+        endpoint = self._EP_PUBLIC_BINEXPLODE_SCAN
+        response, _ = self._request(endpoint, request_type='POST', json=body)
+        task_id = response.get('task_id')
+        if task_id:
+            response = self.poll_task_status(task_id)
+            if response.get("state") == "succeeded":
+                endpoint = self._EP_PUBLIC_BINEXPLODE_SCAN_RESULT.format(id=task_id)
+                response, _ = self._request(endpoint, request_type='GET')
+
         return response
 
     def feedback(self, feedback):
