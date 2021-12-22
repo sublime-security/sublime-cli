@@ -19,7 +19,6 @@ INSTALL_REQUIRES = [
     "click-repl",
     "compoundfiles",
     "compressed-rtf",
-    "dicttoxml",
     "gron",
     "halo",
     "jinja2",

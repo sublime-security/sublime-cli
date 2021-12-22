@@ -8,7 +8,6 @@ click-repl==0.1.6
 colorama==0.4.4
 compoundfiles==0.3
 compressed-rtf==1.0.6
-dicttoxml==1.7.4
 gron==1.1.4
 halo==0.0.31
 idna==2.10
