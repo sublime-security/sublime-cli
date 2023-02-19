@@ -96,7 +96,7 @@ class Sublime(object):
                     url, headers=headers, params=params
             )
         else:
-            raise Exception("not implemented")
+            raise NotImplementedError("Method {} is not implemented", request_type)
 
         if "application/json" in response.headers.get("Content-Type", ""):
             # 204 has no content and will trigger an exception
