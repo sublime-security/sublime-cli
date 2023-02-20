@@ -30,7 +30,7 @@ class Sublime(object):
     _API_VERSION = "v1"
     _EP_ME = "me"
     _EP_FEEDBACK = "feedback"
-    _EP_MESSAGES_CREATE = "messages"
+    _EP_MESSAGES_CREATE = "messages/create"
     _EP_MESSAGES_ANALYZE = "messages/analyze"
     _EP_RAW_MESSAGES_ANALYZE = "raw-messages/analyze"
     _EP_PRIVACY_ACCEPT = "privacy/accept"
