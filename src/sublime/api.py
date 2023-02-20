@@ -10,6 +10,7 @@ import structlog
 
 from sublime.__version__ import __version__
 from sublime.error import RateLimitError, InvalidRequestError, APIError, AuthenticationError
+from sublime.util import load_config
 
 LOGGER = structlog.get_logger()
 
@@ -17,6 +18,10 @@ LOGGER = structlog.get_logger()
 class Sublime(object):
     """
     Sublime API client.
+
+    :param api_key: Key used to access the API.
+    :type api_key: str
+
     """
 
     _NAME = "Sublime"
@@ -39,7 +44,11 @@ class Sublime(object):
     _EP_PUBLIC_BINEXPLODE_SCAN_RESULT = "binexplode/scan/{id}"
     _EP_PUBLIC_TASK_STATUS = "tasks/{id}"
 
-    def __init__(self):
+    def __init__(self, api_key=None):
+        if api_key is None:
+            config = load_config()
+            api_key = config.get("api_key")
+        self._api_key = api_key
         self.session = requests.Session()
 
     def _is_public_endpoint(self, endpoint):
@@ -71,6 +80,8 @@ class Sublime(object):
         headers = {
             "User-Agent": "sublime-cli/{}".format(__version__)
         }
+        if self._api_key:
+            headers["Key"] = self._api_key
 
         is_public = self._is_public_endpoint(endpoint)
         api_version = self._API_VERSION_PUBLIC if is_public else self._API_VERSION
