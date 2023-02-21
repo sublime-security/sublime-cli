@@ -4,9 +4,7 @@ import os
 import json
 import time
 import datetime
-from collections import OrderedDict
 
-import more_itertools
 import requests
 import structlog
 
@@ -18,8 +16,8 @@ LOGGER = structlog.get_logger()
 
 
 class Sublime(object):
-
-    """Sublime API client.
+    """
+    Sublime API client.
 
     :param api_key: Key used to access the API.
     :type api_key: str
@@ -28,11 +26,11 @@ class Sublime(object):
 
     _NAME = "Sublime"
     _BASE_URL = os.environ.get('BASE_URL')
-    _BASE_URL = _BASE_URL if _BASE_URL else "https://alpha.api.sublimesecurity.com"
+    _BASE_URL = _BASE_URL if _BASE_URL else "https://analyzer.sublime.security"
     _API_VERSION = "v1"
     _EP_ME = "me"
     _EP_FEEDBACK = "feedback"
-    _EP_MESSAGES_CREATE = "messages"
+    _EP_MESSAGES_CREATE = "messages/create"
     _EP_MESSAGES_ANALYZE = "messages/analyze"
     _EP_RAW_MESSAGES_ANALYZE = "raw-messages/analyze"
     _EP_PRIVACY_ACCEPT = "privacy/accept"
@@ -50,12 +48,11 @@ class Sublime(object):
         if api_key is None:
             config = load_config()
             api_key = config.get("api_key")
-
         self._api_key = api_key
         self.session = requests.Session()
 
     def _is_public_endpoint(self, endpoint):
-        if endpoint == self._EP_PUBLIC_BINEXPLODE_SCAN:
+        if endpoint in [self._EP_PUBLIC_BINEXPLODE_SCAN, self._EP_MESSAGES_ANALYZE, self._EP_MESSAGES_CREATE]:
             return True
         if endpoint.startswith("binexplode") or endpoint.startswith("tasks/"):
             return True
@@ -110,8 +107,7 @@ class Sublime(object):
                     url, headers=headers, params=params
             )
         else:
-            raise Exception("not implemented")
-
+            raise NotImplementedError("Method {} is not implemented", request_type)
 
         if "application/json" in response.headers.get("Content-Type", ""):
             # 204 has no content and will trigger an exception
@@ -202,7 +198,7 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_message(self, message_data_model, rules, queries):
+    def analyze_message(self, message_data_model, rules, queries, run_all_detection_rules):
         """Analyze a Message Data Model against a list of rules or queries.
 
         :param message_data_model: Message Data Model
@@ -212,15 +208,19 @@ class Sublime(object):
         :param queries: Queries to run
         :type queries: list
         :rtype: dict
+        :param run_all_detection_rules: whether to run all detection rules against the given message
+        :type run_all_detection_rules: bool
 
         """
         
         # LOGGER.debug("Analyzing message data model...")
 
-        body = {}
-        body["data_model"] = message_data_model
-        body["rules"] = rules
-        body["queries"] = queries
+        body = {
+            "data_model": message_data_model,
+            "rules": rules,
+            "queries": queries,
+            "run_all_detection_rules": run_all_detection_rules
+        }
 
         endpoint = self._EP_MESSAGES_ANALYZE
         response, _ = self._request(endpoint, request_type='POST', json=body)
@@ -245,8 +245,7 @@ class Sublime(object):
 
         # LOGGER.debug("Analyzing raw message...")
 
-        body = {}
-        body["raw_message"] = raw_message
+        body = {"raw_message": raw_message}
 
         if mailbox_email_address:
             body["mailbox_email_address"] = mailbox_email_address
@@ -294,9 +293,7 @@ class Sublime(object):
 
         # LOGGER.debug("Scanning binary using binexplode...")
 
-        body = {}
-        body["file_contents"] = file_contents
-        body["file_name"] = file_name
+        body = {"file_contents": file_contents, "file_name": file_name}
 
         endpoint = self._EP_PUBLIC_BINEXPLODE_SCAN
         response, _ = self._request(endpoint, request_type='POST', json=body)
@@ -320,8 +317,7 @@ class Sublime(object):
 
         # LOGGER.debug("Sending feedback...")
 
-        body = {}
-        body["feedback"] = feedback 
+        body = {"feedback": feedback}
 
         endpoint = self._EP_FEEDBACK
         response, _ = self._request(endpoint, request_type='POST', json=body)
