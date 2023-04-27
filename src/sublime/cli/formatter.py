@@ -124,12 +124,6 @@ def analyze_formatter(results, verbose):
     # format mql and json outputs
     for msg in flagged_messages + unflagged_messages: 
         for result in msg['rule_results'] + msg['query_results']:
-            if 'source' in result:
-                result['source'] = format_mql(result['source'], offset=mql_offset)
-
-            if 'error' in result:
-                result['error'] = format_mql(result['error'], offset=mql_offset)
-
             if 'result' in result and (isinstance(result['result'], dict) or isinstance(result['result'], list)):
                 result['result'] = json_formatter(
                         result['result'],
@@ -158,14 +152,6 @@ def mdm_formatter(results, verbose):
 
     # template = JINJA2_ENV.get_template("message_data_model.txt.j2")
     # return template.render(results=results, verbose=verbose)
-
-
-def format_mql(mql, offset=0):
-    mql = mql.replace("&&", "\n  &&")
-    mql = mql.replace("||", "\n  ||")
-    mql = mql.replace("],", "],\n  ")
-    mql = mql.replace("\n", "\n" + "  "*offset)
-    return mql
 
 @colored_output
 def me_formatter(result, verbose):
