@@ -198,11 +198,11 @@ class Sublime(object):
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
-    def analyze_message(self, message_data_model, rules, queries, run_all_detection_rules):
+    def analyze_message(self, raw_message, rules, queries, run_all_detection_rules=False, run_active_detection_rules=False):
         """Analyze a Message Data Model against a list of rules or queries.
 
-        :param message_data_model: Message Data Model
-        :type message_data_model: dict
+        :param raw_message: Base64 encoded raw message
+        :type raw_message: str
         :param rules: Rules to run
         :type rules: list
         :param queries: Queries to run
@@ -210,16 +210,19 @@ class Sublime(object):
         :rtype: dict
         :param run_all_detection_rules: whether to run all detection rules against the given message
         :type run_all_detection_rules: bool
+        :param run_active_detection_rules: whether to run active detection rules against the given message
+        :type run_active_detection_rules: bool
 
         """
         
         # LOGGER.debug("Analyzing message data model...")
 
         body = {
-            "data_model": message_data_model,
+            "raw_message": raw_message,
             "rules": rules,
             "queries": queries,
-            "run_all_detection_rules": run_all_detection_rules
+            "run_all_detection_rules": run_all_detection_rules,
+            "run_active_detection_rules": run_active_detection_rules,
         }
 
         endpoint = self._EP_MESSAGES_ANALYZE

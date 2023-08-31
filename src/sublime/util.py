@@ -422,6 +422,7 @@ def load_yml(yml_file, ignore_errors=True):
         return {
                 "source": yaml_dict.get("source"),
                 "name": yaml_dict.get("name"),
+                "severity": yaml_dict.get("severity"),
         }
 
     for rule_yaml in rules_yaml:
