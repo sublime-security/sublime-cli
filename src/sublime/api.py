@@ -32,7 +32,6 @@ class Sublime(object):
     _EP_FEEDBACK = "feedback"
     _EP_MESSAGES_CREATE = "messages/create"
     _EP_MESSAGES_ANALYZE = "messages/analyze"
-    _EP_RAW_MESSAGES_ANALYZE = "raw-messages/analyze"
     _EP_PRIVACY_ACCEPT = "privacy/accept"
     _EP_PRIVACY_DECLINE = "privacy/decline"
     _EP_NOT_IMPLEMENTED = "request/{subcommand}"
@@ -226,46 +225,6 @@ class Sublime(object):
         }
 
         endpoint = self._EP_MESSAGES_ANALYZE
-        response, _ = self._request(endpoint, request_type='POST', json=body)
-        return response
-
-    def analyze_raw_message(self, raw_message, rules, queries, mailbox_email_address=None, message_type=None):
-        """Analyze a raw message against a list of rules or queries.
-
-        :param raw_message: Base64 encoded raw message
-        :type raw_message: str
-        :param rules: Rules to run
-        :type rules: list
-        :param queries: Queries to run
-        :type queries: list
-        :param mailbox_email_address: Email address of the mailbox
-        :type mailbox_email_address: str
-        :param message_type: The type of message from the perspective of your organization (inbound, internal, outbound)
-        :type message_type: str
-        :rtype: dict
-
-        """
-
-        # LOGGER.debug("Analyzing raw message...")
-
-        body = {"raw_message": raw_message}
-
-        if mailbox_email_address:
-            body["mailbox_email_address"] = mailbox_email_address
-        if message_type:
-            if message_type == "inbound":
-                body["message_type"] = {"inbound": True}
-            elif message_type == "internal":
-                body["message_type"] = {"internal": True}
-            elif message_type == "outbound":
-                body["message_type"] = {"outbound": True}
-            else:
-                raise Exception("Unsupported message_type")
-
-        body["rules"] = rules
-        body["queries"] = queries
-
-        endpoint = self._EP_RAW_MESSAGES_ANALYZE
         response, _ = self._request(endpoint, request_type='POST', json=body)
         return response
 
