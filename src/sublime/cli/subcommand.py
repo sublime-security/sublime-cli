@@ -126,11 +126,11 @@ def analyze(
     if os.path.isfile(input_path):
         file_paths.append(input_path)
     else:
-        for extension in ['mdm', 'msg', 'eml', 'mbox']:
+        for extension in ['msg', 'eml', 'mbox']:
             for file_path in Path(input_path).rglob('*.' + extension):
                 file_paths.append(str(file_path))
     if not file_paths:
-        LOGGER.error("Input file(s) must have .eml, .msg, .mdm or .mbox extension")
+        LOGGER.error("Input file(s) must have .eml, .msg, or .mbox extension")
         context.exit(-1)
 
     # analyze each file and aggregate all responses
@@ -146,31 +146,13 @@ def analyze(
             halo_text = f"Analyzing file {i+1} of {num_files} ( {file_name} )"
             halo.text = halo_text
 
-            if file_path.endswith('.mdm'):
-                try:
-                    message_data_model = load_message_data_model(file_path)
-                    response = api_client.analyze_message(
-                            message_data_model,
-                            rules,
-                            queries)
-                except Exception as exception:
-                    if isinstance(exception, AuthenticationError):
-                        raise exception
-                    else:
-                        halo.stop()
-                        LOGGER.warning(f"failed to analyze ({file_name}): {exception}")
-                        errors.append(exception)
-                        continue
-
-            elif file_path.endswith('.msg'):
+            if file_path.endswith('.msg'):
                 try:
                     raw_message = load_msg(file_path)
-                    response = api_client.analyze_raw_message(
+                    response = api_client.analyze_message(
                             raw_message, 
                             rules,
-                            queries,
-                            mailbox_email_address,
-                            message_type)
+                            queries)
                 except Exception as exception:
                     if isinstance(exception, AuthenticationError):
                         raise exception
@@ -183,12 +165,10 @@ def analyze(
             elif file_path.endswith('.eml'):
                 try:
                     raw_message = load_eml(file_path)
-                    response = api_client.analyze_raw_message(
+                    response = api_client.analyze_message(
                             raw_message, 
                             rules,
-                            queries,
-                            mailbox_email_address,
-                            message_type)
+                            queries)
                 except Exception as exception:
                     if isinstance(exception, AuthenticationError):
                         raise exception
@@ -210,12 +190,10 @@ def analyze(
                     halo_suffix = f" message {count} of {file_count}..."
                     halo.text = halo_text + halo_suffix
                     try:
-                        response = api_client.analyze_raw_message(
+                        response = api_client.analyze_message(
                                 mbox_files[subject_unique], 
                                 rules,
-                                queries,
-                                mailbox_email_address,
-                                message_type)
+                                queries)
                     except Exception as exception:
                         if isinstance(exception, AuthenticationError):
                             raise exception
@@ -233,7 +211,7 @@ def analyze(
                 continue
                     
             else:
-                LOGGER.error("Input file(s) must have .eml, .msg, .mdm or .mbox extension")
+                LOGGER.error("Input file(s) must have .eml, .msg, or .mbox extension")
                 context.exit(-1)
             
             response['file_name'] = file_name
