@@ -15,7 +15,7 @@ import colorama
 from jinja2 import Environment, PackageLoader
 
 JINJA2_ENV = Environment(loader=PackageLoader("sublime.cli"),
-        extensions=['jinja2.ext.loopcontrols'])
+                         extensions=['jinja2.ext.loopcontrols'])
 
 colorama.init()
 ANSI_MARKUP = ansimarkup.AnsiMarkup(
@@ -60,14 +60,22 @@ def json_formatter(result, verbose=False, indent=4, offset=0):
     return string
 
 
+def filter_none_recursive(item):
+    """Recursive Filter Out Values"""
+    if isinstance(item, list):
+        return [filter_none_recursive(sub_item) for sub_item in item if sub_item is not None and (not isinstance(sub_item, list) or any(sub_sub_item is not None for sub_sub_item in sub_item))]
+    return item
+
+
 @colored_output
 def analyze_formatter(results, verbose):
     """Convert Analyze output into human-readable text."""
     mql_offset = 3
     json_offset = 2
-    template_file = "analyze_multi.txt.j2" if len(results) > 1 else "analyze.txt.j2"
+    template_file = "analyze_multi.txt.j2" if len(
+        results) > 1 else "analyze.txt.j2"
     template = JINJA2_ENV.get_template(template_file)
-    
+
     # calculate total stats
     sample_result = next(iter(results.values()))
     summary_stats = {
@@ -77,7 +85,7 @@ def analyze_formatter(results, verbose):
     }
     rules = [rule for rule in sample_result['rule_results']]
     queries = [query for query in sample_result['query_results']]
-    
+
     # separate matched/unmatched messages and distinguish flagged/unflagged rules
     flagged_messages = []
     unflagged_messages = []
@@ -87,9 +95,17 @@ def analyze_formatter(results, verbose):
         falsey_queries = []
         failed_queries = []
         for query in result['query_results']:
-            if query['result']:
+            result_value = query.get('result')
+            if isinstance(result_value, list):
+                # Filter out None values from the result array
+                filtered_result = filter_none_recursive(result_value)
+                if filtered_result and any(item is not None for item in filtered_result):
+                    query['result'] = filtered_result
+                    normal_queries.append(query)
+            elif result_value:
+                # If the result is not a list and exists (is truthy)
                 normal_queries.append(query)
-            elif query['success']:
+            elif query.get('success'):
                 falsey_queries.append(query)
             else:
                 failed_queries.append(query)
@@ -101,10 +117,12 @@ def analyze_formatter(results, verbose):
         unflagged_rules = []
         failed_rules = []
         for rule in result['rule_results']:
-            if rule['result']:
+            if rule.get('result'):
                 flagged_rules.append(rule)
-                all_flagged_rules.add(rule['name']+rule['source']) # no unique identifier
-            elif rule['success']:
+                # no unique identifier
+                all_flagged_rules.add(
+                    rule.get("rule").get('name')+rule.get('source'))
+            elif rule.get('success'):
                 unflagged_rules.append(rule)
             else:
                 failed_rules.append(rule)
@@ -116,30 +134,29 @@ def analyze_formatter(results, verbose):
             flagged_messages.append(result)
         else:
             unflagged_messages.append(result)
-        
+
     # calculate flagged stats
     summary_stats['flagged_rules'] = len(all_flagged_rules)
     summary_stats['flagged_messages'] = len(flagged_messages)
 
     # format mql and json outputs
-    for msg in flagged_messages + unflagged_messages: 
+    for msg in flagged_messages + unflagged_messages:
         for result in msg['rule_results'] + msg['query_results']:
             if 'result' in result and (isinstance(result['result'], dict) or isinstance(result['result'], list)):
                 result['result'] = json_formatter(
-                        result['result'],
-                        offset=json_offset,
-                        indent=2)
-
+                    result['result'],
+                    offset=json_offset,
+                    indent=2)
 
     # TO DO: sort each list of messages by extension and file name (or directory?)
 
     return template.render(
-            stats=summary_stats,
-            flagged_messages=flagged_messages,
-            unflagged_messages=unflagged_messages,
-            rules=rules,
-            queries=queries,
-            verbose=verbose)
+        stats=summary_stats,
+        flagged_messages=flagged_messages,
+        unflagged_messages=unflagged_messages,
+        rules=rules,
+        queries=queries,
+        verbose=verbose)
 
 
 def mdm_formatter(results, verbose):
@@ -153,12 +170,14 @@ def mdm_formatter(results, verbose):
     # template = JINJA2_ENV.get_template("message_data_model.txt.j2")
     # return template.render(results=results, verbose=verbose)
 
+
 @colored_output
 def me_formatter(result, verbose):
     """Convert 'me' output into human-readable text."""
     template = JINJA2_ENV.get_template("me_result.txt.j2")
 
     return template.render(result=result, verbose=verbose)
+
 
 @colored_output
 def feedback_formatter(result, verbose):

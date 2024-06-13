@@ -34,7 +34,7 @@ INSTALL_REQUIRES = [
 
 setup(
     name="sublime-cli",
-    version="0.0.31",
+    version="0.0.32",
     description="Abstraction to interact with the Sublime API.",
     url="https://sublimesecurity.com/",
     author="Sublime Security",
@@ -56,6 +56,7 @@ setup(
     ],
     entry_points={"console_scripts": ["sublime = sublime.cli:main"]},
     zip_safe=False,
-    keywords=["security", "phishing", "analysts", "soc", "threat intelligence", "security-automation", "email security"],
+    keywords=["security", "phishing", "analysts", "soc",
+              "threat intelligence", "security-automation", "email security"],
     download_url="https://github.com/sublime-security/sublime-cli",
 )
