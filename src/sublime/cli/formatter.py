@@ -117,11 +117,11 @@ def analyze_formatter(results, verbose):
         unflagged_rules = []
         failed_rules = []
         for rule in result['rule_results']:
-            if rule.get('result'):
+            if rule.get('matched'):
                 flagged_rules.append(rule)
                 # no unique identifier
                 all_flagged_rules.add(
-                    rule.get("rule").get('name')+rule.get('source'))
+                    rule.get("rule").get('name')+rule.get("rule").get('source'))
             elif rule.get('success'):
                 unflagged_rules.append(rule)
             else:
