@@ -33,7 +33,7 @@
 {%- set max_elements = 20 %}
 {%- set elements_slice = msg.unflagged_rule_results[:max_elements if verbose < 1 else None] %}
 {%- for rule in elements_slice %}
-  - <not-detected><bold>{{ rule.name }}</bold></not-detected>
+  - <not-detected><bold>{{ rule.rule.name }}</bold></not-detected>
   {%- if verbose %}
     <key>Source:</key> {{ rule.source }}
     {# new line #}
