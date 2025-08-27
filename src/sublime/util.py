@@ -57,7 +57,7 @@ def load_config():
     if os.path.isfile(CONFIG_FILE):
         # LOGGER.debug("Parsing configuration file: %s..." % CONFIG_FILE)
         with open(CONFIG_FILE) as config_file:
-            config_parser.readfp(config_file)
+            config_parser.read(config_file)
     else:
         # LOGGER.debug("Configuration file not found: %s" % CONFIG_FILE)
         pass
@@ -117,7 +117,7 @@ def save_config(config):
     if os.path.isfile(CONFIG_FILE):
         # LOGGER.debug("Reading configuration file: %s...", CONFIG_FILE, path=CONFIG_FILE)
         with open(CONFIG_FILE) as config_file:
-            config_parser_existing.readfp(config_file)
+            config_parser_existing.read(config_file)
 
         # if an emailrep key exists, ensure we don't overwrite it
         try:
