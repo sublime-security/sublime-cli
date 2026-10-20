@@ -1,6 +1,6 @@
 ansimarkup==1.5.0
 cachetools==4.2.1
-certifi==2020.12.5
+certifi==2026.10.19
 chardet==4.0.0
 click==7.1.2
 click-default-group==1.2.2
